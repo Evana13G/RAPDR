@@ -24,3 +24,4 @@ STEP 5: And finally, if you want to control the wall as in the video, you can wr
 ########################################################
 
 Also, the URDF models are inside the baxter_simulation package in a folder that I believe is called baxter_sim_examples/models. The URDF model for the table and the wall is called cafe_table. 
+Hi
