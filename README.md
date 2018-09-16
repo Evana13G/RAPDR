@@ -1,6 +1,6 @@
-********************************************************
-**                  Run instructions                  **
-********************************************************
+########################################################
+                    Run instructions
+########################################################
 
 STEP 1: This just spawns the baxter. 
 >> roslaunch baxter_gazebo baxter_world.launch
@@ -17,3 +17,10 @@ STEP 4: This program is inside the action_primitive_variation package and it was
 
 STEP 5: And finally, if you want to control the wall as in the video, you can write a publisher on the command line like this: 
 >> rostopic pub /testSub std_msgs/Bool "data: true" -1 (or data:false if you want to lower the wall)
+
+
+########################################################
+                       Other Info
+########################################################
+
+Also, the URDF models are inside the baxter_simulation package in a folder that I believe is called baxter_sim_examples/models. The URDF model for the table and the wall is called cafe_table. 
