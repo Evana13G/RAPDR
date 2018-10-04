@@ -1,8 +1,0 @@
-prefix=/home/Mateo/ros_ws/devel
-
-Name: search_and_rescue_sim
-Description: Description of search_and_rescue_sim
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/Mateo/ros_ws/devel/lib 
-Requires: 
