@@ -1,7 +1,7 @@
 ################ Prerequisites ################ 
 
 1. Ubuntu 16.04
-2. ROS Kinetic (http://wiki.ros.org/ROS/Tutorials)
+2. ROS Kinetic (http://wiki.ros.org/kinetic/Installation/Ubuntu & http://wiki.ros.org/ROS/Tutorials)
 3. Gazebo 7 (Installs with ROS installation) 
 4. Baxter Gazebo Simulation (http://sdk.rethinkrobotics.com/wiki/Simulator_Installation)
 
