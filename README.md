@@ -1,10 +1,18 @@
 ########################################################
+                    Prerequisites 
+########################################################
+
+1. Ubuntu 16.04
+2. ROS Kinetic (http://wiki.ros.org/ROS/Tutorials)
+3. Gazebo 7 (Installs with ROS installation) 
+4. Baxter Gazebo Simulation (http://sdk.rethinkrobotics.com/wiki/Simulator_Installation)
+
+########################################################
                     Run instructions
 ########################################################
 
 STEP 1: This just spawns the baxter. 
 >> roslaunch baxter_gazebo baxter_world.launch
-
 
 STEP 2: This one spawns the models and creates publishers for the 2 buttons, the block behind the wall, and the wall. For some reason, the position of the buttons is shown to be at the right bottom corner, which might be an easy fix from the URDF model. This program runs forever as it is publishing the position of the objects.
 >> rosrun search_and_rescue_sim search_and_rescue.py
