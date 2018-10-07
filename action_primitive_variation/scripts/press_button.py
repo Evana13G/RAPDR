@@ -1,35 +1,5 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2013-2015, Rethink Robotics
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright notice,
-#    this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in the
-#    documentation and/or other materials provided with the distribution.
-# 3. Neither the name of the Rethink Robotics nor the names of its
-#    contributors may be used to endorse or promote products derived from
-#    this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-
-"""
-Baxter RSDK Inverse Kinematics Pick and Place Demo
-"""
 import argparse
 import struct
 import sys
@@ -63,6 +33,11 @@ import baxter_interface
 LeftButtonPose = None
 RightButtonPose = None
 BlockPose = None
+
+
+
+
+
 
 class PickAndPlace(object):
     def __init__(self, limb, hover_distance = 0.15, verbose=True):
@@ -195,10 +170,6 @@ class PickAndPlace(object):
 
 
 def delete_gazebo_models():
-    # This will be called on ROS Exit, deleting Gazebo models
-    # Do not wait for the Gazebo Delete Model service, since
-    # Gazebo should already be running. If the service is not
-    # available since Gazebo has been killed, it is fine to error out
     try:
         delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
     except rospy.ServiceException, e:
@@ -218,36 +189,15 @@ def getPoseBlock(data):
 
 
 def main():
-    """RSDK Inverse Kinematics Pick and Place Example
-
-    A Pick and Place example using the Rethink Inverse Kinematics
-    Service which returns the joint angles a requested Cartesian Pose.
-    This ROS Service client is used to request both pick and place
-    poses in the /base frame of the robot.
-
-    Note: This is a highly scripted and tuned demo. The object location
-    is "known" and movement is done completely open loop. It is expected
-    behavior that Baxter will eventually mis-pick or drop the block. You
-    can improve on this demo by adding perception and feedback to close
-    the loop.
-    """
     rospy.init_node("ik_pick_and_place_demo")
-    # Load Gazebo Models via Spawning Services
-    # Note that the models reference is the /world frame
-    # and the IK operates with respect to the /base frame
-    # Remove models from the scene on shutdown
     rospy.on_shutdown(delete_gazebo_models)
-
-    # Wait for the All Clear from emulator startup
     rospy.wait_for_message("/robot/sim/started", Empty)
-    
     rospy.Subscriber("block3_pose", Pose, getPoseButtonLeft)
     rospy.Subscriber("block2_pose", Pose, getPoseButtonRight)
     rospy.Subscriber("block1_pose", Pose, getPoseBlock)
 
     limb = 'left'
-    hover_distance = 0.15 # meters
-    # Starting Joint angles for left arm
+    hover_distance = 0.15
     starting_joint_angles = {'left_w0': 0.6699952259595108,
                              'left_w1': 1.030009435085784,
                              'left_w2': -0.4999997247485215,
@@ -256,25 +206,18 @@ def main():
                              'left_s0': -0.08000397926829805,
                              'left_s1': -0.9999781166910306}
     pnp = PickAndPlace(limb, hover_distance)
-    # An orientation for gripper fingers to be overhead and parallel to the obj
     overhead_orientation = Quaternion(
                              x=-0.0249590815779,
                              y=0.999649402929,
                              z=0.00737916180073,
                              w=0.00486450832011)
     block_poses = list()
-    # The Pose of the block in its initial location.
-    # You may wish to replace these poses with estimates
-    # from a perception node.
     block_poses.append(Pose(
         position=Point(x=0.7, y=0.15, z=-0.129),
         orientation=overhead_orientation))
-    # Feel free to add additional desired poses for the object.
-    # Each additional pose will get its own pick and place.
     block_poses.append(Pose(
         position=Point(x=0.75, y=0.0, z=-0.129),
         orientation=overhead_orientation))
-    # Move to the desired starting angles
     pnp.move_to_start(starting_joint_angles)
     idx = 0
     while not rospy.is_shutdown():
@@ -286,3 +229,5 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
+
+

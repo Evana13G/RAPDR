@@ -18,14 +18,6 @@ catkin_package()
 ## Build talker and listener
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-add_executable(talker src/talker.cpp)
-target_link_libraries(talker ${catkin_LIBRARIES})
-add_dependencies(talker action_primitive_variation_generate_messages_cpp)
-
-add_executable(listener src/listener.cpp)
-target_link_libraries(listener ${catkin_LIBRARIES})
-add_dependencies(listener action_primitive_variation_generate_messages_cpp)
-
 add_executable(push_button_server src/push_button_server.cpp)
 target_link_libraries(push_button_server ${catkin_LIBRARIES})
 add_dependencies(push_button_server action_primitive_variation_gencpp)
