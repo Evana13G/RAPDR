@@ -39,9 +39,9 @@ from std_msgs.msg import (
 #SPAWN WALL AT 1.1525 z to be above table or 0.3755 to be below
 def load_gazebo_models(table_pose=Pose(position=Point(x=1, y=0.0, z=0.0)),
                        table_reference_frame="world",
-                       block1_pose=Pose(position=Point(x=0.8, y=-0.0065, z=0.7825)),
-                       block2_pose=Pose(position=Point(x=0.5, y=-0.2965, z=0.7825)),
-                       block3_pose=Pose(position=Point(x=0.5, y=0.1265, z=0.7825)),
+                       block1_pose=Pose(position=Point(x=0.8, y=0.0185, z=0.8)),
+                       block2_pose=Pose(position=Point(x=0.525, y=-0.2715, z=0.8)),
+                       block3_pose=Pose(position=Point(x=0.525, y=0.1515, z=0.8)),
                        block_reference_frame="world"):
     # Get Models' Path
     model_path = rospkg.RosPack().get_path('baxter_sim_examples')+"/models/"
@@ -69,15 +69,6 @@ def load_gazebo_models(table_pose=Pose(position=Point(x=1, y=0.0, z=0.0)),
                              table_pose, table_reference_frame)
     except rospy.ServiceException, e:
         rospy.logerr("Spawn SDF service call failed: {0}".format(e))
-    
-    
-    #rospy.wait_for_service('/gazebo/spawn_urdf_model')
-    #try:
-    #    spawn_urdf = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
-    #    resp_urdf = spawn_sdf("grey_wall", grey_wall_xml, "/",
-    #                           grey_wall_pose, grey_wall_reference_frame)
-    #except rospy.ServiceException, e:
-    #    rospy.logerr("Spawn SDF service call failed: {0}".format(e))
     
     
     # Spawn Block URDF
@@ -125,12 +116,13 @@ def main():
     load_gazebo_models()
     #rospy.wait_for_message("/robot/sim/started", Empty)    
 
-    pub_cafe_table_pose = rospy.Publisher('cafe_table_pose', Pose, queue_size = 10)
-    pub_grey_wall_pose = rospy.Publisher('grey_wall_pose', Pose, queue_size = 10)
-    pub_block1_pose = rospy.Publisher('block1_pose', Pose, queue_size = 10)
-    pub_block2_pose = rospy.Publisher('block2_pose', Pose, queue_size = 10)
-    pub_block3_pose = rospy.Publisher('block3_pose', Pose, queue_size = 10)
-
+    pub_cafe_table_pose = rospy.Publisher('cafe_table_pose', PoseStamped, queue_size = 10)
+    pub_grey_wall_pose = rospy.Publisher('grey_wall_pose', PoseStamped, queue_size = 10)
+    pub_block1_pose = rospy.Publisher('block1_pose', PoseStamped, queue_size = 10)
+    pub_block2_pose = rospy.Publisher('block2_pose', PoseStamped, queue_size = 10)
+    pub_block3_pose = rospy.Publisher('block3_pose', PoseStamped, queue_size = 10)
+    
+    frameid_var = "/world"
 
     while not rospy.is_shutdown():
 		
@@ -144,7 +136,10 @@ def main():
             cafe_table_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
             resp_cafe_table_ms = cafe_table_ms("cafe_table", "");
             pose_cafe_table = resp_cafe_table_ms.pose
-            pub_cafe_table_pose.publish(pose_cafe_table)
+            header_cafe_table = resp_cafe_table_ms.header
+            header_cafe_table.frame_id = frameid_var
+            poseStamped_cafe_table = PoseStamped(header=header_cafe_table, pose=pose_cafe_table)
+            pub_cafe_table_pose.publish(poseStamped_cafe_table)
         except rospy.ServiceException, e:
             rospy.logerr("get_model_state for cafe_table service call failed: {0}".format(e))
 			
@@ -156,7 +151,11 @@ def main():
             grey_wall_ms = rospy.ServiceProxy('/gazebo/get_link_state', GetLinkState)
             resp_grey_wall_ms = grey_wall_ms("grey_wall_link", "");
             pose_grey_wall = resp_grey_wall_ms.link_state.pose
-            pub_grey_wall_pose.publish(pose_grey_wall)
+            reference_grey_wall = resp_grey_wall_ms.link_state.reference_frame
+            header_grey_wall = Header(frame_id=reference_grey_wall)
+            header_grey_wall.frame_id = frameid_var
+            poseStamped_grey_wall = PoseStamped(header=header_grey_wall, pose=pose_grey_wall)
+            pub_grey_wall_pose.publish(poseStamped_grey_wall)
         except rospy.ServiceException, e:
             rospy.logerr("get_model_state for grey_wall service call failed: {0}".format(e))
 			
@@ -168,7 +167,10 @@ def main():
             block1_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
             resp_block1_ms = block1_ms("block1", "");
             pose_block1 = resp_block1_ms.pose
-            pub_block1_pose.publish(pose_block1)
+            header_block1 = resp_block1_ms.header
+            header_block1.frame_id = frameid_var
+            poseStamped_block1 = PoseStamped(header=header_block1, pose=pose_block1)
+            pub_block1_pose.publish(poseStamped_block1)
         except rospy.ServiceException, e:
             rospy.logerr("get_model_state for block1 service call failed: {0}".format(e))
 			
@@ -180,7 +182,10 @@ def main():
             block2_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
             resp_block2_ms = block2_ms("block2", "");
             pose_block2 = resp_block2_ms.pose
-            pub_block2_pose.publish(pose_block2)
+            header_block2 = resp_block2_ms.header
+            header_block2.frame_id = frameid_var
+            poseStamped_block2 = PoseStamped(header=header_block2, pose=pose_block2)
+            pub_block2_pose.publish(poseStamped_block2)
         except rospy.ServiceException, e:
             rospy.logerr("get_model_state for block2 service call failed: {0}".format(e))
 			
@@ -192,7 +197,10 @@ def main():
             block3_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
             resp_block3_ms = block3_ms("block3", "");
             pose_block3 = resp_block3_ms.pose
-            pub_block3_pose.publish(pose_block3)
+            header_block3 = resp_block3_ms.header
+            header_block3.frame_id = frameid_var
+            poseStamped_block3 = PoseStamped(header=header_block3, pose=pose_block3)
+            pub_block3_pose.publish(poseStamped_block3)
         except rospy.ServiceException, e:
             rospy.logerr("get_model_state for block3 service call failed: {0}".format(e))
         

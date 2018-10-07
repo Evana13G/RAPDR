@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>search_and_rescue_sim</name>
+  <name>initialize</name>
   <version>0.0.0</version>
-  <description>The search_and_rescue_sim package</description>
+  <description>The initialize package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
