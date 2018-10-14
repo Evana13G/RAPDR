@@ -29,12 +29,8 @@ from std_msgs.msg import (
     Empty,
 )
 
-#from baxter_core_msgs.srv import (
-#    SolvePositionIK,
-#    SolvePositionIKRequest,
-#)
+from tf.transformations import *
 
-#import baxter_interface
 
 #SPAWN WALL AT 1.1525 z to be above table or 0.3755 to be below
 def load_gazebo_models(table_pose=Pose(position=Point(x=1, y=0.0, z=0.0)),
@@ -109,6 +105,19 @@ def delete_gazebo_models():
         resp_delete = delete_model("button")
     except rospy.ServiceException, e:
         rospy.loginfo("Delete Model service call failed: {0}".format(e))
+        
+def blockPoseToGripper(poseVar):
+    newPose = poseVar.pose
+    #newPose.position.z -= 1
+    newPose.position.z -= 1.075
+    oldOrientationQ = newPose.orientation
+    #oldOrientationRPY = euler_from_quaternion([oldOrientationQ.x, oldOrientationQ.y, oldOrientationQ.z, oldOrientationQ.w])
+    #print(type(oldOrientationRPY))
+    #q_orientation = quaternion_from_euler(3.14, 0, 0).tolist()
+    q_orientation = quaternion_from_euler(3.14, 0, 0).tolist()
+    newPose.orientation = Quaternion(q_orientation [0], q_orientation [1], q_orientation [2],q_orientation [3])
+    newPoseStamped = PoseStamped(header = poseVar.header, pose = newPose)
+    return newPoseStamped
 
 def main():
 
@@ -170,7 +179,8 @@ def main():
             header_block1 = resp_block1_ms.header
             header_block1.frame_id = frameid_var
             poseStamped_block1 = PoseStamped(header=header_block1, pose=pose_block1)
-            pub_block1_pose.publish(poseStamped_block1)
+            #pub_block1_pose.publish(poseStamped_block1)
+            pub_block1_pose.publish(blockPoseToGripper(poseStamped_block1))
         except rospy.ServiceException, e:
             rospy.logerr("get_model_state for block1 service call failed: {0}".format(e))
 			
@@ -185,7 +195,8 @@ def main():
             header_block2 = resp_block2_ms.header
             header_block2.frame_id = frameid_var
             poseStamped_block2 = PoseStamped(header=header_block2, pose=pose_block2)
-            pub_block2_pose.publish(poseStamped_block2)
+            #pub_block2_pose.publish(poseStamped_block2)
+            pub_block2_pose.publish(blockPoseToGripper(poseStamped_block2))
         except rospy.ServiceException, e:
             rospy.logerr("get_model_state for block2 service call failed: {0}".format(e))
 			
@@ -200,7 +211,8 @@ def main():
             header_block3 = resp_block3_ms.header
             header_block3.frame_id = frameid_var
             poseStamped_block3 = PoseStamped(header=header_block3, pose=pose_block3)
-            pub_block3_pose.publish(poseStamped_block3)
+            #pub_block3_pose.publish(poseStamped_block3)
+            pub_block3_pose.publish(blockPoseToGripper(poseStamped_block3))
         except rospy.ServiceException, e:
             rospy.logerr("get_model_state for block3 service call failed: {0}".format(e))
         

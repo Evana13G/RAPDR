@@ -241,7 +241,8 @@ def main():
     idx = 0
     while not rospy.is_shutdown():
         rospy.sleep(0.1)
-        currentAction.approach(blockPoseToGripper(BlockPose))
+        currentAction.approach(BlockPose)
+        #currentAction.approach(blockPoseToGripper(BlockPose))
         currentAction.gripper_close()
         currentAction.move_to_start(starting_joint_angles)
     return 0
