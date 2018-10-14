@@ -40,7 +40,9 @@ def load_gazebo_models(table_pose=Pose(position=Point(x=1, y=0.0, z=0.0)),
                        block3_pose=Pose(position=Point(x=0.525, y=0.1515, z=0.8)),
                        block_reference_frame="world"):
     # Get Models' Path
-    model_path = rospkg.RosPack().get_path('baxter_sim_examples')+"/models/"
+    #print("rospkg stuff: ")
+    #print(rospkg.RosPack().get_path('initialize'))
+    model_path = rospkg.RosPack().get_path('initialize')+"/models/"
     # Load Table SDF
     table_xml = ''
     with open (model_path + "cafe_table/model.urdf", "r") as table_file:
@@ -108,7 +110,7 @@ def delete_gazebo_models():
         
 def blockPoseToGripper(poseVar):
     newPose = poseVar.pose
-    #newPose.position.z -= 1
+    #newPose.position.z -= 1.075
     newPose.position.z -= 1.075
     oldOrientationQ = newPose.orientation
     #oldOrientationRPY = euler_from_quaternion([oldOrientationQ.x, oldOrientationQ.y, oldOrientationQ.z, oldOrientationQ.w])

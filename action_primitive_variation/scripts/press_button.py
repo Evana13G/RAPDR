@@ -184,39 +184,50 @@ def getPoseButtonRight(data):
 def getPoseBlock(data):
     global BlockPose
     BlockPose = data
-
-def blockPoseToGripper(poseVar):
-    newPose = poseVar.pose
-    #newPose.position.z -= 1
-    newPose.position.z -= 1.075
-    oldOrientationQ = newPose.orientation
-    #oldOrientationRPY = euler_from_quaternion([oldOrientationQ.x, oldOrientationQ.y, oldOrientationQ.z, oldOrientationQ.w])
-    #print(type(oldOrientationRPY))
-    #q_orientation = quaternion_from_euler(3.14, 0, 0).tolist()
-    q_orientation = quaternion_from_euler(3.14, 0, 0).tolist()
-    newPose.orientation = Quaternion(q_orientation [0], q_orientation [1], q_orientation [2],q_orientation [3])
-    print(type(newPose.orientation))
-    newPoseStamped = PoseStamped(header = poseVar.header, pose = newPose)
-    return newPoseStamped
-
+    
+def hoverOverPose(poseStmpd):
+	newPose = copy.deepcopy(poseStmpd)
+	newPose.pose.position.z += 0.25
+	return newPose
+	
 
 def main():
-    rospy.init_node("ik_pick_and_place_demo")
+    rospy.init_node("press_button")
     rospy.on_shutdown(delete_gazebo_models)
     rospy.wait_for_message("/robot/sim/started", Empty)
     rospy.Subscriber("block3_pose", PoseStamped, getPoseButtonLeft)
     rospy.Subscriber("block2_pose", PoseStamped, getPoseButtonRight)
     rospy.Subscriber("block1_pose", PoseStamped, getPoseBlock)
 
-    limb = 'left'
+    limb = 'right'
     hover_distance = 0.15
-    starting_joint_angles = {'left_w0': 0.6699952259595108,
-                             'left_w1': 1.030009435085784,
-                             'left_w2': -0.4999997247485215,
-                             'left_e0': -1.189968899785275,
-                             'left_e1': 1.9400238130755056,
-                             'left_s0': -0.08000397926829805,
-                             'left_s1': -0.9999781166910306}
+    #hover_distance = 0.18
+    #starting_joint_angles = {'left_w0': 0.6699952259595108,
+    #                         'left_w1': 1.030009435085784,
+    #                         'left_w2': -0.4999997247485215,
+    #                         'left_e0': -1.189968899785275,
+    #                         'left_e1': 1.9400238130755056,
+    #                         'left_s0': -0.08000397926829805,
+    #                         'left_s1': -0.9999781166910306}
+    
+    if limb == 'left':
+		starting_joint_angles_l = {'left_w0': 0.6699952259595108,
+								   'left_w1': 1.030009435085784,
+                                   'left_w2': -0.4999997247485215,
+                                   'left_e0': -1.189968899785275,
+                                   'left_e1': 1.9400238130755056,
+                                   'left_s0': -0.08000397926829805,
+                                   'left_s1': -0.9999781166910306}
+    else:
+        starting_joint_angles_r = {'right_e0': -0.39888044530362166,
+                                   'right_e1': 1.9341522973651006,
+                                   'right_s0': 0.936293285623961,
+                                   'right_s1': -0.9939970420424453,
+                                   'right_w0': 0.27417171168213983,
+                                   'right_w1': 0.8298780975195674,
+                                   'right_w2': -0.5085333554167599}
+
+                             
     currentAction = PressButton(limb, hover_distance)
 
     overhead_orientation = Quaternion(
@@ -224,27 +235,30 @@ def main():
                              y=0.999649402929,
                              z=0.00737916180073,
                              w=0.00486450832011)
-    block_poses = list()
-    # The Pose of the block in its initial location.
-    # You may wish to replace these poses with estimates
-    # from a perception node.
-    block_poses.append(Pose(
-        position=Point(x=0.7, y=0.15, z=-0.129),
-        orientation=overhead_orientation))
-    # Feel free to add additional desired poses for the object.
-    # Each additional pose will get its own pick and place.
-    block_poses.append(Pose(
-        position=Point(x=0.75, y=0.0, z=-0.129),
-        orientation=overhead_orientation))
-    # Move to the desired starting angles
-    currentAction.move_to_start(starting_joint_angles)
-    idx = 0
+                             
+    if limb == 'left':
+        currentAction.move_to_start(starting_joint_angles_l)
+    else:
+        currentAction.move_to_start(starting_joint_angles_r)
+
     while not rospy.is_shutdown():
-        rospy.sleep(0.1)
-        currentAction.approach(BlockPose)
-        #currentAction.approach(blockPoseToGripper(BlockPose))
+        #rospy.sleep(0.1)
+        #currentAction.approach(BlockPose)
+        #currentAction.approach(RightButtonPose)
+        #currentAction.gripper_close()
+        #if limb == 'left':
+        #    currentAction.move_to_start(starting_joint_angles_l)
+        #else:
+		#    currentAction.move_to_start(starting_joint_angles_r)
+        #currentAction.move_to_start(starting_joint_angles)
         currentAction.gripper_close()
-        currentAction.move_to_start(starting_joint_angles)
+        currentAction.approach(hoverOverPose(LeftButtonPose))
+        currentAction.approach(LeftButtonPose)
+        currentAction.approach(hoverOverPose(LeftButtonPose))
+        if limb == 'left':
+            currentAction.move_to_start(starting_joint_angles_l)
+        else:
+            currentAction.move_to_start(starting_joint_angles_r)
     return 0
 
 if __name__ == '__main__':
