@@ -8,9 +8,7 @@
     right_gripper left_gripper - gripper
 )
 (:init
-    (gripper_at left_gripper loc_0)
-    (block_at block loc_3)
+    (gripper_at left_gripper loc0)
+    (block_at block3 loc3)
 )
-(:goal (and
-    (block_at block3 loc0)
-)))
+(:goal (block_at block3 loc0)))
