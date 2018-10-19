@@ -5,15 +5,15 @@
 (:types
 	waypoint 
 	agent
-	block
+	object
 	gripper
 	button
 )
 
 (:predicates
 	(gripper_at ?g - gripper ?wp - waypoint)
-	(block_at ?o - block ?wp - waypoint)
-	(button_at ?b - button)
+	(object_at ?o - object ?wp - waypoint)
+	(button_at ?b - button ?wp - waypoint)
 	(pressed ?b -button)
 	(open ?g - gripper)
 )
@@ -42,15 +42,35 @@
 	:duration ( = ?duration 60)
 	:condition (and
 		(at start (gripper_at ?g ?wp0))
-		(at start (block_at ?o ?wp1))
-		(over all (block_at ?o ?wp1)))
+		(over all (object_at ?o ?wp1)))
+	:effect (and
+		(at end (gripper_at ?g ?wp1))
+		(at start (not (gripper_at ?g ?wp0))))
+)
+
+
+;; Move gripper to waypoint where object is located
+(:durative-action move_gripper_to_button
+	:parameters (?g - gripper ?wp0 - waypoint ?b - button ?wp1 - waypoint)
+	:duration ( = ?duration 60)
+	:condition (and
+		(at start (gripper_at ?g ?wp0))
+		(over all (button_at ?b ?wp1)))
 	:effect (and
 		(at end (gripper_at ?g ?wp1))
 		(at start (not (gripper_at ?g ?wp0))))
 )
 
 ;; Push a button with gripper
-;; (:durative-action push_button)
+(:durative-action push_button
+	:parameters (?g - gripper ?b - button ?wp0 - waypoint)
+	:duration ( = ?duration 60)
+	:condition (and
+		(over all (gripper_at ?g ?wp0))
+		(over all (button_at ?b ?wp0)))
+	:effect (at end (pressed ?b))
+)
+
+)
 
 ;; Can do 'over all' predicates
-
