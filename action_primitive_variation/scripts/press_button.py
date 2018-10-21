@@ -33,9 +33,15 @@ from tf.transformations import *
 
 import baxter_interface
 
+from action_primitive_variation.srv import *
+#import action_primitive_variation
+
 LeftButtonPose = None
 RightButtonPose = None
 BlockPose = None
+limb = None
+button_name = None
+poseStampedTo = None
 
 class PressButton(object):
     def __init__(self, limb, hover_distance = 0.01, verbose=True):
@@ -191,15 +197,75 @@ def hoverOverPose(poseStmpd):
 	return newPose
 	
 
+def handle_pressButton(req):
+    print("Received:")
+    print("PoseStamped:")
+    print(req.buttonPoseStamped)
+    print("Limb:")
+    print(req.limb)
+    print("Button name:")
+    print(req.buttonName)
+    
+    
+    global limb
+    limb = req.limb
+    global button_name
+    button_name = req.buttonName
+    global poseStampedTo
+    poseStampedTo = req.buttonPoseStamped
+    
+    
+    hover_distance = 0.15
+    
+    if limb == 'left':
+		starting_joint_angles_l = {'left_w0': 0.6699952259595108,
+								   'left_w1': 1.030009435085784,
+                                   'left_w2': -0.4999997247485215,
+                                   'left_e0': -1.189968899785275,
+                                   'left_e1': 1.9400238130755056,
+                                   'left_s0': -0.08000397926829805,
+                                   'left_s1': -0.9999781166910306}
+    else:
+        starting_joint_angles_r = {'right_e0': -0.39888044530362166,
+                                   'right_e1': 1.9341522973651006,
+                                   'right_s0': 0.936293285623961,
+                                   'right_s1': -0.9939970420424453,
+                                   'right_w0': 0.27417171168213983,
+                                   'right_w1': 0.8298780975195674,
+                                   'right_w2': -0.5085333554167599}
+    
+    currentAction = PressButton(limb, hover_distance)
+    
+    if limb == 'left':
+        currentAction.move_to_start(starting_joint_angles_l)
+    else:
+        currentAction.move_to_start(starting_joint_angles_r)
+        
+    currentAction.gripper_close()
+    currentAction.approach(hoverOverPose(LeftButtonPose))
+    currentAction.approach(LeftButtonPose)
+    currentAction.approach(hoverOverPose(LeftButtonPose))
+    if limb == 'left':
+        currentAction.move_to_start(starting_joint_angles_l)
+    else:
+        currentAction.move_to_start(starting_joint_angles_r)
+    
+    return PressButtonSrvResponse(1)
+
+
 def main():
-    rospy.init_node("press_button")
+    rospy.init_node("press_button_node")
     rospy.on_shutdown(delete_gazebo_models)
     rospy.wait_for_message("/robot/sim/started", Empty)
     rospy.Subscriber("block3_pose", PoseStamped, getPoseButtonLeft)
     rospy.Subscriber("block2_pose", PoseStamped, getPoseButtonRight)
     rospy.Subscriber("block1_pose", PoseStamped, getPoseBlock)
-
-    limb = 'right'
+    
+    s = rospy.Service("PressButtonSrv", PressButtonSrv, handle_pressButton)
+    rospy.spin()
+    
+    '''
+    limb = 'left'
     hover_distance = 0.15
     #hover_distance = 0.18
     #starting_joint_angles = {'left_w0': 0.6699952259595108,
@@ -259,6 +325,7 @@ def main():
             currentAction.move_to_start(starting_joint_angles_l)
         else:
             currentAction.move_to_start(starting_joint_angles_r)
+            '''
     return 0
 
 if __name__ == '__main__':
