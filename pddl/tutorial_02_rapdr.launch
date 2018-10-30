@@ -2,8 +2,8 @@
 <launch>
 
 	<!-- arguments -->
-	<arg name="domain_path"	default="$(find rosplan_demos)/common/domain_turtlebot.pddl" />
-	<arg name="problem_path"	default="$(find rosplan_demos)/common/problem_turtlebot.pddl" />
+	<arg name="domain_path"	default="$(find rosplan_demos)/common/domain_rapdr.pddl" />
+	<arg name="problem_path"	default="$(find rosplan_demos)/common/problem_rapdr.pddl" />
 
 	<!-- knowledge base -->
 	<node name="rosplan_knowledge_base" pkg="rosplan_knowledge_base" type="knowledgeBase" respawn="false" output="screen">
@@ -26,8 +26,7 @@
 	<include file="$(find mongodb_store)/launch/mongodb_store.launch">
 		<arg name="db_path" value="$(find rosplan_knowledge_base)/common/mongoDB/"/>
 	</include>
-
-
+	
 	<!-- planner interface -->
 	<include file="$(find rosplan_planning_system)/launch/includes/planner_interface.launch">
 		<arg name="use_problem_topic"    value="true" />
