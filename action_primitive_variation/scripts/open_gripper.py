@@ -196,7 +196,7 @@ def hoverOverPose(poseStmpd):
 	return newPose
 	
 
-def handle_closeGripper(req):
+def handle_openGripper(req):
     print("Limb:")
     print(req.limb)
     
@@ -207,20 +207,20 @@ def handle_closeGripper(req):
     
     currentAction = PressButton(limb, hover_distance)
         
-    currentAction.gripper_close()
+    currentAction.gripper_open()
 
-    return CloseGripperSrvResponse(1)
+    return OpenGripperSrvResponse(1)
 
 
 def main():
-    rospy.init_node("close_gripper_node")
+    rospy.init_node("open_gripper_node")
     rospy.on_shutdown(delete_gazebo_models)
     rospy.wait_for_message("/robot/sim/started", Empty)
     rospy.Subscriber("block3_pose", PoseStamped, getPoseButtonLeft)
     rospy.Subscriber("block2_pose", PoseStamped, getPoseButtonRight)
     rospy.Subscriber("block1_pose", PoseStamped, getPoseBlock)
     
-    s = rospy.Service("CloseGripperSrv", CloseGripperSrv, handle_closeGripper)
+    s = rospy.Service("OpenGripperSrv", OpenGripperSrv, handle_openGripper)
     rospy.spin()
     
     return 0
