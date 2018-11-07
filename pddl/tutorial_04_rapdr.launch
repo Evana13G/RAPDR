@@ -11,38 +11,44 @@
 	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
 		<arg name="pddl_action_name" value="open_gripper" />
 	</include>
-	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
+<!-- 	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
 		<arg name="pddl_action_name" value="close_gripper" />
-	</include>
+	</include> -->
 	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
 		<arg name="pddl_action_name" value="move_gripper_to_object" />
 	</include>
 	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
 		<arg name="pddl_action_name" value="move_gripper_to_button" />
 	</include>
+
 	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
 		<arg name="pddl_action_name" value="push_button" />
 	</include>
-<!-- 	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
+
+	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
 		<arg name="pddl_action_name" value="move_object" />
-	</include> -->
+	</include>
+	
 	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
 		<arg name="pddl_action_name" value="grasp_object" />
 	</include>
 
-<!-- 	<node name="rosplan_interface_push_button" pkg="rosplan_planning_system" type="tutorialInterface" respawn="false" output="screen">
+<!-- 	<node name="rosplan_interface_push_button" pkg="rosplan_planning_system" type="pressButtonInterface" respawn="false" output="screen">
 		<param name="knowledge_base"		value="rosplan_knowledge_base" />
 		<param name="pddl_action_name"		value="push_button" />
 		<param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
 		<param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
-	</node> -->
+	</node>
+ -->
 
 
-	<node name="rosplan_interface_move_object" pkg="rosplan_planning_system" type="tutorialInterface" respawn="false" output="screen">
+ 	<node name="rosplan_interface_close_gripper" pkg="rosplan_planning_system" type="pressButtonInterface" respawn="false" output="screen">
 		<param name="knowledge_base"		value="rosplan_knowledge_base" />
-		<param name="pddl_action_name"		value="move_object" />
+		<param name="pddl_action_name"		value="close_gripper" />
 		<param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
 		<param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
 	</node>
+
+
 
 </launch>
