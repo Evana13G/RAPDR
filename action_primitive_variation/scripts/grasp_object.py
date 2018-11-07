@@ -34,6 +34,7 @@ from tf.transformations import *
 import baxter_interface
 
 from action_primitive_variation.srv import *
+#import action_primitive_variation
 
 LeftButtonPose = None
 RightButtonPose = None
@@ -64,7 +65,7 @@ class PressButton(object):
         if not start_angles:
             start_angles = dict(zip(self._joint_names, [0]*7))
         self._guarded_move_to_joint_position(start_angles)
-        self.gripper_open()
+        #self.gripper_open()
         rospy.sleep(1.0)
         print("Running. Ctrl-c to quit")
 
@@ -195,32 +196,78 @@ def hoverOverPose(poseStmpd):
 	newPose.pose.position.z += 0.25
 	return newPose
 	
+def grabPose(poseStmpd):
+	newPose = copy.deepcopy(poseStmpd)
+	newPose.pose.position.z -= 0.02
+	return newPose
+	
 
-def handle_closeGripper(req):
+def handle_graspObject(req):
+    print("Received:")
+    print("PoseStamped:")
+    print(req.objectPoseStamped)
     print("Limb:")
     print(req.limb)
+    print("Button name:")
+    print(req.objectName)
+    
     
     global limb
-    limb = req.limb    
+    limb = req.limb
+    global object_name
+    object_name = req.objectName
+    global poseStampedTo
+    poseStampedTo = req.objectPoseStamped
+    
     
     hover_distance = 0.15
     
+    if limb == 'left':
+		starting_joint_angles_l = {'left_w0': 0.6699952259595108,
+								   'left_w1': 1.030009435085784,
+                                   'left_w2': -0.4999997247485215,
+                                   'left_e0': -1.189968899785275,
+                                   'left_e1': 1.9400238130755056,
+                                   'left_s0': -0.08000397926829805,
+                                   'left_s1': -0.9999781166910306}
+    else:
+        starting_joint_angles_r = {'right_e0': -0.39888044530362166,
+                                   'right_e1': 1.9341522973651006,
+                                   'right_s0': 0.936293285623961,
+                                   'right_s1': -0.9939970420424453,
+                                   'right_w0': 0.27417171168213983,
+                                   'right_w1': 0.8298780975195674,
+                                   'right_w2': -0.5085333554167599}
+    
     currentAction = PressButton(limb, hover_distance)
+    
+    if limb == 'left':
+        currentAction.move_to_start(starting_joint_angles_l)
+    else:
+        currentAction.move_to_start(starting_joint_angles_r)
         
+    currentAction.gripper_open()
+    currentAction.approach(hoverOverPose(BlockPose))
+    currentAction.approach(grabPose(BlockPose))
     currentAction.gripper_close()
-
-    return CloseGripperSrvResponse(1)
+    currentAction.approach(hoverOverPose(BlockPose))
+    if limb == 'left':
+        currentAction.move_to_start(starting_joint_angles_l)
+    else:
+        currentAction.move_to_start(starting_joint_angles_r)
+    
+    return GraspObjectSrvResponse(1)
 
 
 def main():
-    rospy.init_node("close_gripper_node")
+    rospy.init_node("grasp_object_node")
     rospy.on_shutdown(delete_gazebo_models)
     rospy.wait_for_message("/robot/sim/started", Empty)
     rospy.Subscriber("block3_pose", PoseStamped, getPoseButtonLeft)
     rospy.Subscriber("block2_pose", PoseStamped, getPoseButtonRight)
     rospy.Subscriber("block1_pose", PoseStamped, getPoseBlock)
     
-    s = rospy.Service("CloseGripperSrv", CloseGripperSrv, handle_closeGripper)
+    s = rospy.Service("GraspObjectSrv", GraspObjectSrv, handle_graspObject)
     rospy.spin()
     
     return 0

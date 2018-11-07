@@ -1,3 +1,5 @@
-string location
+string limb
+string objectName
+geometry_msgs/PoseStamped objectPoseStamped
 ---
 int64 success_bool
