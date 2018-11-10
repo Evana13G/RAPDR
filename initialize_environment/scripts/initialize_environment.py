@@ -35,9 +35,9 @@ from tf.transformations import *
 #SPAWN WALL AT 1.1525 z to be above table or 0.3755 to be below
 def load_gazebo_models(table_pose=Pose(position=Point(x=1, y=0.0, z=0.0)),
                        table_reference_frame="world",
-                       block1_pose=Pose(position=Point(x=0.8, y=0.0185, z=0.8)),
-                       block2_pose=Pose(position=Point(x=0.525, y=-0.2715, z=0.8)),
-                       block3_pose=Pose(position=Point(x=0.525, y=0.1515, z=0.8)),
+                       block_pose=Pose(position=Point(x=0.8, y=0.0185, z=0.8)),
+                       right_button_pose=Pose(position=Point(x=0.525, y=-0.2715, z=0.8)),
+                       left_button_pose=Pose(position=Point(x=0.525, y=0.1515, z=0.8)),
                        block_reference_frame="world"):
     # Get Models' Path
     #print("rospkg stuff: ")
@@ -47,13 +47,13 @@ def load_gazebo_models(table_pose=Pose(position=Point(x=1, y=0.0, z=0.0)),
     table_xml = ''
     with open (model_path + "cafe_table/model.urdf", "r") as table_file:
         table_xml=table_file.read().replace('\n', '')
-    block1_xml = ''
+    block_xml = ''
     with open (model_path + "block/model.urdf", "r") as block_file:
         block_xml=block_file.read().replace('\n', '')
-    block2_xml = ''
+    right_button_xml = ''
     with open (model_path + "button/model.urdf", "r") as button_file:
         button_xml=button_file.read().replace('\n', '')
-    block3_xml = ''
+    left_button_xml = ''
     with open (model_path + "button/model.urdf", "r") as button_file:
         button_xml=button_file.read().replace('\n', '')
         
@@ -73,24 +73,24 @@ def load_gazebo_models(table_pose=Pose(position=Point(x=1, y=0.0, z=0.0)),
     rospy.wait_for_service('/gazebo/spawn_urdf_model')
     try:
         spawn_urdf = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
-        resp_urdf = spawn_urdf("block1", block_xml, "/",
-                               block1_pose, block_reference_frame)
+        resp_urdf = spawn_urdf("block", block_xml, "/",
+                               block_pose, block_reference_frame)
     except rospy.ServiceException, e:
         rospy.logerr("Spawn URDF service call failed: {0}".format(e))
     rospy.wait_for_service('/gazebo/spawn_urdf_model')
 
     try:
         spawn_urdf = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
-        resp_urdf = spawn_urdf("block2", button_xml, "/",
-                               block2_pose, block_reference_frame)
+        resp_urdf = spawn_urdf("right_button", button_xml, "/",
+                               right_button_pose, block_reference_frame)
     except rospy.ServiceException, e:
         rospy.logerr("Spawn URDF service call failed: {0}".format(e))
     rospy.wait_for_service('/gazebo/spawn_urdf_model')
 
     try:
         spawn_urdf = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
-        resp_urdf = spawn_urdf("block3", button_xml, "/",
-                               block3_pose, block_reference_frame)
+        resp_urdf = spawn_urdf("left_button", button_xml, "/",
+                               left_button_pose, block_reference_frame)
     except rospy.ServiceException, e:
         rospy.logerr("Spawn URDF service call failed: {0}".format(e))
 
@@ -129,9 +129,9 @@ def main():
 
     pub_cafe_table_pose = rospy.Publisher('cafe_table_pose', PoseStamped, queue_size = 10)
     pub_grey_wall_pose = rospy.Publisher('grey_wall_pose', PoseStamped, queue_size = 10)
-    pub_block1_pose = rospy.Publisher('block1_pose', PoseStamped, queue_size = 10)
-    pub_block2_pose = rospy.Publisher('block2_pose', PoseStamped, queue_size = 10)
-    pub_block3_pose = rospy.Publisher('block3_pose', PoseStamped, queue_size = 10)
+    pub_block_pose = rospy.Publisher('block_pose', PoseStamped, queue_size = 10)
+    pub_right_button_pose = rospy.Publisher('right_button_pose', PoseStamped, queue_size = 10)
+    pub_left_button_pose = rospy.Publisher('left_button_pose', PoseStamped, queue_size = 10)
     
     frameid_var = "/world"
 
@@ -170,53 +170,53 @@ def main():
         except rospy.ServiceException, e:
             rospy.logerr("get_model_state for grey_wall service call failed: {0}".format(e))
 			
-        #Get block1 pose
+        #Get block pose
         rospy.wait_for_service('/gazebo/get_model_state')
     
         try:
             #ms means model_state
-            block1_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
-            resp_block1_ms = block1_ms("block1", "");
-            pose_block1 = resp_block1_ms.pose
-            header_block1 = resp_block1_ms.header
-            header_block1.frame_id = frameid_var
-            poseStamped_block1 = PoseStamped(header=header_block1, pose=pose_block1)
-            #pub_block1_pose.publish(poseStamped_block1)
-            pub_block1_pose.publish(blockPoseToGripper(poseStamped_block1))
+            block_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
+            resp_block_ms = block_ms("block", "");
+            pose_block = resp_block_ms.pose
+            header_block = resp_block_ms.header
+            header_block.frame_id = frameid_var
+            poseStamped_block = PoseStamped(header=header_block, pose=pose_block)
+            #pub_block_pose.publish(poseStamped_block)
+            pub_block_pose.publish(blockPoseToGripper(poseStamped_block))
         except rospy.ServiceException, e:
-            rospy.logerr("get_model_state for block1 service call failed: {0}".format(e))
+            rospy.logerr("get_model_state for block service call failed: {0}".format(e))
 			
-        #Get block2 pose
+        #Get right_button pose
         rospy.wait_for_service('/gazebo/get_model_state')
     
         try:
             #ms means model_state
-            block2_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
-            resp_block2_ms = block2_ms("block2", "");
-            pose_block2 = resp_block2_ms.pose
-            header_block2 = resp_block2_ms.header
-            header_block2.frame_id = frameid_var
-            poseStamped_block2 = PoseStamped(header=header_block2, pose=pose_block2)
-            #pub_block2_pose.publish(poseStamped_block2)
-            pub_block2_pose.publish(blockPoseToGripper(poseStamped_block2))
+            right_button_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
+            resp_right_button_ms = right_button_ms("right_button", "");
+            pose_right_button = resp_right_button_ms.pose
+            header_right_button = resp_right_button_ms.header
+            header_right_button.frame_id = frameid_var
+            poseStamped_right_button = PoseStamped(header=header_right_button, pose=pose_right_button)
+            #pub_right_button_pose.publish(poseStamped_right_button)
+            pub_right_button_pose.publish(blockPoseToGripper(poseStamped_right_button))
         except rospy.ServiceException, e:
-            rospy.logerr("get_model_state for block2 service call failed: {0}".format(e))
+            rospy.logerr("get_model_state for right_button service call failed: {0}".format(e))
 			
-        #Get block3 pose
+        #Get left_button pose
         rospy.wait_for_service('/gazebo/get_model_state')
     
         try:
             #ms means model_state
-            block3_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
-            resp_block3_ms = block3_ms("block3", "");
-            pose_block3 = resp_block3_ms.pose
-            header_block3 = resp_block3_ms.header
-            header_block3.frame_id = frameid_var
-            poseStamped_block3 = PoseStamped(header=header_block3, pose=pose_block3)
-            #pub_block3_pose.publish(poseStamped_block3)
-            pub_block3_pose.publish(blockPoseToGripper(poseStamped_block3))
+            left_button_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
+            resp_left_button_ms = left_button_ms("left_button", "");
+            pose_left_button = resp_left_button_ms.pose
+            header_left_button = resp_left_button_ms.header
+            header_left_button.frame_id = frameid_var
+            poseStamped_left_button = PoseStamped(header=header_left_button, pose=pose_left_button)
+            #pub_left_button_pose.publish(poseStamped_left_button)
+            pub_left_button_pose.publish(blockPoseToGripper(poseStamped_left_button))
         except rospy.ServiceException, e:
-            rospy.logerr("get_model_state for block3 service call failed: {0}".format(e))
+            rospy.logerr("get_model_state for left_button service call failed: {0}".format(e))
         
     rate.sleep()
 

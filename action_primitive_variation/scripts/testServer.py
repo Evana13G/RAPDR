@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from action_primitive_variation.srv import PressButtonSrv, CloseGripperSrv, OpenGripperSrv, GraspObjectSrv
+from action_primitive_variation.srv import PressButtonSrv, CloseGripperSrv, OpenGripperSrv, ObtainObjectSrv
 import rospy
 
 from geometry_msgs.msg import (
@@ -17,10 +17,10 @@ from std_msgs.msg import (
 def main():
     rospy.init_node("test_node")
     print("Inside testServer.py")
-    rospy.wait_for_service('ObtainObjectSrv', timeout=60)
+    rospy.wait_for_service('press_button_srv', timeout=60)
     print("Ready to call service")
     try:
-        b = rospy.ServiceProxy('ObtainObjectSrv', GraspObjectSrv)
+        b = rospy.ServiceProxy('press_button_srv', PressButtonSrv)
         resp = b('left', 'block')
         print(resp.success_bool)
     except rospy.ServiceException, e:

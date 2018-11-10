@@ -199,8 +199,6 @@ def hoverOverPose(poseStmpd):
 
 def handle_pressButton(req):
     print("Received:")
-    print("PoseStamped:")
-    print(req.buttonPoseStamped)
     print("Limb:")
     print(req.limb)
     print("Button name:")
@@ -211,8 +209,14 @@ def handle_pressButton(req):
     limb = req.limb
     global button_name
     button_name = req.buttonName
-    global poseStampedTo
-    poseStampedTo = req.buttonPoseStamped
+    poseTo = None
+    
+    if button_name == "left_button":
+        poseTo = LeftButtonPose
+    elif button_name == "right_button":
+        poseTo = RightButtonPose
+    else:
+        poseTo = BlockPose
     
     
     hover_distance = 0.15
@@ -242,9 +246,9 @@ def handle_pressButton(req):
         currentAction.move_to_start(starting_joint_angles_r)
         
     currentAction.gripper_close()
-    currentAction.approach(hoverOverPose(LeftButtonPose))
-    currentAction.approach(LeftButtonPose)
-    currentAction.approach(hoverOverPose(LeftButtonPose))
+    currentAction.approach(hoverOverPose(poseTo))
+    currentAction.approach(poseTo)
+    currentAction.approach(hoverOverPose(poseTo))
     if limb == 'left':
         currentAction.move_to_start(starting_joint_angles_l)
     else:
@@ -257,11 +261,11 @@ def main():
     rospy.init_node("press_button_node")
     rospy.on_shutdown(delete_gazebo_models)
     rospy.wait_for_message("/robot/sim/started", Empty)
-    rospy.Subscriber("block3_pose", PoseStamped, getPoseButtonLeft)
-    rospy.Subscriber("block2_pose", PoseStamped, getPoseButtonRight)
-    rospy.Subscriber("block1_pose", PoseStamped, getPoseBlock)
+    rospy.Subscriber("left_button_pose", PoseStamped, getPoseButtonLeft)
+    rospy.Subscriber("right_button_pose", PoseStamped, getPoseButtonRight)
+    rospy.Subscriber("block_pose", PoseStamped, getPoseBlock)
     
-    s = rospy.Service("PressButtonSrv", PressButtonSrv, handle_pressButton)
+    s = rospy.Service("press_button_srv", PressButtonSrv, handle_pressButton)
     rospy.spin()
     
     return 0
