@@ -1,18 +1,13 @@
 #!/usr/bin/env python
-# Modified from RethinkRobotics website
 
 import argparse
 import struct
 import sys
 import copy
-
-from pyddl import Action
-from pyddl import neg
+import numpy as np
 
 import rospy
 import rospkg
-
-# import robot_brain
 
 from gazebo_msgs.srv import (
     SpawnModel,
@@ -34,85 +29,54 @@ from baxter_core_msgs.srv import (
     SolvePositionIKRequest,
 )
 
+from tf.transformations import *
+
 import baxter_interface
 
-class ObtainObject(object):
-    def __init__(self, hover_distance = 0.15, verbose=True):
-        self._left_limb_name = "left" # string
-        self._right_limb_name = "right" # string
+from action_primitive_variation.srv import *
+#import action_primitive_variation
 
+LeftButtonPose = None
+RightButtonPose = None
+BlockPose = None
+limb = None
+button_name = None
+poseStampedTo = None
+
+class PressButton(object):
+    def __init__(self, limb, hover_distance = 0.01, verbose=True):
+        self._limb_name = limb # string
         self._hover_distance = hover_distance # in meters
         self._verbose = verbose # bool
-
-        self._left_limb = baxter_interface.Limb("left")
-        self._left_gripper = baxter_interface.Gripper("left")
-
-        self._right_limb = baxter_interface.Limb("right")
-        self._right_gripper = baxter_interface.Gripper("right")
-
-        ####################################################################################################
-        ns_left = "ExternalTools/" + "left" + "/PositionKinematicsNode/IKService"  # Not entirely sure what this is 
-        self._iksvc_left = rospy.ServiceProxy(ns_left, SolvePositionIK)               # Not entirely sure what this is 
-        ns_right = "ExternalTools/" + "right" + "/PositionKinematicsNode/IKService"  # Not entirely sure what this is 
-        self._iksvc_right = rospy.ServiceProxy(ns_right, SolvePositionIK)               # Not entirely sure what this is 
-        ####################################################################################################
-
-        rospy.wait_for_service(ns_left, 5.0)
-        rospy.wait_for_service(ns_right, 5.0)
-
-        # verify robot is enabled  #########################################################################
+        self._limb = baxter_interface.Limb(limb)
+        self._gripper = baxter_interface.Gripper(limb)
+        ns = "ExternalTools/" + limb + "/PositionKinematicsNode/IKService"
+        self._iksvc = rospy.ServiceProxy(ns, SolvePositionIK)
+        rospy.wait_for_service(ns, 5.0)
+        # verify robot is enabled
         print("Getting robot state... ")
         self._rs = baxter_interface.RobotEnable(baxter_interface.CHECK_VERSION)
         self._init_state = self._rs.state().enabled
         print("Enabling robot... ")
         self._rs.enable()
 
-    def move_to_start(self, limb_name, start_angles=None):
-
-        print("Moving the {0} arm to start pose...".format(limb_name))
+    def move_to_start(self, start_angles=None):
+        print("Moving the {0} arm to start pose...".format(self._limb_name))
         if not start_angles:
             start_angles = dict(zip(self._joint_names, [0]*7))
-        if(limb_name == "left"):
-            self._guarded_move_to_joint_position(self._left_limb, start_angles)
-            self.gripper_open(self._left_gripper)
-        else:
-            self._guarded_move_to_joint_position(self._right_limb, start_angles)
-            self.gripper_open(self._right_gripper)
-        rospy.sleep(1.0)    
+        self._guarded_move_to_joint_position(start_angles)
+        #self.gripper_open()
+        rospy.sleep(1.0)
         print("Running. Ctrl-c to quit")
 
-
-    # Not entirely sure what this is ########################################################################
-    # I think its a request for the robot to move to a certain position
-    # Takes in a pose and outputs a valid joint solution
-    #
-    def ik_request(self, gripper, pose):
-        hdr = Header(stamp=rospy.Time.now(), frame_id='base')
+    def ik_request(self, pose):
         ikreq = SolvePositionIKRequest()
-
-        print("IK REQUEST ***************************")
-        ikreq.pose_stamp.append(PoseStamped(header=hdr, pose=pose))
+        ikreq.pose_stamp.append(pose)
         try:
-            print("GRIPPER NAME: " + gripper.name)
-            if(gripper.name == "left_gripper" or gripper.name == "left"):
-                # print("IK request is going to be for LEFT GRIPPER")
-                resp = self._iksvc_left(ikreq)
-            elif (gripper.name == "right_gripper" or gripper.name == "right"):
-                # print("IK request is going to be for RIGHT GRIPPER")
-                resp = self._iksvc_right(ikreq)  
-            else:
-                print("Unable to resolve gripper for IK_REQUEST")
-                exit(1) 
+            resp = self._iksvc(ikreq)
         except (rospy.ServiceException, rospy.ROSException), e:
             rospy.logerr("Service call failed: %s" % (e,))
             return False
-
-        # print("IKREQ RESPONSE: ")
-        # print(resp)
-
-
-        # Check if result valid, and type of seed ultimately used to get solution
-        # convert rospy's string representation of uint8[]'s to int's
         resp_seeds = struct.unpack('<%dB' % len(resp.result_type), resp.result_type)
         limb_joints = {}
         if (resp_seeds[0] != resp.RESULT_INVALID):
@@ -124,7 +88,6 @@ class ObtainObject(object):
             if self._verbose:
                 print("IK Solution SUCCESS - Valid Joint Solution Found from Seed Type: {0}".format(
                          (seed_str)))
-            # Format solution into Limb API-compatible dictionary
             limb_joints = dict(zip(resp.joints[0].name, resp.joints[0].position))
             if self._verbose:
                 print("IK Joint Solution:\n{0}".format(limb_joints))
@@ -134,49 +97,30 @@ class ObtainObject(object):
             return False
         return limb_joints
 
-    def _guarded_move_to_joint_position(self, limb, joint_angles):
-        print("Limb: " + limb.name)
-        print("Joint Angles: ")
-        print(joint_angles)
+    def _guarded_move_to_joint_position(self, joint_angles):
         if joint_angles:
-            limb.move_to_joint_positions(joint_angles)
+            self._limb.move_to_joint_positions(joint_angles)
         else:
             rospy.logerr("No Joint Angles provided for move_to_joint_positions. Staying put.")
 
-    def gripper_open(self, gripper):
-        gripper.open()
+    def gripper_open(self):
+        self._gripper.open()
         rospy.sleep(1.0)
 
-    def gripper_close(self, gripper):
-        gripper.close()
+    def gripper_close(self):
+        self._gripper.close()
         rospy.sleep(1.0)
 
-    def _approach(self, gripper, pose):
+    def _approach(self, pose):
         approach = copy.deepcopy(pose)
         # approach with a pose the hover-distance above the requested pose
-        approach.position.z = approach.position.z + self._hover_distance
-        if (gripper.name == "left_gripper"):
-            limb = self._left_limb
-        elif (gripper.name == "right_gripper"):
-            limb = self._right_limb 
-        else:
-            print("Unable to resolve gripper for APPROACH")
-            exit(1)
+        approach.pose.position.z = approach.pose.position.z + self._hover_distance
+        joint_angles = self.ik_request(approach)
+        self._guarded_move_to_joint_position(joint_angles)
 
-        joint_angles = self.ik_request(limb, approach)
-        self._guarded_move_to_joint_position(limb, joint_angles)
-
-    def _retract(self, gripper):
+    def _retract(self):
         # retrieve current pose from endpoint
-        if (gripper.name == "left_gripper"):
-            limb = self._left_limb
-        elif (gripper.name == "right_gripper"):
-            limb = self._right_limb
-        else:
-            print("Unable to resolve gripper for RETRACT")
-            exit(1)
-
-        current_pose = limb.endpoint_pose()
+        current_pose = self._limb.endpoint_pose()
         ik_pose = Pose()
         ik_pose.position.x = current_pose['position'].x
         ik_pose.position.y = current_pose['position'].y
@@ -185,205 +129,152 @@ class ObtainObject(object):
         ik_pose.orientation.y = current_pose['orientation'].y
         ik_pose.orientation.z = current_pose['orientation'].z
         ik_pose.orientation.w = current_pose['orientation'].w
-
-        joint_angles = self.ik_request(limb, ik_pose)
+        joint_angles = self.ik_request(ik_pose)
         # servo up from current pose
-        self._guarded_move_to_joint_position(limb, joint_angles)
+        self._guarded_move_to_joint_position(joint_angles)
 
-    def _servo_to_pose(self, gripper, pose):
+    def _servo_to_pose(self, pose):
         # servo down to release
-        joint_angles = self.ik_request(gripper, pose)
-        if (gripper == self._left_gripper):
-            limb = self._left_limb
-        else:
-            limb = self._right_limb
-        self._guarded_move_to_joint_position(limb, joint_angles)
+        joint_angles = self.ik_request(pose)
+        self._guarded_move_to_joint_position(joint_angles)
+        
+    def approach(self, pose):
+        appr = copy.deepcopy(pose)
+        # approach with a pose the hover-distance above the requested pose
+        appr.pose.position.z = appr.pose.position.z + self._hover_distance
+        joint_angles = self.ik_request(appr)
+        self._guarded_move_to_joint_position(joint_angles)
 
-    def pick(self, gripper, pose):
+    def pick(self, pose):
         # open the gripper
-        self.gripper_open(gripper)
+        self.gripper_open()
         # servo above pose
-        self._approach(gripper, pose)
+        self._approach(pose)
         # servo to pose
-        self._servo_to_pose(gripper, pose)
+        self._servo_to_pose(pose)
         # close gripper
-        self.gripper_close(gripper)
+        self.gripper_close()
         # retract to clear object
-        self._retract(gripper)
+        self._retract()
 
-    #########################################################################################################
-    # Our Action Primitives #################################################################################
-    # For PDDL planning
-    def push_button(self, button_name, gripper_name, pose):
-        if (gripper_name == "right"):
-            self._approach(self._right_gripper, pose)
-            self._servo_to_pose(self._right_gripper, pose)
-        elif (gripper_name == "left"):
-            self._approach(self._left_gripper, pose)
-            self._servo_to_pose(self._left_gripper, pose)
-        else:
-            print("Unable to resolve gripper for PUSH_BUTTON")
-            exit(1)
-
-    def grab_object(self, object_name, gripper_name, pose):
-        print("GRIPPER NAME: " + gripper_name)
-        if (gripper_name == "right"):
-            self.pick(self._right_gripper, pose)
-        elif (gripper_name == "left"):
-            self.pick(self._left_gripper, pose)
-        else:
-            print("Unable to resolve gripper for GRAB_OBJECT")
-            exit(1)
-
-    # def move_object(self, object_name, pose):
-    #     print("Moving object")
-
-    # def observe_scenario_state():
-    #     print("Observing scenario state")
-    #     print("Object")   # OBJECT
-    #     print("Button 1") # OBJECT
-    #     print("Button 2") # OBJECT
-    #     print("Wall")     # OBJECT
-
-def main():
-
-    rospy.init_node("obtain_object")
-
-    # Wait for the All Clear from emulator startup
-    rospy.wait_for_message("/robot/sim/started", Empty)
+    def place(self, pose):
+        # servo above pose
+        self._approach(pose)
+        # servo to pose
+        self._servo_to_pose(pose)
+        # open the gripper
+        self.gripper_open()
+        # retract to clear object
+        self._retract()
 
 
-    # Use PDDL planner to plan for a goal 
-    #
-    #
 
-    # robotBrain = RobotBrain()
-
-    hover_distance = 0.15 # meters
-    # Starting Joint angles for left arm
-    starting_joint_angles_left = {'left_w0': 0.6699952259595108,
-                             'left_w1': 1.030009435085784,
-                             'left_w2': -0.4999997247485215,
-                             'left_e0': -1.189968899785275,
-                             'left_e1': 1.9400238130755056,
-                             'left_s0': -0.08000397926829805,
-                             'left_s1': -0.9999781166910306}
-
-    starting_joint_angles_right = {'right_w0': -0.6699952259595108,
-                             'right_w1': 1.030009435085784,
-                             'right_w2': 0.4999997247485215,
-                             'right_e0': 1.189968899785275,
-                             'right_e1': 1.9400238130755056,
-                             'right_s0': -0.08000397926829805,
-                             'right_s1': -0.9999781166910306}
-
-    
-    oo = ObtainObject(hover_distance)
-    # An orientation for gripper fingers to be overhead and parallel to the obj
-    overhead_orientation = Quaternion(
-                             x=-0.0249590815779,
-                             y=0.999649402929,
-                             z=0.00737916180073,
-                             w=0.00486450832011)
-
-
-    oo.move_to_start("left", starting_joint_angles_left)
-    oo.move_to_start("right", starting_joint_angles_right)
-
-    idx = 0
-
-    button1_pose = Pose(
-        position=Point(x=0.6, y=-0.3, z=-0.09),
-        orientation=overhead_orientation)
-    button2_pose = Pose(
-        position=Point(x=0.6, y=0.13, z=-0.09),
-        orientation=overhead_orientation)
-    object_c_pose = Pose(
-        position=Point(x=0.8, y=-0.01, z=-0.129),
-        orientation=overhead_orientation)
-
-    print("\n************************************Obtaining object...")
-    try:
-        oo.grab_object("object", "left", object_c_pose)
-    except (rospy.ServiceException, rospy.ROSException), e:
-        rospy.logerr("Move to object failed: %s" % (e,))
-        print("\nObtaining object FAILED")
-
-    print("\n************************************Pushing button...")
-    try: 
-        oo.push_button("button1", "right", button1_pose)
-    except (rospy.ServiceException, rospy.ROSException), e:
-        rospy.logerr("Push button failed: %s" % (e,))  
-        print("\nPush button FAILED")
-
-    print("\n************************************Removing obstruction...")
+def delete_gazebo_models():
+    # This will be called on ROS Exit, deleting Gazebo models
+    # Do not wait for the Gazebo Delete Model service, since
+    # Gazebo should already be running. If the service is not
+    # available since Gazebo has been killed, it is fine to error out
     try:
         delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
-        resp_delete = delete_model("grey_wall")
     except rospy.ServiceException, e:
         rospy.loginfo("Delete Model service call failed: {0}".format(e))
+        
+def getPoseButtonLeft(data):
+    global LeftButtonPose
+    LeftButtonPose = data
 
-    print("\n************************************Obtaining object...")
-    try:
-        oo.grab_object("object", "left", object_c_pose)
-    except (rospy.ServiceException, rospy.ROSException), e:
-        rospy.logerr("Move to object failed: %s" % (e,))  
-        print("\nObtaining object FAILED")
+def getPoseButtonRight(data):
+    global RightButtonPose
+    RightButtonPose = data
 
+def getPoseBlock(data):
+    global BlockPose
+    BlockPose = data
+    
+def hoverOverPose(poseStmpd):
+	newPose = copy.deepcopy(poseStmpd)
+	newPose.pose.position.z += 0.25
+	return newPose
+	
+def grabPose(poseStmpd):
+	newPose = copy.deepcopy(poseStmpd)
+	newPose.pose.position.z -= 0.02
+	return newPose
+	
+
+def handle_ObtainObject(req):
+    print("Received:")
+    print("Limb:")
+    print(req.limb)
+    print("Button name:")
+    print(req.objectName)
+    
+    
+    global limb
+    limb = req.limb
+    global object_name
+    object_name = req.objectName
+    poseTo = None
+    
+    if object_name == "left_button":
+        poseTo = LeftButtonPose
+    elif object_name == "right_button":
+        poseTo = RightButtonPose
+    else:
+        poseTo = BlockPose
+    
+    
+    hover_distance = 0.15
+    
+    if limb == 'left':
+		starting_joint_angles_l = {'left_w0': 0.6699952259595108,
+								   'left_w1': 1.030009435085784,
+                                   'left_w2': -0.4999997247485215,
+                                   'left_e0': -1.189968899785275,
+                                   'left_e1': 1.9400238130755056,
+                                   'left_s0': -0.08000397926829805,
+                                   'left_s1': -0.9999781166910306}
+    else:
+        starting_joint_angles_r = {'right_e0': -0.39888044530362166,
+                                   'right_e1': 1.9341522973651006,
+                                   'right_s0': 0.936293285623961,
+                                   'right_s1': -0.9939970420424453,
+                                   'right_w0': 0.27417171168213983,
+                                   'right_w1': 0.8298780975195674,
+                                   'right_w2': -0.5085333554167599}
+    
+    currentAction = PressButton(limb, hover_distance)
+    
+    if limb == 'left':
+        currentAction.move_to_start(starting_joint_angles_l)
+    else:
+        currentAction.move_to_start(starting_joint_angles_r)
+        
+    currentAction.gripper_open()
+    currentAction.approach(hoverOverPose(poseTo))
+    currentAction.approach(grabPose(poseTo))
+    currentAction.gripper_close()
+    currentAction.approach(hoverOverPose(poseTo))
+    if limb == 'left':
+        currentAction.move_to_start(starting_joint_angles_l)
+    else:
+        currentAction.move_to_start(starting_joint_angles_r)
+    
+    return ObtainObjectSrvResponse(1)
+
+
+def main():
+    rospy.init_node("obtain_object_node")
+    rospy.on_shutdown(delete_gazebo_models)
+    rospy.wait_for_message("/robot/sim/started", Empty)
+    rospy.Subscriber("block3_pose", PoseStamped, getPoseButtonLeft)
+    rospy.Subscriber("block2_pose", PoseStamped, getPoseButtonRight)
+    rospy.Subscriber("block1_pose", PoseStamped, getPoseBlock)
+    
+    s = rospy.Service("ObtainObjectSrv", ObtainObjectSrv, handle_ObtainObject)
+    rospy.spin()
+    
     return 0
-
-#######################################################################################
-################################## Actions and stuff ##################################
-#######################################################################################
-
-
-
-grabObject = Action(
-    'grab_object',
-    parameters=(
-        ('object_name', 'obj_c'),
-        ('gripper_name', 'gripper'),
-        ('object_position', 'o_x'),
-        ('object_position', 'o_y'),
-        ('object_position', 'o_z'),
-        ('gripper_position', 'g_x'),
-        ('gripper_position', 'g_y'),
-        ('gripper_position', 'g_z'),
-    ),
-    preconditions=(
-        ('at', 'obj_c', 'o_x', 'o_y', 'o_z'),
-        ('at', 'gripper', 'g_x', 'g_y', 'g_z'),
-    ),
-    effects=(
-        neg(('at', 'gripper', 'g_x', 'g_y', 'g_z')),
-        ('at', 'gripper', 'o_x', 'o_y', 'o_z'),
-    ),
-)
-
-pushButton = Action(
-    'push_button',
-    parameters=(
-        ('button_name', 'button_1'),
-        ('gripper_name', 'gripper'),
-        ('button_position', 'b_x'),
-        ('button_position', 'b_y'),
-        ('button_position', 'b_z'),
-        ('gripper_position', 'g_x'),
-        ('gripper_position', 'g_y'),
-        ('gripper_position', 'g_z'),
-    ),
-    preconditions=(
-        ('at', 'button_1', 'b_x', 'b_y', 'b_z'),
-        ('at', 'gripper', 'g_x', 'g_y', 'g_z'),
-    ),
-    effects=(
-        neg(('at', 'gripper', 'g_x', 'g_y', 'g_z')),
-        ('at', 'gripper', 'o_x', 'o_y', 'o_z'),
-    ),
-)
-
-# Need to figure out what the predicates are. Right now it looks like 
-# there is 
 
 if __name__ == '__main__':
     sys.exit(main())
