@@ -199,8 +199,6 @@ def hoverOverPose(poseStmpd):
 
 def handle_pressButton(req):
     print("Received:")
-    print("PoseStamped:")
-    print(req.buttonPoseStamped)
     print("Limb:")
     print(req.limb)
     print("Button name:")
@@ -211,8 +209,14 @@ def handle_pressButton(req):
     limb = req.limb
     global button_name
     button_name = req.buttonName
-    global poseStampedTo
-    poseStampedTo = req.buttonPoseStamped
+    poseTo = None
+    
+    if button_name == "left_button":
+        poseTo = LeftButtonPose
+    elif button_name == "right_button":
+        poseTo = RightButtonPose
+    else:
+        poseTo = BlockPose
     
     
     hover_distance = 0.15
@@ -242,9 +246,9 @@ def handle_pressButton(req):
         currentAction.move_to_start(starting_joint_angles_r)
         
     currentAction.gripper_close()
-    currentAction.approach(hoverOverPose(LeftButtonPose))
-    currentAction.approach(LeftButtonPose)
-    currentAction.approach(hoverOverPose(LeftButtonPose))
+    currentAction.approach(hoverOverPose(poseTo))
+    currentAction.approach(poseTo)
+    currentAction.approach(hoverOverPose(poseTo))
     if limb == 'left':
         currentAction.move_to_start(starting_joint_angles_l)
     else:

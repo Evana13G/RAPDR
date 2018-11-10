@@ -17,11 +17,11 @@ from std_msgs.msg import (
 def main():
     rospy.init_node("test_node")
     print("Inside testServer.py")
-    rospy.wait_for_service('ObtainObjectSrv', timeout=60)
+    rospy.wait_for_service('PressButtonSrv', timeout=60)
     print("Ready to call service")
     try:
-        b = rospy.ServiceProxy('ObtainObjectSrv', ObtainObjectSrv)
-        resp = b('left', 'block')
+        b = rospy.ServiceProxy('PressButtonSrv', PressButtonSrv)
+        resp = b('right', 'right_button')
         print(resp.success_bool)
     except rospy.ServiceException, e:
         print("Service call failed: %s"%e)
