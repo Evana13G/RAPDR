@@ -47,3 +47,13 @@ STEP 6: To run the PDDL planner ....
 
 ################ Other Info ################ 
 The URDF models are inside the baxter_simulation package in a folder that I believe is called baxter_sim_examples/models. The URDF model for the table and the wall is called cafe_table. 
+
+1. For proof of concept scenario #1, we assume the following protocol:
+
+"left" - left gripper
+"right" - right gripper
+"block" - object to obtain
+"left_button" - left button
+"right_button" - right button
+
+ 
