@@ -3,8 +3,8 @@
 
 #include "rosplan_action_interface/RPActionInterface.h"
 
-#ifndef PRESS_BUTTON_CLIENT
-#define PRESS_BUTTON_CLIENT
+#ifndef OBTAIN_ACTION_CLIENT
+#define OBTAIN_ACTION_CLIENT
 
 /**
  * This file defines an action interface created in tutorial 10.

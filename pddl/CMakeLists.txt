@@ -45,10 +45,15 @@ find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
 
-## Declare action interface for Tutorial 10
+## Declare action interface for press_button action interface
 add_executable(pressButtonInterface src/ActionInterface/PressButtonClient.cpp src/ActionInterface/RPActionInterface.cpp)
 add_dependencies(pressButtonInterface ${catkin_EXPORTED_TARGETS})
 target_link_libraries(pressButtonInterface ${catkin_LIBRARIES})
+
+## Declare action interface for obtain_object action interface
+add_executable(obtainObjectInterface src/ActionInterface/ObtainObjectClient.cpp src/ActionInterface/RPActionInterface.cpp)
+add_dependencies(obtainObjectInterface ${catkin_EXPORTED_TARGETS})
+target_link_libraries(obtainObjectInterface ${catkin_LIBRARIES})
 
 ## Declare cpp executables
 add_executable(problemInterface src/ProblemGeneration/ProblemInterface.cpp src/ProblemGeneration/PDDLProblemGenerator.cpp

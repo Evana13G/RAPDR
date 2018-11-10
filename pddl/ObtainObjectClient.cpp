@@ -1,6 +1,6 @@
-#include "rosplan_action_interface/PressButtonClient.h"
+#include "rosplan_action_interface/ObtainObjectClient.h"
 #include "geometry_msgs/PoseStamped.h"
-#include "action_primitive_variation/PressButtonSrv.h"
+#include "action_primitive_variation/ObtainObjectSrv.h"
 #include <iostream>
 
 /* The implementation of RPTutorial.h */
@@ -30,13 +30,12 @@ namespace KCL_rosplan {
 		// 	return 1;
 		// }
 
-
-		ros::ServiceClient client = n.serviceClient<action_primitive_variation::PressButtonSrv>("/press_button_srv");
-		action_primitive_variation::PressButtonSrv srv;
+		ros::ServiceClient client = n.serviceClient<action_primitive_variation::ObtainObjectSrv>("/obtain_object_srv");
+		action_primitive_variation::ObtainObjectSrv srv;
 		srv.request.limb = "left";
-		srv.request.buttonName = "button1";
+		srv.request.objectName = "object";
 		// srv.request.buttonPoseStamped = NULL; 
-		ros::service::waitForService("press_button_srv");
+		ros::service::waitForService("obtain_object_srv");
 		if (client.call(srv)){
 			ROS_INFO("Success: %ld", (long int)srv.response.success_bool);
 		}else{
@@ -45,7 +44,7 @@ namespace KCL_rosplan {
 		}
 
 		// complete the action
-		ROS_INFO("KCL: (%s) Press Button action completing.", msg->name.c_str());
+		ROS_INFO("KCL: (%s) Obtain Object action completing.", msg->name.c_str());
 		return true;
 	}
 } // close namespace
@@ -56,7 +55,7 @@ namespace KCL_rosplan {
 
 	int main(int argc, char **argv) {
 
-		ros::init(argc, argv, "press_button_client", ros::init_options::AnonymousName);
+		ros::init(argc, argv, "obtain_object_client", ros::init_options::AnonymousName);
 		ros::NodeHandle nh("~");
 
 		// create PDDL action subscriber

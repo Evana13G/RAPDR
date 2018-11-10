@@ -3,7 +3,7 @@
 (:requirements :strips :typing :fluents :disjunctive-preconditions :durative-actions)
 
 (:types
-	waypoint 
+	waypoint
 	agent
 	object
 	gripper
@@ -14,92 +14,31 @@
 	(gripper_at ?g - gripper ?wp - waypoint)
 	(object_at ?o - object ?wp - waypoint)
 	(button_at ?b - button ?wp - waypoint)
-	(pressed ?b -button)
-	(open ?g - gripper)
-	(closed ?g - gripper)
-	(object_grasped ?g - gripper ?o - object)
+	(pressed ?b - button)
+	(is_visible ?o - object)
 )
 
-;; Open gripper
-(:durative-action open_gripper
-	:parameters (?g - gripper)
+;; Grab an object and bring it back to orig location
+(:durative-action obtain_object
+	:parameters (?g - gripper ?loc0 - waypoint ?o - object ?loc1 -waypoint)
 	:duration ( = ?duration 60)
-	:condition (at start (closed ?g))
+	:condition (and
+		(at start (gripper_at ?g ?loc0))
+		(at start (object_at ?o ?loc1)))
 	:effect (and
-		(at start (not (closed ?g)))
-		(at end (open ?g)))
+		(at end (object_at ?o ?loc0))
+		(at start (not (object_at ?o ?loc1))))
 )
 
-;; Close gripper 
-(:durative-action close_gripper
-	:parameters (?g - gripper)
-	:duration ( = ?duration 60)
-	:condition (at start (open ?g))
-	:effect (and 
-		(at start (not (open ?g)))
-		(at end (closed ?g)))
-)
 
-;; Move gripper to waypoint where object is located
-(:durative-action move_gripper_to_object
-	:parameters (?g - gripper ?wp0 - waypoint ?o - object ?wp1 - waypoint)
+;; Press a button with gripper
+(:durative-action press_button
+	:parameters (?g - gripper ?loc0 -waypoint ?b - button ?loc1 - waypoint)
 	:duration ( = ?duration 60)
 	:condition (and
-		(at start (gripper_at ?g ?wp0))
-		(over all (object_at ?o ?wp1)))
-	:effect (and
-		(at end (gripper_at ?g ?wp1))
-		(at start (not (gripper_at ?g ?wp0))))
-)
-
-
-;; Move gripper to waypoint where object is located
-(:durative-action move_gripper_to_button
-	:parameters (?g - gripper ?wp0 - waypoint ?b - button ?wp1 - waypoint)
-	:duration ( = ?duration 60)
-	:condition (and
-		(at start (gripper_at ?g ?wp0))
-		(over all (button_at ?b ?wp1)))
-	:effect (and
-		(at end (gripper_at ?g ?wp1))
-		(at start (not (gripper_at ?g ?wp0))))
-)
-
-(:durative-action move_object
-	:parameters (?g - gripper ?o - object ?wp0 - waypoint ?wp1 - waypoint)
-	:duration ( = ?duration 60)
-	:condition (and
-		(at start (gripper_at ?g ?wp0))
-		(at start (object_at ?o ?wp0))
-		(over all (object_grasped ?g ?o)))
-	:effect (and
-		(at end (gripper_at ?g ?wp1))
-		(at end (object_at ?o ?wp1))
-		(at start (not (gripper_at ?g ?wp0)))
-		(at start (not (object_at ?o ?wp0))))
-)
-
-
-;; Grasp with gripper
-(:durative-action grasp_object
-	:parameters (?g - gripper ?o - object ?wp0 - waypoint)
-	:duration ( = ?duration 60)
-	:condition (and
-		(over all (gripper_at ?g ?wp0))
-		(over all (object_at ?o ?wp0)))
-	:effect (at end (object_grasped ?g ?o))
-)
-
-;; Push a button with gripper
-(:durative-action push_button
-	:parameters (?g - gripper ?b - button ?wp0 - waypoint)
-	:duration ( = ?duration 60)
-	:condition (and
-		(over all (gripper_at ?g ?wp0))
-		(over all (button_at ?b ?wp0)))
-	:effect (at end (pressed ?b))
+		(at start (gripper_at ?g ?loc0))
+		(over all (button_at ?b ?loc1)))
+	:effect (at end (gripper_at ?g ?loc0))
 )
 
 )
-
-;; Can do 'over all' predicates

@@ -8,47 +8,74 @@
 	</include>
 
 	<!-- sim actions -->
-	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
-		<arg name="pddl_action_name" value="open_gripper" />
+<!-- 	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
+		<arg name="pddl_action_name" value="obtain_object" />
 	</include>
+	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
+		<arg name="pddl_action_name" value="press_button" />
+	</include> -->
+
+
+
+	<node name="rosplan_interface_push_button" pkg="rosplan_planning_system" type="pressButtonInterface" respawn="false" output="screen">
+		<param name="knowledge_base"		value="rosplan_knowledge_base" />
+		<param name="pddl_action_name"		value="press_button" />
+		<param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+		<param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+	</node>
+
+ 	<node name="rosplan_interface_obtain_object" pkg="rosplan_planning_system" type="obtainObjectInterface" respawn="false" output="screen">
+		<param name="knowledge_base"		value="rosplan_knowledge_base" />
+		<param name="pddl_action_name"		value="obtain_object" />
+		<param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
+		<param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
+	</node>
+
+</launch>
+
+
+
+
+
+
+<!-- <?xml version="1.0"?>
+<launch>
+ -->
+	<!-- ROSPlan -->
+<!-- 	<include file="$(find rosplan_planning_system)/launch/interfaced_planning_system.launch" >
+		<arg name="domain_path"		value="$(find rosplan_demos)/common/domain_rapdr.pddl" />
+		<arg name="problem_path"	value="$(find rosplan_demos)/common/problem_rapdr.pddl" />
+	</include> -->
+
+	<!-- sim actions -->
+<!-- 	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
+		<arg name="pddl_action_name" value="open_gripper" />
+	</include> -->
 <!-- 	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
 		<arg name="pddl_action_name" value="close_gripper" />
 	</include> -->
-	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
+<!-- 	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
 		<arg name="pddl_action_name" value="move_gripper_to_object" />
-	</include>
-	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
+	</include> -->
+<!-- 	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
 		<arg name="pddl_action_name" value="move_gripper_to_button" />
-	</include>
+	</include> -->
 
-	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
-		<arg name="pddl_action_name" value="push_button" />
-	</include>
+<!-- 	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
+		<arg name="pddl_action_name" value="press_button" />
+	</include> -->
 
-	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
+<!-- 	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
 		<arg name="pddl_action_name" value="move_object" />
 	</include>
 	
-	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
-		<arg name="pddl_action_name" value="grasp_object" />
-	</include>
 
-<!-- 	<node name="rosplan_interface_push_button" pkg="rosplan_planning_system" type="pressButtonInterface" respawn="false" output="screen">
-		<param name="knowledge_base"		value="rosplan_knowledge_base" />
-		<param name="pddl_action_name"		value="push_button" />
-		<param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
-		<param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
-	</node>
  -->
-
-
- 	<node name="rosplan_interface_close_gripper" pkg="rosplan_planning_system" type="pressButtonInterface" respawn="false" output="screen">
-		<param name="knowledge_base"		value="rosplan_knowledge_base" />
-		<param name="pddl_action_name"		value="close_gripper" />
-		<param name="action_dispatch_topic" value="/rosplan_plan_dispatcher/action_dispatch" />
-		<param name="action_feedback_topic" value="/rosplan_plan_dispatcher/action_feedback" />
-	</node>
+<!-- 	<include file="$(find rosplan_planning_system)/launch/includes/simulated_action.launch" >
+		<arg name="pddl_action_name" value="obtain_object" />
+	</include>
+  -->
 
 
 
-</launch>
+<!-- </launch> -->
