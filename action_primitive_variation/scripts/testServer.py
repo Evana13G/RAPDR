@@ -21,7 +21,7 @@ def main():
     print("Ready to call service")
     try:
         b = rospy.ServiceProxy('press_button_srv', PressButtonSrv)
-        resp = b('right', 'right_button')
+        resp = b('left', 'block')
         print(resp.success_bool)
     except rospy.ServiceException, e:
         print("Service call failed: %s"%e)

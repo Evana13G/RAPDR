@@ -261,9 +261,9 @@ def main():
     rospy.init_node("press_button_node")
     rospy.on_shutdown(delete_gazebo_models)
     rospy.wait_for_message("/robot/sim/started", Empty)
-    rospy.Subscriber("block3_pose", PoseStamped, getPoseButtonLeft)
-    rospy.Subscriber("block2_pose", PoseStamped, getPoseButtonRight)
-    rospy.Subscriber("block1_pose", PoseStamped, getPoseBlock)
+    rospy.Subscriber("left_button_pose", PoseStamped, getPoseButtonLeft)
+    rospy.Subscriber("right_button_pose", PoseStamped, getPoseButtonRight)
+    rospy.Subscriber("block_pose", PoseStamped, getPoseBlock)
     
     s = rospy.Service("press_button_srv", PressButtonSrv, handle_pressButton)
     rospy.spin()
