@@ -271,7 +271,7 @@ def main():
     rospy.Subscriber("block2_pose", PoseStamped, getPoseButtonRight)
     rospy.Subscriber("block1_pose", PoseStamped, getPoseBlock)
     
-    s = rospy.Service("ObtainObjectSrv", ObtainObjectSrv, handle_ObtainObject)
+    s = rospy.Service("obtain_object_srv", ObtainObjectSrv, handle_ObtainObject)
     rospy.spin()
     
     return 0

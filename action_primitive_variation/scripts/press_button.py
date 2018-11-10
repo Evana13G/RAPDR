@@ -265,7 +265,7 @@ def main():
     rospy.Subscriber("block2_pose", PoseStamped, getPoseButtonRight)
     rospy.Subscriber("block1_pose", PoseStamped, getPoseBlock)
     
-    s = rospy.Service("PressButtonSrv", PressButtonSrv, handle_pressButton)
+    s = rospy.Service("press_button_srv", PressButtonSrv, handle_pressButton)
     rospy.spin()
     
     return 0
