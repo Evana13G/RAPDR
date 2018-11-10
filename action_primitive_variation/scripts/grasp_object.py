@@ -202,7 +202,7 @@ def grabPose(poseStmpd):
 	return newPose
 	
 
-def handle_graspObject(req):
+def handle_ObtainObject(req):
     print("Received:")
     print("PoseStamped:")
     print(req.objectPoseStamped)
@@ -256,18 +256,18 @@ def handle_graspObject(req):
     else:
         currentAction.move_to_start(starting_joint_angles_r)
     
-    return GraspObjectSrvResponse(1)
+    return ObtainObjectSrvResponse(1)
 
 
 def main():
-    rospy.init_node("grasp_object_node")
+    rospy.init_node("obtain_object_node")
     rospy.on_shutdown(delete_gazebo_models)
     rospy.wait_for_message("/robot/sim/started", Empty)
     rospy.Subscriber("block3_pose", PoseStamped, getPoseButtonLeft)
     rospy.Subscriber("block2_pose", PoseStamped, getPoseButtonRight)
     rospy.Subscriber("block1_pose", PoseStamped, getPoseBlock)
     
-    s = rospy.Service("GraspObjectSrv", GraspObjectSrv, handle_graspObject)
+    s = rospy.Service("ObtainObjectSrv", ObtainObjectSrv, handle_ObtainObject)
     rospy.spin()
     
     return 0
