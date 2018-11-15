@@ -3,8 +3,8 @@
 
 	<!-- ROSPlan -->
 	<include file="$(find rosplan_planning_system)/launch/interfaced_planning_system.launch" >
-		<arg name="domain_path"		value="$(find rosplan_demos)/common/domain_rapdr.pddl" />
-		<arg name="problem_path"	value="$(find rosplan_demos)/common/problem_rapdr.pddl" />
+		<arg name="domain_path"		value="$(find pddl)/scripts/domain_rapdr.pddl" />
+		<arg name="problem_path"	value="$(find pddl)/scripts/problem_rapdr.pddl" />
 	</include>
 
 	<!-- sim actions -->
