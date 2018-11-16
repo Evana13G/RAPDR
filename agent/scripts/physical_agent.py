@@ -42,7 +42,7 @@ limb = None
 button_name = None
 poseStampedTo = None
 
-class Agent(object):
+class PhysicalAgent(object):
     def __init__(self, limb, hover_distance = 0.01, verbose=True):
         self._limb_name = limb # string
         self._hover_distance = hover_distance # in meters
@@ -64,7 +64,6 @@ class Agent(object):
         if not start_angles:
             start_angles = dict(zip(self._joint_names, [0]*7))
         self._guarded_move_to_joint_position(start_angles)
-        self.gripper_open()
         rospy.sleep(1.0)
         print("Running. Ctrl-c to quit")
 
