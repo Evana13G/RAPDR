@@ -33,7 +33,7 @@ from tf.transformations import *
 
 import baxter_interface
 
-from action_primitive_variation.srv import *
+from agent.srv import *
 
 LeftButtonPose = None
 RightButtonPose = None
@@ -196,7 +196,7 @@ def hoverOverPose(poseStmpd):
 	return newPose
 	
 
-def handle_openGripper(req):
+def handle_closeGripper(req):
     print("Limb:")
     print(req.limb)
     
@@ -207,20 +207,20 @@ def handle_openGripper(req):
     
     currentAction = PressButton(limb, hover_distance)
         
-    currentAction.gripper_open()
+    currentAction.gripper_close()
 
-    return OpenGripperSrvResponse(1)
+    return CloseGripperSrvResponse(1)
 
 
 def main():
-    rospy.init_node("open_gripper_node")
+    rospy.init_node("close_gripper_node")
     rospy.on_shutdown(delete_gazebo_models)
     rospy.wait_for_message("/robot/sim/started", Empty)
     rospy.Subscriber("left_button_pose", PoseStamped, getPoseButtonLeft)
     rospy.Subscriber("right_button_pose", PoseStamped, getPoseButtonRight)
     rospy.Subscriber("block_pose", PoseStamped, getPoseBlock)
     
-    s = rospy.Service("OpenGripperSrv", OpenGripperSrv, handle_openGripper)
+    s = rospy.Service("CloseGripperSrv", CloseGripperSrv, handle_closeGripper)
     rospy.spin()
     
     return 0

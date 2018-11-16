@@ -6,7 +6,7 @@ find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs geometry_msgs genm
 
 ## Declare ROS messages and services
 add_message_files(FILES)
-add_service_files(FILES OpenGripperSrv.srv CloseGripperSrv.srv MoveToObject.srv MoveToButton.srv PressButtonSrv.srv ObtainObjectSrv.srv test.srv)
+add_service_files(FILES)
 
 ## Generate added messages and services
 generate_messages(DEPENDENCIES std_msgs geometry_msgs)

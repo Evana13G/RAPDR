@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from action_primitive_variation.srv import PressButtonSrv, CloseGripperSrv, OpenGripperSrv, ObtainObjectSrv
+from agent.srv import PressButtonSrv, CloseGripperSrv, OpenGripperSrv, ObtainObjectSrv
 import rospy
 
 from geometry_msgs.msg import (
@@ -21,7 +21,7 @@ def main():
     print("Ready to call service")
     try:
         b = rospy.ServiceProxy('press_button_srv', PressButtonSrv)
-        resp = b('left', 'block')
+        resp = b('left', 'left_button')
         print(resp.success_bool)
     except rospy.ServiceException, e:
         print("Service call failed: %s"%e)

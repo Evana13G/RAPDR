@@ -2,7 +2,7 @@
 
 import sys
 import rospy
-from action_primitive_variation.srv import *
+from agent.srv import *
 
 def move_arm_client(loc):
     rospy.wait_for_service('move_arm')
