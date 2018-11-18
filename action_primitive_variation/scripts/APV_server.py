@@ -33,8 +33,9 @@ from tf.transformations import *
 
 import baxter_interface
 
+from util.knowledge_base import KnowledgeBase
+
 from action_primitive_variation.srv import *
-from knowledge_base import KnowledgeBase
 
 actionToVary = None 
 gripper = None
@@ -48,39 +49,49 @@ KB = KnowledgeBase(AP_names, AP_services, AP_srvs)
 
 
 def handle_APV(req):
-    print("(Received) Action to Vary: ")
-    print(req.actionName)
 
-    params = {}
+    params = []
 
     global actionToVary
     actionToVary = req.actionName
     global gripper
     gripper = req.gripper
-    if gripper is not None: 
-        params['gripper'] = gripper
+    # print(gripper)
+    if gripper is not '': 
+        params.append(gripper)
     global obj
     obj = req.obj
-    if obj is not None: 
-        params['obj'] = obj
+    # print(obj)
+    if obj is not '': 
+        params.append(obj)
     global button
     button = req.button
-    if button is not None: 
-        params['button'] = button
+    # print(button)
+    if button is not '': 
+        params.append(button)
 
+    # print(params)
     execute_action(actionToVary, params)
 
 
     return APVSrvResponse(1)
 
 def execute_action(actionName, params):
-    args = params.values()
     rospy.wait_for_service(KB.getService(actionName), timeout=60)
+
+    # while(1):
+        
     try:
         b = rospy.ServiceProxy(KB.getService(actionName), KB.getSrv(actionName))
-
-        resp = b(args)
-
+        resp = None
+        if len(params) == 1:
+            resp = b(params[0])
+        elif len(params) == 2:
+            resp = b(params[0], params[1])
+        elif len(params) == 3:
+            resp = b(params[0], params[1], params[2])
+        elif len(params) == 4:
+            resp = b(params[0], params[1], params[2], params[3])
         print(resp.success_bool)
     except rospy.ServiceException, e:
         print("Service call failed: %s"%e)

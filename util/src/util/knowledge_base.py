@@ -20,6 +20,7 @@ from std_msgs.msg import (
 )
 
 from action_primitive_variation.srv import *
+from agent.srv import *
 
 class KnowledgeBase(object):
     def __init__(self, actionPrimitiveNames, actionPrimitiveServices, actionPrimitiveSrvFiles):
@@ -52,7 +53,7 @@ class KnowledgeBase(object):
     def getService(self, actionName):
         return self.services[self.names.index(actionName)]
 
-    def getSrv(self):
+    def getSrv(self, actionName):
         return self.srvs[self.names.index(actionName)]
 
     def getAPData_list(self):
