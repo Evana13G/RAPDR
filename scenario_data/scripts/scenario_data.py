@@ -39,35 +39,94 @@ from action_primitive_variation.srv import *
 LeftButtonPose = None
 RightButtonPose = None
 BlockPose = None
+LeftGripperPose = None
+RightGripperPose = None
+RobotCurrentView = None
 
 
-def getPoseButtonLeft(data):
+def setPoseButtonLeft(data):
     global LeftButtonPose
     LeftButtonPose = data
+    return "Left Button position at: " + LeftButtonPose
 
-def getPoseButtonRight(data):
+def setPoseButtonRight(data):
     global RightButtonPose
     RightButtonPose = data
+    return "Right Button position at: " + RightButtonPose
 
-def getPoseBlock(data):
+def setPoseBlock(data):
     global BlockPose
     BlockPose = data
+    return "Block position at: " + BlockPose
+
+def setPoseGripperLeft(data):
+    global LeftGripperPose
+    LeftGripperPose = data
+    return "Left Gripper position at: " + LeftGripperPose
+    
+def setPoseGripperRight(data):
+    global RightGripperPose
+    RightGripperPose = data
+    return "Right Gripper position at: " + RightGripperPose
+    
+def setRobotCurrView(data):
+    global RobotCurrentView
+    RobotCurrentView = data
+    return "Robot Current View at: " + RobotCurrentView
 
 
+def getPoseButtonLeft():
+    global LeftButtonPose
+    return deepcopy(LeftButtonPose)
+
+def getPoseButtonRight():
+    global RightButtonPose
+    return deepcopy(RightButtonPose)
+
+def getPoseBlock():
+    global BlockPose
+    return deepcopy(BlockPose)
+
+def getPoseGripperLeft():
+    global LeftGripperPose
+    return deepcopy(LeftGripperPose)
+    
+def getPoseGripperRight():
+    global RightGripperPose
+    return deepcopy(RightGripperPose)
+    
+def getRobotCurrView():
+    global RobotCurrentView
+    return deepcopy(RobotCurrentView)
 
 
+def handle_Scenario(req):
+    if (req.returnDataType == "predicate"):
+        print(getPoseButtonLeft())
+        print(getPoseButtonRight())
+        print(getPoseBlock())
+        print(getPoseGripperLeft())
+        print(getPoseGripperRight())
+        print(getRobotCurrView())
 
+    else:
+        print("Raw Data")
+
+    return ScenarioSrvResponse(1)
 
 
 def main():
     rospy.init_node("scenario_data_node")
     rospy.wait_for_message("/robot/sim/started", Empty)
     
-    rospy.Subscriber("left_button_pose", PoseStamped, getPoseButtonLeft)
-    rospy.Subscriber("right_button_pose", PoseStamped, getPoseButtonRight)
-    rospy.Subscriber("block_pose", PoseStamped, getPoseBlock)
+    rospy.Subscriber("left_button_pose", PoseStamped, gstPoseButtonLeft)
+    rospy.Subscriber("right_button_pose", PoseStamped, setPoseButtonRight)
+    rospy.Subscriber("block_pose", PoseStamped, setPoseBlock)
+    rospy.Subscriber("left_gripper_pose", PoseStamped, setPoseGripperLeft)
+    rospy.Subscriber("right_gripper_pose", PoseStamped, setPoseGripperRight)
+    rospy.Subscriber("robot_current_view", PoseStamped, setRobotCurrView)
     
-
+    s = rospy.Service("ScenarioSrv", ScenarioSrv, handle_Scenario)
     rospy.spin()
     
     return 0
