@@ -34,13 +34,17 @@ from tf.transformations import *
 import baxter_interface
 
 from action_primitive_variation.srv import *
-
+from knowledge_base import KnowledgeBase
 
 actionToVary = None 
 gripper = None
 obj = None
 button = None
-actionPrimitiveKnowledgeBase = {}
+
+AP_names = ['press_button', 'obtain_object']
+AP_services = ['press_button_srv', 'obtain_object_srv']
+AP_srvs = [PressButtonSrv, ObtainObjectSrv]
+KB = KnowledgeBase(AP_names, AP_services, AP_srvs)
 
 
 def handle_APV(req):
@@ -51,8 +55,6 @@ def handle_APV(req):
 
     global actionToVary
     actionToVary = req.actionName
-    if actionToVary is not None: 
-        params['actionName'] = actionToVary
     global gripper
     gripper = req.gripper
     if gripper is not None: 
@@ -69,22 +71,23 @@ def handle_APV(req):
     execute_action(actionToVary, params)
 
 
-    # return PressButtonSrvResponse(1)
+    return APVSrvResponse(1)
 
 def execute_action(actionName, params):
     args = params.values()
-    print(args)
-    # rospy.wait_for_service('press_button_srv', timeout=60)
-    # try:
-    #     b = rospy.ServiceProxy('press_button_srv', PressButtonSrv)
-    #     resp = b('left', 'block')
-    #     print(resp.success_bool)
-    # except rospy.ServiceException, e:
-    #     print("Service call failed: %s"%e)
+    rospy.wait_for_service(KB.getService(actionName), timeout=60)
+    try:
+        b = rospy.ServiceProxy(KB.getService(actionName), KB.getSrv(actionName))
+
+        resp = b(args)
+
+        print(resp.success_bool)
+    except rospy.ServiceException, e:
+        print("Service call failed: %s"%e)
 
 def main():
     rospy.init_node("APV_node")
-    rospy.wait_for_message("/robot/sim/started", Empty)
+    # rospy.wait_for_message("/robot/sim/started", Empty)
 
     # rospy.Subscriber("left_button_pose", PoseStamped, getPoseButtonLeft)
     # rospy.Subscriber("right_button_pose", PoseStamped, getPoseButtonRight)
