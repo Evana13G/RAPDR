@@ -34,7 +34,7 @@ from tf.transformations import *
 import baxter_interface
 
 from action_primitive_variation.srv import *
-from agent.scripts.knowledge_base import KnowledgeBase
+from knowledge_base import KnowledgeBase
 
 actionToVary = None 
 gripper = None
