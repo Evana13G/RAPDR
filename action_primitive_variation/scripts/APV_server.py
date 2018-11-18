@@ -50,6 +50,7 @@ KB = KnowledgeBase(AP_names, AP_services, AP_srvs)
 def handle_APV(req):
     print("(Received) Action to Vary: ")
     print(req.actionName)
+
     params = {}
 
     global actionToVary
