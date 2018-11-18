@@ -47,10 +47,6 @@ def handle_APV(req):
     global actionToVary
     actionToVary = req.actionToVary
 
-
-
-
-
     # return PressButtonSrvResponse(1)
 
 
