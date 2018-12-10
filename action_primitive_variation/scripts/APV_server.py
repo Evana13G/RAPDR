@@ -27,7 +27,6 @@ from std_msgs.msg import (
     Header,
     Empty,
 )
-
 from baxter_core_msgs.srv import (
     SolvePositionIK,
     SolvePositionIKRequest,
@@ -55,8 +54,8 @@ AP_srvs = [PressButtonSrv, ObtainObjectSrv]
 KB = KnowledgeBase(AP_names, AP_services, AP_srvs)
 
 def handle_APV(req):
-    params = []
 
+    params = []
     global actionToVary
     actionToVary = req.actionName
     global gripper
@@ -73,47 +72,46 @@ def handle_APV(req):
         params.append(button)
 
     global shouldRecord
-
     shouldRecord = True
     execute_action(actionToVary, params)
     shouldRecord = False
-    global bag 
-
-    elevData = []
-    for topic, msg, t in bag.read_messages(topics=['block_pose']):
-        elevData.append(msg.pose.position.z)
-    bag.close()
-
-    plt.plot(elevData)
-    plt.show()
+    
     
     return APVSrvResponse(1)
 
-def setPoseBlock(data):
-    global BlockPose
-    BlockPose = data
+
+############### START: Call back functions that check to see if ROSbag should be being recorded
+def handle_PoseBlock(data):
     global shouldRecord
     if shouldRecord is not False:
-        write_to_ROSbag()
+        write_to_ROSbag('block_pose', data)
 
-def getPoseBlock():
-    global BlockPose
-    return copy.deepcopy(BlockPose)
 
-def write_to_ROSbag():
+############### END: Call back functions that check to see if ROSbag should be being recorded
+
+############### START: ROSbag handling
+def write_to_ROSbag(topicName, data):
     global bag
     try:
-        # data = str(getPoseBlock().pose.position.x)
-        bag.write('block_pose', getPoseBlock())
+        # data = str(data.pose.position.x)
+        bag.write(topicName, data)
     finally:
         pass
         # bag.close()
 
+def visualize_ROSbag():
+    global bag 
+    elevData = []
+    for topic, msg, t in bag.read_messages(topics=['block_pose']):
+        elevData.append(msg.pose.position.z)
+    bag.close()
+    plt.plot(elevData)
+    plt.show()
 
 #     header = { 'topic' : topic, 'type' : msg.__class__._type, 'md5sum' : msg.__class__._md5sum, 'message_definition' : msg._full_text }
 # AttributeError: type object 'str' has no attribute '_type'
 
-
+############### END: ROSbag handling
 
 
 def execute_action(actionName, params):
@@ -136,10 +134,13 @@ def execute_action(actionName, params):
 
 def main():
     rospy.init_node("APV_node")
-    # rospy.wait_for_message("/robot/sim/started", Empty)
-    # rospy.Subscriber("left_button_pose", PoseStamped, getPoseButtonLeft)
-    # rospy.Subscriber("right_button_pose", PoseStamped, getPoseButtonRight)
-    rospy.Subscriber("block_pose", PoseStamped, setPoseBlock)
+    rospy.wait_for_message("/robot/sim/started", Empty)
+
+    rospy.Subscriber("left_button_pose", PoseStamped, handle_PoseButtonLeft)
+    rospy.Subscriber("right_button_pose", PoseStamped, handle_PoseButtonRight)    
+    rospy.Subscriber("block_pose", PoseStamped, handle_PoseBlock)
+
+
     s = rospy.Service("APV_srv", APVSrv, handle_APV)
     rospy.spin()
     
