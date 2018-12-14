@@ -132,6 +132,9 @@ def main():
     pub_block_pose = rospy.Publisher('block_pose', PoseStamped, queue_size = 10)
     pub_right_button_pose = rospy.Publisher('right_button_pose', PoseStamped, queue_size = 10)
     pub_left_button_pose = rospy.Publisher('left_button_pose', PoseStamped, queue_size = 10)
+
+    pub_left_gripper_pose = rospy.Publisher('left_gripper_pose', Point, queue_size = 10)
+    pub_right_gripper_pose = rospy.Publisher('right_gripper_pose', Point, queue_size = 10)
     
     frameid_var = "/world"
 
@@ -141,9 +144,7 @@ def main():
 		
         #Get cafe_table pose
         rospy.wait_for_service('/gazebo/get_model_state')
-    
         try:
-            #ms means model_state
             cafe_table_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
             resp_cafe_table_ms = cafe_table_ms("cafe_table", "");
             pose_cafe_table = resp_cafe_table_ms.pose
@@ -153,12 +154,10 @@ def main():
             pub_cafe_table_pose.publish(poseStamped_cafe_table)
         except rospy.ServiceException, e:
             rospy.logerr("get_model_state for cafe_table service call failed: {0}".format(e))
-			
+
         #Get grey_wall pose
         rospy.wait_for_service('/gazebo/get_link_state')
-    
         try:
-            #ms means model_state
             grey_wall_ms = rospy.ServiceProxy('/gazebo/get_link_state', GetLinkState)
             resp_grey_wall_ms = grey_wall_ms("grey_wall_link", "");
             pose_grey_wall = resp_grey_wall_ms.link_state.pose
@@ -169,12 +168,10 @@ def main():
             pub_grey_wall_pose.publish(poseStamped_grey_wall)
         except rospy.ServiceException, e:
             rospy.logerr("get_model_state for grey_wall service call failed: {0}".format(e))
-			
+
         #Get block pose
         rospy.wait_for_service('/gazebo/get_model_state')
-    
         try:
-            #ms means model_state
             block_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
             resp_block_ms = block_ms("block", "");
             pose_block = resp_block_ms.pose
@@ -185,39 +182,103 @@ def main():
             pub_block_pose.publish(blockPoseToGripper(poseStamped_block))
         except rospy.ServiceException, e:
             rospy.logerr("get_model_state for block service call failed: {0}".format(e))
-			
+
         #Get right_button pose
         rospy.wait_for_service('/gazebo/get_model_state')
-    
         try:
-            #ms means model_state
             right_button_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
             resp_right_button_ms = right_button_ms("right_button", "");
             pose_right_button = resp_right_button_ms.pose
             header_right_button = resp_right_button_ms.header
             header_right_button.frame_id = frameid_var
             poseStamped_right_button = PoseStamped(header=header_right_button, pose=pose_right_button)
-            #pub_right_button_pose.publish(poseStamped_right_button)
             pub_right_button_pose.publish(blockPoseToGripper(poseStamped_right_button))
         except rospy.ServiceException, e:
             rospy.logerr("get_model_state for right_button service call failed: {0}".format(e))
-			
+
         #Get left_button pose
         rospy.wait_for_service('/gazebo/get_model_state')
-    
         try:
-            #ms means model_state
             left_button_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
             resp_left_button_ms = left_button_ms("left_button", "");
             pose_left_button = resp_left_button_ms.pose
             header_left_button = resp_left_button_ms.header
             header_left_button.frame_id = frameid_var
             poseStamped_left_button = PoseStamped(header=header_left_button, pose=pose_left_button)
-            #pub_left_button_pose.publish(poseStamped_left_button)
             pub_left_button_pose.publish(blockPoseToGripper(poseStamped_left_button))
         except rospy.ServiceException, e:
             rospy.logerr("get_model_state for left_button service call failed: {0}".format(e))
         
+
+        rospy.wait_for_service('/gazebo/get_link_state')
+
+        lglfPose = None
+        lgrfPose = None
+
+        try:
+            lglf_link_state = rospy.ServiceProxy('/gazebo/get_link_state', GetLinkState)
+            resp_lglf_link_state = lglf_link_state('l_gripper_l_finger', 'world')
+            lglfPose = resp_lglf_link_state.link_state.pose.position
+        except rospy.ServiceException, e:
+            rospy.logerr("get_link_state for l_gripper_l_finger: {0}".format(e))
+
+        try:
+            lgrf_link_state = rospy.ServiceProxy('/gazebo/get_link_state', GetLinkState)
+            resp_lgrf_link_state = lgrf_link_state('l_gripper_r_finger', 'world')
+            lgrfPose = resp_lgrf_link_state.link_state.pose.position
+        except rospy.ServiceException, e:
+            rospy.logerr("get_link_state for l_gripper_r_finger: {0}".format(e))
+
+        # global leftGripperPose
+        leftGripperPose = Point()
+        leftGripperPose.x = (lglfPose.x + lgrfPose.x)/2
+        leftGripperPose.y = (lglfPose.y + lgrfPose.y)/2
+        leftGripperPose.z = (lglfPose.z + lgrfPose.z)/2
+        pub_left_gripper_pose.publish(leftGripperPose)
+
+        # print("Left Gripper Pose: ")
+        # print(leftGripperPose)
+
+
+        rospy.wait_for_service('/gazebo/get_link_state')
+        
+        rglfPose = None
+        rgrfPose = None
+
+        try:
+            rglf_link_state = rospy.ServiceProxy('/gazebo/get_link_state', GetLinkState)
+            resp_rglf_link_state = rglf_link_state('r_gripper_l_finger', 'world')
+            rglfPose = resp_rglf_link_state.link_state.pose.position
+        except rospy.ServiceException, e:
+            rospy.logerr("get_link_state for r_gripper_l_finger: {0}".format(e))
+
+        try:
+            rgrf_link_state = rospy.ServiceProxy('/gazebo/get_link_state', GetLinkState)
+            resp_rgrf_link_state = rgrf_link_state('r_gripper_r_finger', 'world')
+            rgrfPose = resp_rgrf_link_state.link_state.pose.position
+        except rospy.ServiceException, e:
+            rospy.logerr("get_link_state for r_gripper_r_finger: {0}".format(e))
+
+        # global rightGripperPose
+        rightGripperPose = Point()
+        rightGripperPose.x = (rglfPose.x + rgrfPose.x)/2
+        rightGripperPose.y = (rglfPose.y + rgrfPose.y)/2
+        rightGripperPose.z = (rglfPose.z + rgrfPose.z)/2
+        pub_right_gripper_pose.publish(rightGripperPose)
+
+        # print("Right Gripper Pose: ")
+        # print(rightGripperPose)
+
+
+
+
+
+
+
+
+
+
+
     rate.sleep()
 
     return 0

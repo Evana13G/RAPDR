@@ -20,7 +20,6 @@ def main():
     try:
         b = rospy.ServiceProxy('APV_srv', APVSrv)
         resp = b('obtain_object', 'left', 'block', None)
-        print(resp.success_bool)
     except rospy.ServiceException, e:
         print("Service call failed: %s"%e)
 
