@@ -39,6 +39,7 @@ from baxter_core_msgs.srv import (
 from tf.transformations import *
 import baxter_interface
 from util.knowledge_base import KnowledgeBase
+from util.bayesian_change_point import BayesianChangePoint
 from action_primitive_variation.srv import *
 
 actionToVary = None 
@@ -259,9 +260,6 @@ def visualize_ROSbag_data():
         right_w0.append(msg.position[i_right_w0])
         right_w1.append(msg.position[i_right_w1])
         right_w2.append(msg.position[i_right_w2])
-
-        print("left_e0 " + msg.name[i_left_e0])
-        print("right_e0 " + msg.name[i_right_e0])
     
     halfLen = len(left_e0)/2
 
@@ -281,12 +279,26 @@ def visualize_ROSbag_data():
     right_w1 = right_w1[:halfLen]
     right_w2 = right_w2[:halfLen]
 
+
+
+    segs = BayesianChangePoint(np.array([left_e0, left_e1, left_s0, left_s1, left_w0, left_w1, left_w2]))
+    segs.detectChangePoints()
+
+    print("******************Segs********************")
+    print(segs)
+
+    # plt.plot(left_e0, 'r--', left_e1, 'r1',
+    #          left_s0, 'b--', left_s1, 'b1', 
+    #          left_w0, 'g--', left_w1, 'g1', left_w2, 'g^',
+    #          right_e0, 'c--', right_e1, 'c1',
+    #          right_s0, 'm--', right_s1, 'm1', 
+    #          right_w0, 'y--', right_w1, 'y1', right_w2, 'y^')
+
+
     plt.plot(left_e0, 'r--', left_e1, 'r1',
              left_s0, 'b--', left_s1, 'b1', 
-             left_w0, 'g--', left_w1, 'g1', left_w2, 'g^',
-             right_e0, 'c--', right_e1, 'c1',
-             right_s0, 'm--', right_s1, 'm1', 
-             right_w0, 'y--', right_w1, 'y1', right_w2, 'y^')
+             left_w0, 'g--', left_w1, 'g1', left_w2, 'g^')
+
     plt.show()
 
 
