@@ -285,7 +285,7 @@ def visualize_ROSbag_data():
     segs.detectChangePoints()
 
     print("******************Segs********************")
-    print(segs)
+    print(segs.pullOutChangePoints())
 
     # plt.plot(left_e0, 'r--', left_e1, 'r1',
     #          left_s0, 'b--', left_s1, 'b1', 

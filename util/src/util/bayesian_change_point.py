@@ -34,25 +34,14 @@ class BayesianChangePoint(object):
         return self.data
 
     def detectChangePoints(self):
-		detector = cpdetect.cpDetector(self.data, distribution='normal', log_odds_threshold=0)
-		detector.detect_cp()
-		detector.to_csv('changePointData.csv')
+        detector = cpdetect.cpDetector(self.data, distribution='normal', log_odds_threshold=0)
+        detector.detect_cp()
+        detector.to_csv('changePointData.csv')
 
-	def pullOutChangePoints(self):
-		content = None
-		with open('changePointData.csv', 'rb') as csvfile:
-
-		    # get number of columns
-		    for line in csvfile.readlines():
-		        array = line.split(',')
-		        first_item = array[0]
-
-		    num_columns = len(array)
-		    csvfile.seek(0)
-
-		    reader = csv.reader(csvfile, delimiter=' ')
-		        included_cols = [1, 2, 6, 7]
-
-			for row in reader:
-	        	content = list(row[i] for i in included_cols)
-	    return content
+    def pullOutChangePoints(self):
+        content = []
+        with open('changePointData.csv', 'rb') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for row in reader:
+                content.append(int(row[2]))
+        return content
