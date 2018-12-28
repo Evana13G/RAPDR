@@ -19,7 +19,8 @@ def main():
     rospy.wait_for_service('APV_srv', timeout=60)
     try:
         b = rospy.ServiceProxy('APV_srv', APVSrv)
-        resp = b('obtain_object', 'left', 'block', None)
+        # resp = b('obtain_object', 'left', 'block', None)
+        resp = b('press_button', 'left', 'left_button', None)
     except rospy.ServiceException, e:
         print("Service call failed: %s"%e)
 

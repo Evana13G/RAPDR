@@ -12,7 +12,7 @@ import rospy
 import rospkg
 import rosbag
 import matplotlib.pyplot as plt
-import matplotlib.figure
+from matplotlib.lines import Line2D
 
 from gazebo_msgs.srv import (
     SpawnModel,
@@ -281,11 +281,16 @@ def visualize_ROSbag_data():
 
 
 
-    segs = BayesianChangePoint(np.array([left_e0, left_e1, left_s0, left_s1, left_w0, left_w1, left_w2]))
+    segs = BayesianChangePoint(np.array([left_e0, left_e1, left_s0, left_s1, left_w0, left_w1, left_w2]), 'changePointData.csv')
     segs.detectChangePoints()
 
-    print("******************Segs********************")
-    print(segs.pullOutChangePoints())
+    cps_0 = segs.getChangePoints('traj_0')
+    cps_1 = segs.getChangePoints('traj_1')
+    cps_2 = segs.getChangePoints('traj_2')
+    cps_3 = segs.getChangePoints('traj_3')
+    cps_4 = segs.getChangePoints('traj_4')
+    cps_5 = segs.getChangePoints('traj_5')
+    cps_6 = segs.getChangePoints('traj_6')
 
     # plt.plot(left_e0, 'r--', left_e1, 'r1',
     #          left_s0, 'b--', left_s1, 'b1', 
@@ -295,10 +300,61 @@ def visualize_ROSbag_data():
     #          right_w0, 'y--', right_w1, 'y1', right_w2, 'y^')
 
 
-    plt.plot(left_e0, 'r--', left_e1, 'r1',
-             left_s0, 'b--', left_s1, 'b1', 
-             left_w0, 'g--', left_w1, 'g1', left_w2, 'g^')
+    plt.plot(left_e0, 'r--', label='left_e0')
+    plt.plot(left_e1, 'r1', label='left_e1')
+    plt.plot(left_s0, 'b--', label='left_s0')
+    plt.plot(left_s1, 'b1', label='left_s1')
+    plt.plot(left_w0, 'g--', label='left_w0')
+    plt.plot(left_w1, 'g1', label='left_w1')
+    plt.plot(left_w2, 'g^', label='left_w2')
+        # red
+        # blue
+        # green
 
+    for xc in cps_0:
+        plt.axvline(x=xc, color='m') # magenta
+
+    for xc in cps_1:
+        plt.axvline(x=xc, color='c') # cyan
+
+    for xc in cps_2:
+        plt.axvline(x=xc, color='y') # yellow
+
+    for xc in cps_3:
+        plt.axvline(x=xc, color='k') # black
+
+    for xc in cps_4:
+        plt.axvline(x=xc, color='#ff9933') # orange
+ 
+    for xc in cps_5:
+        plt.axvline(x=xc, color='#aa80ff') # purple
+
+    for xc in cps_6:
+        plt.axvline(x=xc, color='#a3c2c2') # greyish- seafoam 
+
+    lines = []
+
+    lines.append(Line2D([0], [0], color='red', linestyle='--'))
+    lines.append(Line2D([0], [0], color='red', linestyle='-'))
+    lines.append(Line2D([0], [0], color='blue', linestyle='--'))
+    lines.append(Line2D([0], [0], color='blue', linestyle='-'))
+    lines.append(Line2D([0], [0], color='green', linestyle='--'))
+    lines.append(Line2D([0], [0], color='green', linestyle='-'))
+    lines.append(Line2D([0], [0], color='green', linestyle='-.'))
+
+    lines.append(Line2D([0], [0], color='magenta', linestyle='-'))
+    lines.append(Line2D([0], [0], color='cyan', linestyle='-'))
+    lines.append(Line2D([0], [0], color='yellow', linestyle='-'))
+    lines.append(Line2D([0], [0], color='black', linestyle='-'))
+    lines.append(Line2D([0], [0], color='#ff9933', linestyle='-'))
+    lines.append(Line2D([0], [0], color='#aa80ff', linestyle='-'))
+    lines.append(Line2D([0], [0], color='#a3c2c2', linestyle='-'))
+
+    labels = ['left_e0', 'left_e1', 'left_s0', 'left_s1', 'left_w0', 'left_w1', 'left_w2',
+              'left_e0 change point', 'left_e1 change point', 'left_s0 change point', 'left_s1 change point', 'left_w0 change point', 'left_w1 change point', 'left_w2 change point']
+    plt.legend(lines, labels)
+
+    # plt.legend(loc='upper left')
     plt.show()
 
 
