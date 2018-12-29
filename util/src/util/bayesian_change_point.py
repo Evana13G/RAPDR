@@ -31,14 +31,15 @@ class BayesianChangePoint(object):
     def __init__(self, _data, _filename):
         self.rawData = _data
         self.filename = _filename
-        cp_set, cp_list = self.detectChangePoints()
+        trajs, cp_set, cp_list = self.detectChangePoints()
+        self.trajectoryNames = trajs
         self.trajectoryChangePoints = cp_set
         self.fullListChangePoints = cp_list
         # self.compressedChangePoints = self.compressChangePoints()
         self.compressChangePoints()
 
     def detectChangePoints(self):
-        detector = cpdetect.cpDetector(self.rawData, distribution='normal', log_odds_threshold=0)
+        detector = cpdetect.cpDetector(self.rawData, distribution='normal', log_odds_threshold=111)
         detector.detect_cp()
         detector.to_csv(self.filename)
         return self.csvExtractCps()
@@ -46,18 +47,21 @@ class BayesianChangePoint(object):
     def csvExtractCps(self):
         content = {}
         content_list = []
-        trajs = ['traj_0', 'traj_1', 'traj_2', 'traj_3', 'traj_4', 'traj_5', 'traj_6']
-        for traj in trajs:
-            content[traj] = []
-        print(content)
+        trajs = []
+
         with open(self.filename, 'rb') as csvfile:
-            reader = csv.reader(self.filename, delimiter=',')
+            reader = csv.reader(csvfile, delimiter=',')
             next(reader)
             for row in reader:
-                print(row)
-                # content[row[0]].append(int(row[2]))
-                content_list.append(int(row[2]))
-        return content, content_list
+                # get keys
+                trajs.append(row[0])
+                content_list.append((row[0], int(row[2]))) # tuple 
+            trajs = list(set(trajs))
+            for traj in trajs:
+                content[traj] = []
+            for tup in content_list:
+                content[tup[0]].append(tup[1])
+            return trajs, content, content_list
 
     def compressChangePoints(self):
         content = {}
@@ -72,3 +76,9 @@ class BayesianChangePoint(object):
 
     def getChangePoints(self, trajectory):
         return self.trajectoryChangePoints[trajectory]
+
+    def getTrajNames(self):
+        return self.trajectoryNames
+
+    def getNumTrajs(self):
+        return len(self.numberOfTrajectories)
