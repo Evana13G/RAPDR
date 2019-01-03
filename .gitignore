@@ -1,0 +1,47 @@
+# Dropbox settings and caches
+.dropbox
+.dropbox.attr
+.dropbox.cache
+
+# General
+~$*
+*~
+._*
+*.tmp
+*.temp
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.Trashes
+.fseventsd
+.Spotlight-V100
+lost+found
+.TemporaryItems
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Linux trash folder which might appear on any partition or disk
+.Trash-*
+
+# vim swap
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-v][a-z]
+[._]sw[a-p]
+
+# Temporary
+*~
+
+# PyCharm
+.idea
+
+# Temp files
+~$*
+*~
+*.tmp
+
