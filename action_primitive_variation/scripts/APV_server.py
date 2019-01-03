@@ -108,7 +108,8 @@ def handle_APV(req):
     visualize_change_points()
     closeBags()
 
-    return APVSrvResponse(1)
+    numberOfSegs = 1
+    return APVSrvResponse(numberOfSegs)
 
 
 ############### START: Call back functions that check to see if ROSbag should be being recorded

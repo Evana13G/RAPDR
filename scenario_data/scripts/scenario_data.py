@@ -37,27 +37,16 @@ from tf.transformations import *
 
 import baxter_interface
 
-from action_primitive_variation.srv import *
+from scenario_data.srv import *
 
 
 LeftButtonPose = None
 RightButtonPose = None
 BlockPose = None
 LeftGripperPose = None
-rightGripperPose = None
-
-# #Left Gripper Left Finger Pose
-# lglfPose = None
-# #Left Gripper Right Finger Pose
-# lgrfPose = None
-# #Right Gripper Left Finger Pose
-# rglfPose = None
-# #Right Gripper Right Finger Pose
-# rgrfPose = None
-# #Left Gripper Pose
-# leftGripperPose = None
-# #Right Gripper Pose
-# rightGripperPose = None
+RightGripperPose = None
+TablePose = None
+WallPose = None
 
 def setPoseButtonLeft(data):
     global LeftButtonPose
@@ -79,72 +68,22 @@ def setPoseGripperRight(data):
     global RightGripperPose
     RightGripperPose = data
 
-# def getLeftGripper():
-#     rospy.wait_for_service('/gazebo/get_link_state')
-    
-#     try:
-#         lglf_link_state = rospy.ServiceProxy('/gazebo/get_link_state', GetLinkState)
-#         resp_lglf_link_state = lglf_link_state('l_gripper_l_finger', 'world')
-#         global lglfPose
-#         lglfPose = resp_lglf_link_state.link_state.pose.position
-#     except rospy.ServiceException, e:
-#         rospy.logerr("get_link_state for l_gripper_l_finger: {0}".format(e))
-#     # print("LGLF pose: ")
-#     # print(lglfPose)
+def setPoseTable(data):
+    global TablePose
+    TablePose = data
 
-#     try:
-#         lgrf_link_state = rospy.ServiceProxy('/gazebo/get_link_state', GetLinkState)
-#         resp_lgrf_link_state = lgrf_link_state('l_gripper_r_finger', 'world')
-#         global lgrfPose
-#         lgrfPose = resp_lgrf_link_state.link_state.pose.position
-#     except rospy.ServiceException, e:
-#         rospy.logerr("get_link_state for l_gripper_r_finger: {0}".format(e))
-#     # print("LGRF pose: ")
-#     # print(lgrfPose)
+def setPoseWall(data):
+    global WallPose
+    WallPose = data
 
-#     global leftGripperPose
-#     leftGripperPose = Point()
-#     leftGripperPose.x = (lglfPose.x + lgrfPose.x)/2
-#     leftGripperPose.y = (lglfPose.y + lgrfPose.y)/2
-#     leftGripperPose.z = (lglfPose.z + lgrfPose.z)/2
+def generatePredicates(data):
+    # return the list of predicates 
 
-#     print("Left Gripper Pose: ")
-#     print(leftGripperPose)
+    # Process the at() predicates
+    predicates = []
+    predicates.add("at(button_left, " + str(LeftButtonPose) +")")
 
-# def getRightGripper():
-#     rospy.wait_for_service('/gazebo/get_link_state')
-    
-#     try:
-#         rglf_link_state = rospy.ServiceProxy('/gazebo/get_link_state', GetLinkState)
-#         resp_rglf_link_state = rglf_link_state('r_gripper_l_finger', 'world')
-#         global rglfPose
-#         rglfPose = resp_rglf_link_state.link_state.pose.position
-#     except rospy.ServiceException, e:
-#         rospy.logerr("get_link_state for r_gripper_l_finger: {0}".format(e))
-#     # print("RGLF pose: ")
-#     # print(rglfPose)
-
-#     try:
-#         rgrf_link_state = rospy.ServiceProxy('/gazebo/get_link_state', GetLinkState)
-#         resp_rgrf_link_state = rgrf_link_state('r_gripper_r_finger', 'world')
-#         global lgrfPose
-#         rgrfPose = resp_rgrf_link_state.link_state.pose.position
-#     except rospy.ServiceException, e:
-#         rospy.logerr("get_link_state for r_gripper_r_finger: {0}".format(e))
-#     # print("RGRF pose: ")
-#     # print(rgrfPose)
-
-#     global rightGripperPose
-#     rightGripperPose = Point()
-#     rightGripperPose.x = (rglfPose.x + rgrfPose.x)/2
-#     rightGripperPose.y = (rglfPose.y + rgrfPose.y)/2
-#     rightGripperPose.z = (rglfPose.z + rgrfPose.z)/2
-
-
-#     print("Right Gripper Pose: ")
-#     print(rightGripperPose)
-
-
+    return ScenarioDataSrvResponse(predicates)
 
 def main():
     rospy.init_node("scenario_data_node")
@@ -155,30 +94,12 @@ def main():
     rospy.Subscriber("left_button_pose", PoseStamped, setPoseButtonLeft)
     rospy.Subscriber("right_button_pose", PoseStamped, setPoseButtonRight)
     rospy.Subscriber("block_pose", PoseStamped, setPoseBlock)
+    rospy.Subscriber("cafe_table_pose", PoseStamped, setPoseTable)
+    rospy.Subscriber("grey_wall_pose", PoseStamped, setPoseWall)
 
-    # rospy.wait_for_service('/gazebo/get_link_state')
-    
-    # try:
-    #     lglf_link_state = rospy.ServiceProxy('/gazebo/get_link_state', GetLinkState)
-    #     resp_lglf_link_state = lgrf_link_state('l_gripper_l_finger', 'world')
-    #     global lglfPose
-    #     lglfPose = resp_lglf_link_state.pose
 
-    #     # cafe_table_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
-    #     # resp_cafe_table_ms = cafe_table_ms("cafe_table", "");
-    #     # pose_cafe_table = resp_cafe_table_ms.pose
-    #     # header_cafe_table = resp_cafe_table_ms.header
-    #     # header_cafe_table.frame_id = frameid_var
-    #     # poseStamped_cafe_table = PoseStamped(header=header_cafe_table, pose=pose_cafe_table)
-    #     # pub_cafe_table_pose.publish(poseStamped_cafe_table)
-    # except rospy.ServiceException, e:
-    #     rospy.logerr("get_link_state for l_gripper_l_finger: {0}".format(e))
-    # # global lglfPose
-    # getLeftGripper()
-    # getRightGripper()
-            
-    
 
+    s = rospy.Service("scenario_data_srv", ScenarioDataSrv, generatePredicates)
     rospy.spin()
     
     return 0

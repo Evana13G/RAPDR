@@ -1,6 +1,6 @@
 #include "rosplan_action_interface/PressButtonClient.h"
 #include "geometry_msgs/PoseStamped.h"
-#include "action_primitive_variation/PressButtonSrv.h"
+#include "agent/PressButtonSrv.h"
 #include <iostream>
 
 /* The implementation of RPTutorial.h */
@@ -17,8 +17,8 @@ namespace KCL_rosplan {
 		// The action implementation goes here.
 		ROS_INFO("Concrete Callback section reached");
 
-		// ros::ServiceClient client = n.serviceClient<action_primitive_variation::PressButtonSrv>("PressButtonSrv");
-		// action_primitive_variation::PressButtonSrv srv;
+		// ros::ServiceClient client = n.serviceClient<agent::PressButtonSrv>("PressButtonSrv");
+		// agent::PressButtonSrv srv;
 		// srv.request.limb = "left_gripper";
   // 		srv.request.buttonName = "button1";
 		// // srv.request.buttonPoseStamped = NULL; 
@@ -31,8 +31,8 @@ namespace KCL_rosplan {
 		// }
 
 
-		ros::ServiceClient client = n.serviceClient<action_primitive_variation::PressButtonSrv>("/press_button_srv");
-		action_primitive_variation::PressButtonSrv srv;
+		ros::ServiceClient client = n.serviceClient<agent::PressButtonSrv>("/press_button_srv");
+		agent::PressButtonSrv srv;
 		srv.request.limb = "left";
 		srv.request.buttonName = "button1";
 		// srv.request.buttonPoseStamped = NULL; 
