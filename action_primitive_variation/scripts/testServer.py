@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from action_primitive_variation.srv import PressButtonSrv, CloseGripperSrv, OpenGripperSrv, ObtainObjectSrv, APVSrv
+from agent.srv import PressButtonSrv, CloseGripperSrv, OpenGripperSrv, ObtainObjectSrv
 import rospy
 
 from geometry_msgs.msg import (
@@ -13,6 +13,8 @@ from std_msgs.msg import (
     Header,
     Empty,
 )
+
+from action_primitive_variation.srv import APVSrv
 
 def main():
     rospy.init_node("test_node")

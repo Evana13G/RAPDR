@@ -43,6 +43,7 @@ from util.bayesian_change_point import BayesianChangePoint
 from util.general_vis import *
 from util.ros_bag import RosBag
 from action_primitive_variation.srv import *
+from agent.srv import * 
 
 actionToVary = None 
 gripper = None
@@ -108,7 +109,8 @@ def handle_APV(req):
     visualize_change_points()
     closeBags()
 
-    return APVSrvResponse(1)
+    numberOfSegs = 1
+    return APVSrvResponse(numberOfSegs)
 
 
 ############### START: Call back functions that check to see if ROSbag should be being recorded
