@@ -37,7 +37,7 @@ from tf.transformations import *
 
 import baxter_interface
 
-from scenario_data.srv import *
+from scenario.srv import *
 
 
 LeftButtonPose = None

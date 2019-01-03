@@ -43,6 +43,7 @@ from util.bayesian_change_point import BayesianChangePoint
 from util.general_vis import *
 from util.ros_bag import RosBag
 from action_primitive_variation.srv import *
+from agent.srv import * 
 
 actionToVary = None 
 gripper = None
