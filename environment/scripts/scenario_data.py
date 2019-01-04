@@ -37,7 +37,8 @@ from tf.transformations import *
 
 import baxter_interface
 
-from scenario.srv import *
+from environment.srv import *
+from environment.msg import *
 
 
 LeftButtonPose = None
@@ -48,42 +49,62 @@ RightGripperPose = None
 TablePose = None
 WallPose = None
 
+predicates_publisher = None 
+
+PredicatesList = []
+
 def setPoseButtonLeft(data):
     global LeftButtonPose
     LeftButtonPose = data
+    updatePredicates()
 
 def setPoseButtonRight(data):
     global RightButtonPose
     RightButtonPose = data
+    updatePredicates()
 
 def setPoseBlock(data):
     global BlockPose
     BlockPose = data
+    updatePredicates()
 
 def setPoseGripperLeft(data):
     global LeftGripperPose
     LeftGripperPose = data
+    updatePredicates()
 
 def setPoseGripperRight(data):
     global RightGripperPose
     RightGripperPose = data
+    updatePredicates()
 
 def setPoseTable(data):
     global TablePose
     TablePose = data
+    updatePredicates()
 
 def setPoseWall(data):
     global WallPose
     WallPose = data
+    updatePredicates()
 
-def generatePredicates(data):
+# This will eventually just take the data to be updated 
+def updatePredicates():
+    generatePredicates()
+
+def generatePredicates():
     # return the list of predicates 
 
     # Process the at() predicates
     predicates = []
-    predicates.add("at(button_left, " + str(LeftButtonPose) +")")
+    predicates.append("at(button_left, (" + str(LeftButtonPose.pose.position.x) + ", " +
+                                            str(LeftButtonPose.pose.position.y) + ", " +
+                                            str(LeftButtonPose.pose.position.z) + "))")
+    predicates_publisher.publish(predicates)
+    # predicates.append(At(object="button_left", x=LeftButtonPose.pose.position.x, y=LeftButtonPose.pose.position.y, z=LeftButtonPose.pose.position.z))
+    # publist the predicates
+    # return ScenarioDataSrvResponse(predicates)
 
-    return ScenarioDataSrvResponse(predicates)
 
 def main():
     rospy.init_node("scenario_data_node")
@@ -97,9 +118,10 @@ def main():
     rospy.Subscriber("cafe_table_pose", PoseStamped, setPoseTable)
     rospy.Subscriber("grey_wall_pose", PoseStamped, setPoseWall)
 
+    # s = rospy.Service("scenario_data_srv", ScenarioDataSrv, generatePredicates)
+    global predicates_publisher 
+    predicates_publisher = rospy.Publisher('predicate_values', , queue_size = 10)
 
-
-    s = rospy.Service("scenario_data_srv", ScenarioDataSrv, generatePredicates)
     rospy.spin()
     
     return 0

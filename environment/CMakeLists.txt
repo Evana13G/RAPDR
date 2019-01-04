@@ -15,17 +15,23 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 add_message_files(
-  FILES
+FILES
+  Num.msg
+  At.msg
+  State.msg
+  Predicate.msg
 )
 
 add_service_files(
-FILES 
-ScenarioDataSrv.srv 
+  FILES 
+  ScenarioDataSrv.srv 
 )
 
 generate_messages(DEPENDENCIES std_msgs geometry_msgs)
 
-catkin_package()
+catkin_package(
+  CATKIN_DEPENDS message_runtime
+)
 
 include_directories(
   include
