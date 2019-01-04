@@ -1,6 +1,6 @@
 #include "rosplan_action_interface/ObtainObjectClient.h"
 #include "geometry_msgs/PoseStamped.h"
-#include "action_primitive_variation/ObtainObjectSrv.h"
+#include "agent/ObtainObjectSrv.h"
 #include <iostream>
 
 /* The implementation of RPTutorial.h */
@@ -17,8 +17,8 @@ namespace KCL_rosplan {
 		// The action implementation goes here.
 		ROS_INFO("Concrete Callback section reached");
 
-		// ros::ServiceClient client = n.serviceClient<action_primitive_variation::PressButtonSrv>("PressButtonSrv");
-		// action_primitive_variation::PressButtonSrv srv;
+		// ros::ServiceClient client = n.serviceClient<agent::PressButtonSrv>("PressButtonSrv");
+		// agent::PressButtonSrv srv;
 		// srv.request.limb = "left_gripper";
   // 		srv.request.buttonName = "button1";
 		// // srv.request.buttonPoseStamped = NULL; 
@@ -30,8 +30,8 @@ namespace KCL_rosplan {
 		// 	return 1;
 		// }
 
-		ros::ServiceClient client = n.serviceClient<action_primitive_variation::ObtainObjectSrv>("/obtain_object_srv");
-		action_primitive_variation::ObtainObjectSrv srv;
+		ros::ServiceClient client = n.serviceClient<agent::ObtainObjectSrv>("/obtain_object_srv");
+		agent::ObtainObjectSrv srv;
 		srv.request.limb = "left";
 		srv.request.objectName = "object";
 		// srv.request.buttonPoseStamped = NULL; 
