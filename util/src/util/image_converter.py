@@ -60,9 +60,6 @@ class ImageConverter:
     def __init__(self):
         print("Inside Constructor. Pubs and subs set up")
         self.bridge = CvBridge()
-        self.initTime = 0
-        self.savedFrames = {}
-        self.savedFramesStr = ""
         self.image_sub = rospy.Subscriber("/cameras/head_camera/image", Image, self.callbackImage)
 
     def callbackImage(self, data):
@@ -72,31 +69,11 @@ class ImageConverter:
         except CvBridgeError as e:
             print(e)
         frame = cv_image
-        #cv2.imshow('frame', frame)
-#        frame = cv2.resize(frame,None,fx=0.25, fy=0.25, interpolation = cv2.INTER_CUBIC)
-#        frameCopy = frame.copy()
-#        # Convert BGR to HSV
+        # Convert BGR to HSV
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         lower_green = np.array([40,40,40])
         upper_green = np.array([200,255,255])
-#        lower_red = np.array([0,0,255])
-#        upper_red = np.array([150,150, 255])
-#
-#        # Threshold the HSV image to get only blue colors
+
+        # Threshold the HSV image to get only blue colors
         mask = cv2.inRange(hsv, lower_green, upper_green)
         print(np.count_nonzero(mask))
-#        contours,_ = cv2.findContours(mask,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-#        for cnt in contours:
-#            approx = cv2.approxPolyDP(cnt,0.01*cv2.arcLength(cnt,True),True)
-#            #print(len(approx))
-#            if len(approx)==4:
-#                #print("square")
-#                cv2.drawContours(frameCopy,[cnt],0,(0,0,255),-1)
-#        maskRect = cv2.inRange(frameCopy, lower_red, upper_red)
-#
-#        kernel = np.ones((5,5), np.uint8)
-#        erosion = cv2.erode(maskRect, kernel, iterations = 1)
-#        erosionArray = np.asarray(erosion)
-#        areaErosion = np.count_nonzero(erosionArray)
-
-

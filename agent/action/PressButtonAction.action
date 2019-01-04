@@ -1,0 +1,9 @@
+# Define the goal
+string limb # Specify which limb to use to press the button
+string buttonName # Specify which button to press: left or right
+---
+# Define the result
+int64 success_bool
+---
+# Define a feedback message
+int64 feedback_bool
