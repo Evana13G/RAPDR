@@ -21,6 +21,9 @@ from gazebo_msgs.srv import (
     DeleteModel,
     GetLinkState,
 )
+from gazebo_msgs.msg import (
+    LinkState,
+)
 from geometry_msgs.msg import (
     PoseStamped,
     Pose,
@@ -28,7 +31,7 @@ from geometry_msgs.msg import (
     PoseWithCovarianceStamped,
     Point,
     Quaternion,
-    LinkState,
+    
 )
 from sensor_msgs.msg import (
     Image,
@@ -53,6 +56,7 @@ import baxter_interface
 
 from environment.srv import *
 from environment.msg import *
+from util.image_converter import ImageConverter
 
 LeftButtonPose = None
 RightButtonPose = None
@@ -62,117 +66,100 @@ RightGripperPose = None
 TablePose = None
 WallPose = None
 
-predicates_publisher = None 
+predicatesPublisher = None 
+imageConverter = None 
 
-PredicatesList = []
+predicates_list = []
 
 def setPoseButtonLeft(data):
     global LeftButtonPose
     LeftButtonPose = data
-    updatePredicates()
+    updatePredicates("at", "left_button", data)
 
 def setPoseButtonRight(data):
     global RightButtonPose
     RightButtonPose = data
-    updatePredicates()
+    updatePredicates("at", "right_button", data)
 
 def setPoseBlock(data):
     global BlockPose
     BlockPose = data
-    updatePredicates()
+    updatePredicates("at", "block", data)
 
 def setPoseGripperLeft(data):
     global LeftGripperPose
     LeftGripperPose = data
-    updatePredicates()
+    # updatePredicates("at", "left_gripper", data)    # need to change return type to poseStamped, instead of Point
 
 def setPoseGripperRight(data):
     global RightGripperPose
     RightGripperPose = data
-    updatePredicates()
+    # updatePredicates("at", "right_button", data)    # need to change return type to poseStamped, instead of Point
 
 def setPoseTable(data):
     global TablePose
     TablePose = data
-    updatePredicates()
+    updatePredicates("at", "table", data)
 
 def setPoseWall(data):
     global WallPose
     WallPose = data
-    updatePredicates()
-
-# This will eventually just take the data to be updated 
-def updatePredicates():
-    generatePredicates()
-
-def generatePredicates():
-    # return the list of predicates 
-
-    # Process the at() predicates
-    predicates = []
-    predicates.append("at(button_left, (" + str(LeftButtonPose.pose.position.x) + ", " +
-                                            str(LeftButtonPose.pose.position.y) + ", " +
-                                            str(LeftButtonPose.pose.position.z) + "))")
-    predicates_publisher.publish(predicates)
-    # predicates.append(At(object="button_left", x=LeftButtonPose.pose.position.x, y=LeftButtonPose.pose.position.y, z=LeftButtonPose.pose.position.z))
-    # publist the predicates
-    # return ScenarioDataSrvResponse(predicates)
+    updatePredicates("at", "wall", data)
 
 
+def updatePredicates(oprtr, obj, locInf):
+    updateLocationPredicates(oprtr, obj, locInf)
+    updateVisionBasedPredicates()
+    predicatesPublisher.publish(predicates_list)
 
-#################################################################################################
-###################### move this to a different class ###########################################
-class image_converter:
-    def __init__(self):
-        print("Inside Constructor. Pubs and subs set up")
-        self.bridge = CvBridge()
-        self.initTime = 0
-        self.savedFrames = {}
-        self.savedFramesStr = ""
-        self.image_sub = rospy.Subscriber("/cameras/head_camera/image", Image, self.callbackImage)
-
-    def callbackImage(self, data):
-        try:
-            cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-            print("Successful Conversion")
-        except CvBridgeError as e:
-            print(e)
-        frame = cv_image
-        #cv2.imshow('frame', frame)
-#        frame = cv2.resize(frame,None,fx=0.25, fy=0.25, interpolation = cv2.INTER_CUBIC)
-#        frameCopy = frame.copy()
-#        # Convert BGR to HSV
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        lower_green = np.array([40,40,40])
-        upper_green = np.array([200,255,255])
-#        lower_red = np.array([0,0,255])
-#        upper_red = np.array([150,150, 255])
-#
-#        # Threshold the HSV image to get only blue colors
-        mask = cv2.inRange(hsv, lower_green, upper_green)
-        print(np.count_nonzero(mask))
-#        contours,_ = cv2.findContours(mask,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-#        for cnt in contours:
-#            approx = cv2.approxPolyDP(cnt,0.01*cv2.arcLength(cnt,True),True)
-#            #print(len(approx))
-#            if len(approx)==4:
-#                #print("square")
-#                cv2.drawContours(frameCopy,[cnt],0,(0,0,255),-1)
-#        maskRect = cv2.inRange(frameCopy, lower_red, upper_red)
-#
-#        kernel = np.ones((5,5), np.uint8)
-#        erosion = cv2.erode(maskRect, kernel, iterations = 1)
-#        erosionArray = np.asarray(erosion)
-#        areaErosion = np.count_nonzero(erosionArray)
+def updateLocationPredicates(oprtr, obj, locInf):
+    global predicates_list
+    new_predicates = []
+    for pred in predicates_list:
+        if not((pred.operator == oprtr) and (pred.object == obj)):
+            new_predicates.append(pred)
+    new_predicates.append(Predicate(operator=oprtr, object=obj, locationInformation=locInf)) 
+    predicates_list = new_predicates
 
 
-###################### move this to a different class ###########################################
-#################################################################################################
+def updateVisionBasedPredicates():
+    global predicates_list
+    new_predicates = []
+    for pred in predicates_list:
+        if not (pred.operator == "is_visible"):
+            new_predicates.append(pred)
+
+    # Just do blcok here 
+    if (imageConverter.getBlockPixelCount() > 0):
+        new_predicates.append(Predicate(operator="is_visible", object="block", locationInformation=None)) 
+    predicates_list = new_predicates
+
+def getPredicates(data):
+    # data can be the form you want it in, for example PDDL and rounded 
+    return ScenarioDataSrvResponse(pddlStringFormat())
+
+def pddlStringFormat():
+    stringList = []
+    for pred in predicates_list:
+        if pred.operator == "at":
+            stringList.append(str(pred.operator) + '(' + str(pred.object) + ", (" + 
+                              str(round(pred.locationInformation.pose.position.x, 2)) + ", " + 
+                              str(round(pred.locationInformation.pose.position.y, 2)) + ", " + 
+                              str(round(pred.locationInformation.pose.position.z, 2)) + "))")
+        else:
+            stringList.append(str(pred.operator) + '(' + str(pred.object) + ')')
+    return stringList
 
 def main():
     rospy.init_node("scenario_data_node")
     rospy.wait_for_message("/robot/sim/started", Empty)
    
+    global predicatesPublisher 
+    global imageConverter 
+
+    predicatesPublisher = rospy.Publisher('predicate_values', PredicateList, queue_size = 10)
+    imageConverter = ImageConverter()
+
     rospy.Subscriber("left_gripper_pose", Point, setPoseGripperLeft)
     rospy.Subscriber("right_gripper_pose", Point, setPoseGripperRight)
     rospy.Subscriber("left_button_pose", PoseStamped, setPoseButtonLeft)
@@ -181,14 +168,7 @@ def main():
     rospy.Subscriber("cafe_table_pose", PoseStamped, setPoseTable)
     rospy.Subscriber("grey_wall_pose", PoseStamped, setPoseWall)
 
-
-    # s = rospy.Service("scenario_data_srv", ScenarioDataSrv, generatePredicates)
-    global predicates_publisher 
-    predicates_publisher = rospy.Publisher('predicate_values', , queue_size = 10)
-
-    # ic = image_converter()
-    
-    s = rospy.Service("scenario_data_srv", ScenarioDataSrv, generatePredicates)
+    s = rospy.Service("scenario_data_srv", ScenarioDataSrv, getPredicates)
 
     rospy.spin()
     

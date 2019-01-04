@@ -20,6 +20,7 @@ FILES
   At.msg
   State.msg
   Predicate.msg
+  PredicateList.msg
 )
 
 add_service_files(
@@ -27,7 +28,7 @@ add_service_files(
   ScenarioDataSrv.srv 
 )
 
-generate_messages(DEPENDENCIES std_msgs geometry_msgs)
+generate_messages(DEPENDENCIES std_msgs geometry_msgs gazebo_msgs)
 
 catkin_package(
   CATKIN_DEPENDS message_runtime
