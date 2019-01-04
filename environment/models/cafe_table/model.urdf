@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <robot name="cafe_table">
-  <link name="world"/>
   
+  <link name="world"/>
   <link name="base_link">    
     <visual>
       <origin xyz="0.05 0 0.02" rpy="0 0 0" />
@@ -286,7 +286,7 @@
   </gazebo>
 
   <gazebo reference="base_link">
-    <material>Gazebo/Blue</material>
+    <material>Gazebo/Wood</material>
     <!-- <static>true</static> -->
     <gravity>0</gravity>
     <mu1>1000</mu1>
@@ -294,7 +294,7 @@
   </gazebo> 
   
   <gazebo reference="column">
-    <material>Gazebo/Blue</material>
+    <material>Gazebo/Wood</material>
     <!-- <static>true</static> -->
     <!-- <gravity>0</gravity> -->
     <mu1>1000</mu1>
@@ -302,7 +302,7 @@
   </gazebo>
   
   <gazebo reference="surface1">
-    <material>Gazebo/Blue</material>
+    <material>Gazebo/Wood</material>
     <!-- <static>true</static> -->
     <!-- <gravity>0</gravity> -->
     <mu1>1000</mu1>
@@ -310,7 +310,7 @@
   </gazebo> 
   
   <gazebo reference="surface3">
-    <material>Gazebo/Blue</material>
+    <material>Gazebo/Wood</material>
     <!-- <static>true</static> -->
     <!-- <gravity>0</gravity> -->
     <mu1>1000</mu1>
@@ -318,7 +318,7 @@
   </gazebo>
   
   <gazebo reference="surface4">
-    <material>Gazebo/Blue</material>
+    <material>Gazebo/Wood</material>
     <!-- <static>true</static> -->
     <!-- <gravity>0</gravity> -->
     <mu1>1000</mu1>
@@ -326,7 +326,7 @@
   </gazebo>
   
   <gazebo reference="surface2">
-    <material>Gazebo/Blue</material>
+    <material>Gazebo/Wood</material>
     <!-- <static>true</static> -->
     <!-- <gravity>0</gravity> -->
     <mu1>1000</mu1>
@@ -334,7 +334,7 @@
   </gazebo>
   
   <gazebo reference="grey_wall_link">
-    <material>Gazebo/Orange</material>
+    <material>Gazebo/Wood</material>
     <gravity>0</gravity>
     <mu1>1000</mu1>
     <mu2>1000</mu2>
