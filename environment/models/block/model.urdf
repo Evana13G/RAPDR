@@ -19,10 +19,10 @@
     </collision>
   </link>
   <gazebo reference="block">
-      <material>Gazebo/Red</material>
+      <material>Gazebo/Green</material>
   </gazebo>
   <gazebo>
-    <material>Gazebo/Red</material>
+    <material>Gazebo/Green</material>
     <gravity>true</gravity>
      <mu1>1</mu1>
      <mu2>1</mu2>

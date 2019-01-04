@@ -21,8 +21,8 @@ from std_msgs.msg import (
 
 from action_primitive_variation.srv import *
 from agent.srv import *
-from sklearn.svm import LinearSVC
-from sklearn.datasets import make_classification
+# from sklearn.svm import LinearSVC
+# from sklearn.datasets import make_classification
 import cpdetect 
 import numpy as np
 import sys, argparse, csv

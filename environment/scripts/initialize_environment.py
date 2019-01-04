@@ -44,6 +44,7 @@ def load_gazebo_models(table_pose=Pose(position=Point(x=1, y=0.0, z=0.0)),
     #print(rospkg.RosPack().get_path('initialize'))
     model_path = rospkg.RosPack().get_path('environment')+"/models/"
     # Load Table SDF
+    print(model_path)
     table_xml = ''
     with open (model_path + "cafe_table/model.urdf", "r") as table_file:
         table_xml=table_file.read().replace('\n', '')
