@@ -37,12 +37,12 @@ from sensor_msgs.msg import (
     Image,
 )
 
-from geometry_msgs.msg import (
-    PoseStamped,
-    Pose,
-    Point,
-    Quaternion,
-)
+# from geometry_msgs.msg import (
+#     PoseStamped,
+#     Pose,
+#     Point,
+#     Quaternion,
+# )
 from std_msgs.msg import (
     Header,
     Empty,
@@ -57,6 +57,7 @@ import baxter_interface
 from environment.srv import *
 from environment.msg import *
 from util.image_converter import ImageConverter
+from util.proximity_calculator import *
 
 LeftButtonPose = None
 RightButtonPose = None
@@ -89,12 +90,12 @@ def setPoseBlock(data):
 def setPoseGripperLeft(data):
     global LeftGripperPose
     LeftGripperPose = data
-    # updatePredicates("at", "left_gripper", data)    # need to change return type to poseStamped, instead of Point
+    updatePredicates("at", "left_gripper", data)    
 
 def setPoseGripperRight(data):
     global RightGripperPose
     RightGripperPose = data
-    # updatePredicates("at", "right_button", data)    # need to change return type to poseStamped, instead of Point
+    updatePredicates("at", "right_gripper", data)    
 
 def setPoseTable(data):
     global TablePose
@@ -110,6 +111,7 @@ def setPoseWall(data):
 def updatePredicates(oprtr, obj, locInf):
     updateLocationPredicates(oprtr, obj, locInf)
     updateVisionBasedPredicates()
+    updatePhysicalStateBasedPredicates()
     predicatesPublisher.publish(predicates_list)
 
 def updateLocationPredicates(oprtr, obj, locInf):
@@ -121,7 +123,6 @@ def updateLocationPredicates(oprtr, obj, locInf):
     new_predicates.append(Predicate(operator=oprtr, object=obj, locationInformation=locInf)) 
     predicates_list = new_predicates
 
-
 def updateVisionBasedPredicates():
     global predicates_list
     new_predicates = []
@@ -132,6 +133,20 @@ def updateVisionBasedPredicates():
     # Just do blcok here 
     if (imageConverter.getBlockPixelCount() > 0):
         new_predicates.append(Predicate(operator="is_visible", object="block", locationInformation=None)) 
+    predicates_list = new_predicates
+
+def updatePhysicalStateBasedPredicates():
+    global predicates_list
+    new_predicates = []
+    for pred in predicates_list:
+        if not (pred.operator == "pressed"):
+            new_predicates.append(pred)
+
+    if is_touching(LeftGripperPose, LeftButtonPose) or is_touching(RightGripperPose, LeftButtonPose):
+        new_predicates.append(Predicate(operator="pressed", object="left_button", locationInformation=None)) 
+    if is_touching(LeftGripperPose, RightButtonPose) or is_touching(RightGripperPose, RightButtonPose):
+        new_predicates.append(Predicate(operator="pressed", object="right_button", locationInformation=None)) 
+    
     predicates_list = new_predicates
 
 def getPredicates(data):
@@ -160,8 +175,8 @@ def main():
     predicatesPublisher = rospy.Publisher('predicate_values', PredicateList, queue_size = 10)
     imageConverter = ImageConverter()
 
-    rospy.Subscriber("left_gripper_pose", Point, setPoseGripperLeft)
-    rospy.Subscriber("right_gripper_pose", Point, setPoseGripperRight)
+    rospy.Subscriber("left_gripper_pose", PoseStamped, setPoseGripperLeft)
+    rospy.Subscriber("right_gripper_pose", PoseStamped, setPoseGripperRight)
     rospy.Subscriber("left_button_pose", PoseStamped, setPoseButtonLeft)
     rospy.Subscriber("right_button_pose", PoseStamped, setPoseButtonRight)
     rospy.Subscriber("block_pose", PoseStamped, setPoseBlock)

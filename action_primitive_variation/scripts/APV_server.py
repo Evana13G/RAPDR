@@ -232,8 +232,8 @@ def main():
     rospy.Subscriber("left_button_pose", PoseStamped, handle_buttonLeft)
     rospy.Subscriber("right_button_pose", PoseStamped, handle_buttonRight)    
     rospy.Subscriber("block_pose", PoseStamped, handle_block)
-    rospy.Subscriber("left_gripper_pose", Point, handle_gripperLeft)
-    rospy.Subscriber("right_gripper_pose", Point, handle_gripperRight)
+    rospy.Subscriber("left_gripper_pose", PoseStamped, handle_gripperLeft)
+    rospy.Subscriber("right_gripper_pose", PoseStamped, handle_gripperRight)
     rospy.Subscriber("robot/joint_states", JointState, handle_jointStates)
 
     s = rospy.Service("APV_srv", APVSrv, handle_APV)

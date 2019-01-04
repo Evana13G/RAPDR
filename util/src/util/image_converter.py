@@ -88,19 +88,19 @@ class ImageConverter:
 
 
 
-#        contours,_ = cv2.findContours(mask,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-#        for cnt in contours:
-#            approx = cv2.approxPolyDP(cnt,0.01*cv2.arcLength(cnt,True),True)
-#            #print(len(approx))
-#            if len(approx)==4:
-#                #print("square")
-#                cv2.drawContours(frameCopy,[cnt],0,(0,0,255),-1)
-#        maskRect = cv2.inRange(frameCopy, lower_red, upper_red)
-#
-#        kernel = np.ones((5,5), np.uint8)
-#        erosion = cv2.erode(maskRect, kernel, iterations = 1)
-#        erosionArray = np.asarray(erosion)
-#        areaErosion = np.count_nonzero(erosionArray)
+       # contours,_ = cv2.findContours(mask,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+       # for cnt in contours:
+       #     approx = cv2.approxPolyDP(cnt,0.01*cv2.arcLength(cnt,True),True)
+       #     #print(len(approx))
+       #     if len(approx)==4:
+       #         print("square")
+       #         cv2.drawContours(frameCopy,[cnt],0,(0,0,255),-1)
+       # maskRect = cv2.inRange(frameCopy, lower_red, upper_red)
+
+       # kernel = np.ones((5,5), np.uint8)
+       # erosion = cv2.erode(maskRect, kernel, iterations = 1)
+       # erosionArray = np.asarray(erosion)
+       # areaErosion = np.count_nonzero(erosionArray)
 
     def getBlockPixelCount(self):
         return self.block_pixels
