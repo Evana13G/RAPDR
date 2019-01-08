@@ -37,12 +37,12 @@ from sensor_msgs.msg import (
     Image,
 )
 
-from geometry_msgs.msg import (
-    PoseStamped,
-    Pose,
-    Point,
-    Quaternion,
-)
+# from geometry_msgs.msg import (
+#     PoseStamped,
+#     Pose,
+#     Point,
+#     Quaternion,
+# )
 from std_msgs.msg import (
     Header,
     Empty,
@@ -53,8 +53,11 @@ from baxter_core_msgs.srv import (
 )
 from tf.transformations import *
 import baxter_interface
+
 from environment.srv import *
+from environment.msg import *
 from util.image_converter import ImageConverter
+from util.proximity_calculator import *
 
 LeftButtonPose = None
 RightButtonPose = None
@@ -64,57 +67,124 @@ RightGripperPose = None
 TablePose = None
 WallPose = None
 
+predicatesPublisher = None 
+imageConverter = None 
+
+predicates_list = []
+
 def setPoseButtonLeft(data):
     global LeftButtonPose
     LeftButtonPose = data
+    updatePredicates("at", "left_button", data)
 
 def setPoseButtonRight(data):
     global RightButtonPose
     RightButtonPose = data
+    updatePredicates("at", "right_button", data)
 
 def setPoseBlock(data):
     global BlockPose
     BlockPose = data
+    updatePredicates("at", "block", data)
 
 def setPoseGripperLeft(data):
     global LeftGripperPose
     LeftGripperPose = data
+    updatePredicates("at", "left_gripper", data)    
 
 def setPoseGripperRight(data):
     global RightGripperPose
     RightGripperPose = data
+    updatePredicates("at", "right_gripper", data)    
 
 def setPoseTable(data):
     global TablePose
     TablePose = data
+    updatePredicates("at", "table", data)
 
 def setPoseWall(data):
     global WallPose
     WallPose = data
+    updatePredicates("at", "wall", data)
 
-def generatePredicates(data):
-    # return the list of predicates 
 
-    # Process the at() predicates
-    predicates = []
-    predicates.add("at(button_left, " + str(LeftButtonPose) +")")
+def updatePredicates(oprtr, obj, locInf):
+    updateLocationPredicates(oprtr, obj, locInf)
+    updateVisionBasedPredicates()
+    updatePhysicalStateBasedPredicates()
+    predicatesPublisher.publish(predicates_list)
 
-    return ScenarioDataSrvResponse(predicates)
+def updateLocationPredicates(oprtr, obj, locInf):
+    global predicates_list
+    new_predicates = []
+    for pred in predicates_list:
+        if not((pred.operator == oprtr) and (pred.object == obj)):
+            new_predicates.append(pred)
+    new_predicates.append(Predicate(operator=oprtr, object=obj, locationInformation=locInf)) 
+    predicates_list = new_predicates
+
+def updateVisionBasedPredicates():
+    global predicates_list
+    new_predicates = []
+    for pred in predicates_list:
+        if not (pred.operator == "is_visible"):
+            new_predicates.append(pred)
+
+    # Just do blcok here 
+    if (imageConverter.getBlockPixelCount() > 0):
+        new_predicates.append(Predicate(operator="is_visible", object="block", locationInformation=None)) 
+    predicates_list = new_predicates
+
+def updatePhysicalStateBasedPredicates():
+    global predicates_list
+    new_predicates = []
+    for pred in predicates_list:
+        if not (pred.operator == "pressed"):
+            new_predicates.append(pred)
+
+    if is_touching(LeftGripperPose, LeftButtonPose) or is_touching(RightGripperPose, LeftButtonPose):
+        new_predicates.append(Predicate(operator="pressed", object="left_button", locationInformation=None)) 
+    if is_touching(LeftGripperPose, RightButtonPose) or is_touching(RightGripperPose, RightButtonPose):
+        new_predicates.append(Predicate(operator="pressed", object="right_button", locationInformation=None)) 
+    
+    predicates_list = new_predicates
+
+def getPredicates(data):
+    # data can be the form you want it in, for example PDDL and rounded 
+    return ScenarioDataSrvResponse(pddlStringFormat())
+
+def pddlStringFormat():
+    stringList = []
+    for pred in predicates_list:
+        if pred.operator == "at":
+            stringList.append(str(pred.operator) + '(' + str(pred.object) + ", (" + 
+                              str(round(pred.locationInformation.pose.position.x, 2)) + ", " + 
+                              str(round(pred.locationInformation.pose.position.y, 2)) + ", " + 
+                              str(round(pred.locationInformation.pose.position.z, 2)) + "))")
+        else:
+            stringList.append(str(pred.operator) + '(' + str(pred.object) + ')')
+    return stringList
 
 def main():
     rospy.init_node("scenario_data_node")
     rospy.wait_for_message("/robot/sim/started", Empty)
    
-    rospy.Subscriber("left_gripper_pose", Point, setPoseGripperLeft)
-    rospy.Subscriber("right_gripper_pose", Point, setPoseGripperRight)
+    global predicatesPublisher 
+    global imageConverter 
+
+    predicatesPublisher = rospy.Publisher('predicate_values', PredicateList, queue_size = 10)
+    imageConverter = ImageConverter()
+
+    rospy.Subscriber("left_gripper_pose", PoseStamped, setPoseGripperLeft)
+    rospy.Subscriber("right_gripper_pose", PoseStamped, setPoseGripperRight)
     rospy.Subscriber("left_button_pose", PoseStamped, setPoseButtonLeft)
     rospy.Subscriber("right_button_pose", PoseStamped, setPoseButtonRight)
     rospy.Subscriber("block_pose", PoseStamped, setPoseBlock)
     rospy.Subscriber("cafe_table_pose", PoseStamped, setPoseTable)
     rospy.Subscriber("grey_wall_pose", PoseStamped, setPoseWall)
 
-    ic = ImageConverter()
-    s = rospy.Service("scenario_data_srv", ScenarioDataSrv, generatePredicates)
+    s = rospy.Service("scenario_data_srv", ScenarioDataSrv, getPredicates)
+
     rospy.spin()
     
     return 0

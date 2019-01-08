@@ -77,12 +77,6 @@ def grabPose(poseStmpd):
 	
 
 def handle_ObtainObject(req):
-    print("Received:")
-    print("Limb:")
-    print(req.limb)
-    print("Button name:")
-    print(req.objectName)
-    
     
     global limb
     limb = req.limb
@@ -97,9 +91,10 @@ def handle_ObtainObject(req):
     else:
         poseTo = BlockPose
     
-    
     hover_distance = 0.15
-    
+
+
+    # Shouldnt have to start at starting pose 
     if limb == 'left':
 		starting_joint_angles_l = {'left_w0': 0.6699952259595108,
 								   'left_w1': 1.030009435085784,
