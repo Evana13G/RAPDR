@@ -9,18 +9,10 @@ Setup each of the following, in order:
 
 4. Baxter Gazebo Simulation (http://sdk.rethinkrobotics.com/wiki/Simulator_Installation)
 
-    1. Note, we are not using the `baxter.sh sim` script, but you may use that during initial setup, as described in their instructions.
+    a. Note, we are not using the `baxter.sh sim` script, but you may use that during initial setup, as described in their instructions.
 
-5. ROSPlan (https://github.com/KCL-Planning/ROSPlan/wiki) (subject to change)
-   1. Note the download and installation instructions are located at
-      https://github.com/KCL-Planning/ROSPlan
-   2. The instructions neglect to mention installing prerequisite:
-      `sudo apt-get -y install bison`
-   3. The installation instructions would have you build using `catkin build`, but we are using a `catkin_make` project, so build as follows:
-
-            cd ~/catkin_ws
-            catkin_make
-            source devel/setup.bash
+5. PyperPlan (https://bitbucket.org/malte/pyperplan)
+   a. Manually download the code to the src directory
 
 6. Clone the RAPDR project:
 
@@ -28,15 +20,16 @@ Setup each of the following, in order:
         git clone git@github.com:Evana13G/RAPDR.git
           (or git clone https://github.com/Evana13G/RAPDR.git)
 
-7. The file heirarchy should take the following form:
+** At this point, the file heirarchy should take the following form:
 
         catkin_ws/
         catkin_ws/src/
         catkin_ws/src/RAPDR/
         catkin_ws/src/*all baxter gazebo packages*
-        catkin_ws/src/rosplan/
+        catkin_ws/src/pyperplan/
+        catkin_ws/src/cpdetect/
 
-8. Build:
+7. Build:
 
         cd ~/catkin_ws
         catkin_make
