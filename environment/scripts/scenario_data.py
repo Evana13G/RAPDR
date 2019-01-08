@@ -67,6 +67,8 @@ RightGripperPose = None
 TablePose = None
 WallPose = None
 
+WallState = "DOWN"
+
 predicatesPublisher = None 
 imageConverter = None 
 
@@ -107,11 +109,48 @@ def setPoseWall(data):
     WallPose = data
     updatePredicates("at", "wall", data)
 
+def checkElements(prevWallState):
+    if 'pressed(left_button)' in predicates_list:
+        if WallState is not prevWallState:
+            toggleWallState()
+
+def toggleWallState():
+    global WallState
+    if WallState == "UP":
+        print("DROP WALL")
+        dropWall()
+        WallState = "DOWN"
+    else:
+        print("DROP WALL")
+        raiseWall()
+        WallState = "UP"
+
+def raiseWall():
+    rospy.wait_for_service('/gazebo/apply_joint_effort')
+    
+    start_time = rospy.Time(0,0)
+    duration = rospy.Duration(-1,0)
+    
+    try:
+        wallUp = rospy.ServiceProxy('/gazebo/apply_joint_effort', ApplyJointEffort)
+        resp_wallUp = wallUp("joint_wall", 10, start_time, duration)
+    except rospy.ServiceException, e:
+        rospy.logerr("ApplyJointEffort service call failed: {0}".format(e))
+
+def dropWall():
+    rospy.wait_for_service('gazebo/clear_joint_forces')
+    try:
+        wallDown = rospy.ServiceProxy('/gazebo/clear_joint_forces', JointRequest)
+        reps_wallDown = wallDown("joint_wall")
+    except rospy.ServiceException, e:
+        rospy.logerr("JointRequest to clear_joint_forces service call failed: {0}".format(e))
 
 def updatePredicates(oprtr, obj, locInf):
+    currWallState = copy.deepcopy(WallState)
     updateLocationPredicates(oprtr, obj, locInf)
     updateVisionBasedPredicates()
     updatePhysicalStateBasedPredicates()
+    checkElements(currWallState)
     predicatesPublisher.publish(predicates_list)
 
 def updateLocationPredicates(oprtr, obj, locInf):
@@ -157,10 +196,10 @@ def pddlStringFormat():
     stringList = []
     for pred in predicates_list:
         if pred.operator == "at":
-            stringList.append(str(pred.operator) + '(' + str(pred.object) + ", (" + 
-                              str(round(pred.locationInformation.pose.position.x, 2)) + ", " + 
-                              str(round(pred.locationInformation.pose.position.y, 2)) + ", " + 
-                              str(round(pred.locationInformation.pose.position.z, 2)) + "))")
+            stringList.append(str(pred.operator) + '(' + str(pred.object) + ', (' + 
+                              str(round(pred.locationInformation.pose.position.x, 2)) + ', ' + 
+                              str(round(pred.locationInformation.pose.position.y, 2)) + ', ' + 
+                              str(round(pred.locationInformation.pose.position.z, 2)) + '))')
         else:
             stringList.append(str(pred.operator) + '(' + str(pred.object) + ')')
     return stringList
