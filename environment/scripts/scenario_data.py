@@ -37,12 +37,11 @@ from sensor_msgs.msg import (
     Image,
 )
 
-# from geometry_msgs.msg import (
-#     PoseStamped,
-#     Pose,
-#     Point,
-#     Quaternion,
-# )
+from gazebo_msgs.srv import (
+    ApplyJointEffort,
+    JointRequest,
+)
+
 from std_msgs.msg import (
     Header,
     Empty,
@@ -58,6 +57,7 @@ from environment.srv import *
 from environment.msg import *
 from util.image_converter import ImageConverter
 from util.proximity_calculator import *
+from util.wall_controller import *
 
 LeftButtonPose = None
 RightButtonPose = None
@@ -66,6 +66,8 @@ LeftGripperPose = None
 RightGripperPose = None
 TablePose = None
 WallPose = None
+
+WallState = "UP"
 
 predicatesPublisher = None 
 imageConverter = None 
@@ -107,11 +109,27 @@ def setPoseWall(data):
     WallPose = data
     updatePredicates("at", "wall", data)
 
+def checkElements(prevWallState):
+    global WallState
+    if 'pressed(left_button)' in pddlStringFormat():
+        WallState = "DOWN"
+    else:
+        WallState = "UP"
+    if WallState is not prevWallState:
+        toggleWallState()
+
+def toggleWallState():
+    if WallState == "DOWN":
+        dropWall()
+    else:
+        raiseWall()
 
 def updatePredicates(oprtr, obj, locInf):
+    currWallState = copy.deepcopy(WallState)
     updateLocationPredicates(oprtr, obj, locInf)
     updateVisionBasedPredicates()
     updatePhysicalStateBasedPredicates()
+    checkElements(currWallState)
     predicatesPublisher.publish(predicates_list)
 
 def updateLocationPredicates(oprtr, obj, locInf):
@@ -157,10 +175,10 @@ def pddlStringFormat():
     stringList = []
     for pred in predicates_list:
         if pred.operator == "at":
-            stringList.append(str(pred.operator) + '(' + str(pred.object) + ", (" + 
-                              str(round(pred.locationInformation.pose.position.x, 2)) + ", " + 
-                              str(round(pred.locationInformation.pose.position.y, 2)) + ", " + 
-                              str(round(pred.locationInformation.pose.position.z, 2)) + "))")
+            stringList.append(str(pred.operator) + '(' + str(pred.object) + ', (' + 
+                              str(round(pred.locationInformation.pose.position.x, 2)) + ', ' + 
+                              str(round(pred.locationInformation.pose.position.y, 2)) + ', ' + 
+                              str(round(pred.locationInformation.pose.position.z, 2)) + '))')
         else:
             stringList.append(str(pred.operator) + '(' + str(pred.object) + ')')
     return stringList

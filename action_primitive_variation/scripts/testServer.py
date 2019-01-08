@@ -17,7 +17,7 @@ from std_msgs.msg import (
 from action_primitive_variation.srv import APVSrv
 
 def main():
-    rospy.init_node("test_node")
+    rospy.init_node("APV_test_node")
     rospy.wait_for_service('APV_srv', timeout=60)
     try:
         b = rospy.ServiceProxy('APV_srv', APVSrv)

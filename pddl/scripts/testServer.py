@@ -12,7 +12,7 @@ import os
 # from action_primitive_variation.srv import APVSrv
 
 def main():
-    rospy.init_node("test_node")
+    rospy.init_node("pddl_test_node")
     rospy.wait_for_service('plan_executor_srv', timeout=60)
     try:
         filepath = os.path.dirname(os.path.realpath(__file__)) + "/problem_1.pddl.soln"
