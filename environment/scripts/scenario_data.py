@@ -37,12 +37,11 @@ from sensor_msgs.msg import (
     Image,
 )
 
-# from geometry_msgs.msg import (
-#     PoseStamped,
-#     Pose,
-#     Point,
-#     Quaternion,
-# )
+from gazebo_msgs.srv import (
+    ApplyJointEffort,
+    JointRequest,
+)
+
 from std_msgs.msg import (
     Header,
     Empty,
@@ -58,6 +57,7 @@ from environment.srv import *
 from environment.msg import *
 from util.image_converter import ImageConverter
 from util.proximity_calculator import *
+from util.wall_controller import *
 
 LeftButtonPose = None
 RightButtonPose = None
@@ -67,7 +67,7 @@ RightGripperPose = None
 TablePose = None
 WallPose = None
 
-WallState = "DOWN"
+WallState = "UP"
 
 predicatesPublisher = None 
 imageConverter = None 
@@ -110,40 +110,19 @@ def setPoseWall(data):
     updatePredicates("at", "wall", data)
 
 def checkElements(prevWallState):
-    if 'pressed(left_button)' in predicates_list:
-        if WallState is not prevWallState:
-            toggleWallState()
-
-def toggleWallState():
     global WallState
-    if WallState == "UP":
-        print("DROP WALL")
-        dropWall()
+    if 'pressed(left_button)' in pddlStringFormat():
         WallState = "DOWN"
     else:
-        print("DROP WALL")
-        raiseWall()
         WallState = "UP"
+    if WallState is not prevWallState:
+        toggleWallState()
 
-def raiseWall():
-    rospy.wait_for_service('/gazebo/apply_joint_effort')
-    
-    start_time = rospy.Time(0,0)
-    duration = rospy.Duration(-1,0)
-    
-    try:
-        wallUp = rospy.ServiceProxy('/gazebo/apply_joint_effort', ApplyJointEffort)
-        resp_wallUp = wallUp("joint_wall", 10, start_time, duration)
-    except rospy.ServiceException, e:
-        rospy.logerr("ApplyJointEffort service call failed: {0}".format(e))
-
-def dropWall():
-    rospy.wait_for_service('gazebo/clear_joint_forces')
-    try:
-        wallDown = rospy.ServiceProxy('/gazebo/clear_joint_forces', JointRequest)
-        reps_wallDown = wallDown("joint_wall")
-    except rospy.ServiceException, e:
-        rospy.logerr("JointRequest to clear_joint_forces service call failed: {0}".format(e))
+def toggleWallState():
+    if WallState == "DOWN":
+        dropWall()
+    else:
+        raiseWall()
 
 def updatePredicates(oprtr, obj, locInf):
     currWallState = copy.deepcopy(WallState)

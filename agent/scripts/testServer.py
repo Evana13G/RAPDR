@@ -15,7 +15,7 @@ from std_msgs.msg import (
 )
 
 def main():
-    rospy.init_node("test_node")
+    rospy.init_node("agent_test_node")
 
     # rospy.wait_for_service('press_button_srv', timeout=60)
     # print("Ready to call service")

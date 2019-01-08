@@ -28,6 +28,8 @@ from std_msgs.msg import (
     Empty,
 )
 
+from util.wall_controller import *
+
 from tf.transformations import *
 
 #SPAWN WALL AT 1.1525 z to be above table or 0.3755 to be below
@@ -142,6 +144,8 @@ def main():
     pub_left_button_pose = rospy.Publisher('left_button_pose', PoseStamped, queue_size = 10)
     pub_left_gripper_pose = rospy.Publisher('left_gripper_pose', PoseStamped, queue_size = 10)
     pub_right_gripper_pose = rospy.Publisher('right_gripper_pose', PoseStamped, queue_size = 10)
+    
+    raiseWall()
     
     frameid_var = "/world"
 
