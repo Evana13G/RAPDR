@@ -73,12 +73,6 @@ def hoverOverPose(poseStmpd):
 	
 
 def handle_pressButton(req):
-    print("Received:")
-    print("Limb:")
-    print(req.limb)
-    print("Button name:")
-    print(req.buttonName)
-    
     
     global limb
     limb = req.limb
@@ -113,8 +107,9 @@ def handle_pressButton(req):
                                    'right_w1': 0.8298780975195674,
                                    'right_w2': -0.5085333554167599}
     
-    currentAction = PhysicalAgent(limb, hover_distance)
-    
+    currentAction = PhysicalAgent(limb, hover_distance)    
+
+    # Shouldnt have to start at starting pose 
     if limb == 'left':
         currentAction.move_to_start(starting_joint_angles_l)
     else:
