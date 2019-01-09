@@ -16,6 +16,7 @@ import copy
 import numpy as np
 import rospy
 import rospkg
+
 from gazebo_msgs.srv import (
     SpawnModel,
     DeleteModel,
@@ -36,12 +37,10 @@ from geometry_msgs.msg import (
 from sensor_msgs.msg import (
     Image,
 )
-
 from gazebo_msgs.srv import (
     ApplyJointEffort,
     JointRequest,
 )
-
 from std_msgs.msg import (
     Header,
     Empty,
@@ -148,7 +147,7 @@ def updateVisionBasedPredicates():
         if not (pred.operator == "is_visible"):
             new_predicates.append(pred)
 
-    # Just do blcok here 
+    # Just do block here 
     if (imageConverter.getBlockPixelCount() > 0):
         new_predicates.append(Predicate(operator="is_visible", object="block", locationInformation=None)) 
     predicates_list = new_predicates

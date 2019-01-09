@@ -4,8 +4,6 @@ import argparse
 import struct
 import sys
 import copy
-import numpy as np
-
 import rospy
 import rospkg
 
@@ -26,56 +24,101 @@ from agent.srv import *
 import cpdetect 
 import numpy as np
 import sys, argparse, csv
+import matplotlib.pyplot as plt # if no vis, delete  
+import pandas as pd
+from sklearn.cluster import AgglomerativeClustering
+import scipy.cluster.hierarchy as shc
 
 class BayesianChangePoint(object):
-    def __init__(self, _data, _filename):
-        self.rawData = _data
-        self.filename = _filename
-        trajs, cp_set, cp_list = self.detectChangePoints()
-        self.trajectoryNames = trajs
+    def __init__(self, rawData, filename):
+        traj_names, cp_set, aggr_cp_list = self.detectChangePoints(rawData, filename)
+        self.trajectoryNames = traj_names
         self.trajectoryChangePoints = cp_set
-        self.fullListChangePoints = cp_list
-        # self.compressedChangePoints = self.compressChangePoints()
-        self.compressChangePoints()
+        self.aggregateChangePoints = aggr_cp_list
+        clstrs, _groups, _minCps = self.clusterChangePoints(aggr_cp_list)
+        self.clusterLabeledMask = clstrs
+        self.groupedByClusterLabel = _groups
+        self.compressedChangePoints = _minCps
+        self.clusterThreshold = 50
+        self.minGroupSize = 10 # should default to 0
 
-    def detectChangePoints(self):
-        detector = cpdetect.cpDetector(self.rawData, distribution='normal', log_odds_threshold=111)
+
+    def detectChangePoints(self, rawData, filename):
+        detector = cpdetect.cpDetector(rawData, distribution='normal', log_odds_threshold=1)
         detector.detect_cp()
-        detector.to_csv(self.filename)
-        return self.csvExtractCps()
+        detector.to_csv(filename)
+        return self.csvExtractCps(filename)
 
-    def csvExtractCps(self):
+    def csvExtractCps(self, filename):
         content = {}
         content_list = []
         trajs = []
+        aggregateCps = []
 
-        with open(self.filename, 'rb') as csvfile:
+        with open(filename, 'rb') as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
             next(reader)
             for row in reader:
                 # get keys
                 trajs.append(row[0])
                 content_list.append((row[0], int(row[2]))) # tuple 
+                aggregateCps.append(row[2])
             trajs = list(set(trajs))
             for traj in trajs:
                 content[traj] = []
             for tup in content_list:
                 content[tup[0]].append(tup[1])
-            return trajs, content, content_list
+            return trajs, content, aggregateCps
 
-    def compressChangePoints(self):
-        content = {}
-        for traj in self.trajectoryChangePoints:
-            X, y = make_classification(n_features=4, random_state=0)
-            clf = LinearSVC(random_state=0, tol=1e-5)
-            clf.fit(X, y)
-            print(clf.coef_)
-            print(clf.intercept_)
-            print(clf.predict([[0, 0, 0, 0]]))
+    def clusterChangePoints(self, points, threshold=50):
+        cps = np.array(self.get2DTraj(points))
+        clusters = shc.fclusterdata(cps, threshold, criterion="distance")
+        labels = list(set(clusters))
+        
+        groups = []
+        for label in range(len(labels)):
+            groups.append([])
+        
+        for i in range(len(cps)-1):
+            groups[clusters[i]-1].append(int(cps[i][0]))
+        
+        mins = []
+        for chunk in groups:
+            if(len(chunk) > 10):
+                mins.append(min(chunk))
+
+        return clusters, groups, mins
+
+        # plt.scatter(*np.transpose(cps), c=clusters)
+        # plt.axis("equal")
+        # title = "threshold: %f, number of clusters: %d" % (thresh, len(set(clusters)))
+        # plt.title(title)
+        # plt.show()
+
+    def get2DTraj(self, traj):
+        twoDee = []
+        for elem in traj:
+            twoDee.append([elem, elem])
+        return twoDee
 
 
-    def getChangePoints(self, trajectory):
+##############################################################################################
+##################################### SETTERS AND GETTERS ####################################
+
+    def getTrajectoryBasedPoints(self, trajectory):
         return self.trajectoryChangePoints[trajectory]
+
+    def getAggregateChangePoints(self):
+        return self.aggregateChangePoints
+
+    def getClusterLabeledMask(self):
+        return self.clusterLabeledMask
+
+    def getGroupedData(self):
+        return self.groupedByClusterLabel
+
+    def getCompressedChangePoints(self):
+        return self.compressedChangePoints
 
     def getTrajNames(self):
         return self.trajectoryNames

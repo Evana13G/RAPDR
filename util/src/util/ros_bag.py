@@ -24,14 +24,12 @@ class RosBag(object):
     def __init__(self, bagName):
         self.name = bagName
         self.bag = rosbag.Bag(bagName+'.bag','w')
-        self.nTrajs = self.getNumTrajs()
 
-
-    def getNumTrajs(self):
-        if self.name == 'jointState':
-            return 7
-        else:
-            return 0
+    # def getNumTrajs(self):
+    #     if self.name == 'jointState':
+    #         return 7
+    #     else:
+    #         return 0
 
     def getBag(self):
         return self.bag
@@ -117,5 +115,57 @@ class RosBag(object):
 
             return [left_e0, left_e1, left_s0, left_s1, left_w0, left_w1, left_w2]
                     # right_e0, right_e1, right_s0, right_s1, right_w0, right_w1, right_w2]
+
+        elif self.name == 'predicate':
+            
+            obj_loc_x = []
+            obj_loc_y = []
+            obj_loc_z = []
+            l_btn_pressed = []
+            r_btn_pressed = []
+            obj_vis = []
+
+            for topic, msg, t in self.bag.read_messages(topics=['predicate_values']):
+
+                for pred in msg.predicates:
+                    if pred.operator == "at":
+                        if pred.object == "block":
+                            obj_loc_x.append(pred.locationInformation.pose.position.x)
+                            obj_loc_y.append(pred.locationInformation.pose.position.y)
+                            obj_loc_z.append(pred.locationInformation.pose.position.z)
+                    if pred.operator == "pressed":
+                        if pred.object == "left_button":
+                            l_btn_pressed.append('1')
+                        else: 
+                            l_btn_pressed.append('0')
+                        if pred.object == "right_button":
+                            r_btn_pressed.append('1')
+                        else: 
+                            r_btn_pressed.append('0')
+                    if pred.operator == "is_visible":
+                        if pred.object == "block":
+                            obj_vis.append('1')
+                        else: 
+                            obj_vis.append('0')
+
+            
+            # halfLen = len(left_e0)/2
+
+            # left_e0 = left_e0[:halfLen]
+            # left_e1 = left_e1[:halfLen]
+            # left_s0 = left_s0[:halfLen]
+            # left_s1 = left_s1[:halfLen]
+            # left_w0 = left_w0[:halfLen]
+            # left_w1 = left_w1[:halfLen]
+            # left_w2 = left_w2[:halfLen]
+            # right_e0 = right_e0[:halfLen]
+            # right_e1 = right_e1[:halfLen]
+            # right_s0 = right_s0[:halfLen]
+            # right_s1 = right_s1[:halfLen]
+            # right_w0 = right_w0[:halfLen]
+            # right_w1 = right_w1[:halfLen]
+            # right_w2 = right_w2[:halfLen]
+
+            return [obj_loc_x, obj_loc_y, obj_loc_z, l_btn_pressed, r_btn_pressed, obj_vis]
         else: 
             return []
