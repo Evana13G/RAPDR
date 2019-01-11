@@ -234,11 +234,10 @@ class RosBag(object):
             lg_y = lg_y[:halfLen]
             lg_z = lg_z[:halfLen]
 
-            plt.plot(lg_x, 'r', label='x')
-            plt.plot(lg_y, 'b', label='y')
-            plt.plot(lg_z, 'g', label='z')
-
-            plt.show()
+            # plt.plot(lg_x, 'r', label='x')
+            # plt.plot(lg_y, 'b', label='y')
+            # plt.plot(lg_z, 'g', label='z')
+            # plt.show()
 
             return [lg_x, lg_y, lg_z]
         

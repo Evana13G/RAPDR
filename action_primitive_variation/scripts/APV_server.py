@@ -64,13 +64,6 @@ jointState_bag = RosBag('jointState')
 BlockPose = None
 shouldRecord = False
 
-# KB stuff not currently being used, but will be used for adding new actions
-AP_names = ['press_button', 'obtain_object']
-AP_services = ['press_button_srv', 'obtain_object_srv']
-AP_srvs = [PressButtonSrv, ObtainObjectSrv]
-KB = KnowledgeBase(AP_names, AP_services, AP_srvs)
-
-
 def handle_APV(req):
     global gripper
     global actionToVary
@@ -166,7 +159,7 @@ def extract_change_points():
     segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv')
     cps = segs.getCompressedChangePoints()
     positionInfo = leftGripper_bag.getROSBagDataAtCps(segs.getCompressedChangePoints(), ['left_gripper_pose'], cps)
-    ROSbag_with_CPs('leftGripper', bagData, segs)
+    # ROSbag_with_CPs('leftGripper', bagData, segs)
     return positionInfo
     # return 1
     

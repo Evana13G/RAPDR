@@ -4,7 +4,6 @@ project(environment)
 find_package(catkin REQUIRED COMPONENTS
   gazebo_msgs
   gazebo_ros
-  rospack
   roscpp
   rospack
   rospy
@@ -12,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   geometry_msgs
   genmsg
+  agent
 )
 
 add_message_files(

@@ -1,0 +1,4 @@
+geometry_msgs/PoseStamped initPosition
+geometry_msgs/PoseStamped endPosition
+---
+int64 success_bool

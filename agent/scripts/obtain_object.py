@@ -34,7 +34,7 @@ from tf.transformations import *
 import baxter_interface
 
 from agent.srv import *
-from physical_agent import PhysicalAgent
+from util.physical_agent import PhysicalAgent
 
 LeftButtonPose = None
 RightButtonPose = None
