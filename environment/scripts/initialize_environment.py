@@ -133,7 +133,7 @@ def blockPoseToGripper(poseVar):
 
 def main():
 
-    rospy.init_node("search_and_rescue")
+    rospy.init_node("init_environment_node")
     load_gazebo_models()
     #rospy.wait_for_message("/robot/sim/started", Empty)    
 

@@ -51,3 +51,16 @@ def is_touching(object1_loc, object2_loc, epsilon=0.135):
         if np.linalg.norm(obj1 - obj2) < epsilon:
             return True 
         return False
+
+
+def pddlStringFormat(predicates_list):
+    stringList = []
+    for pred in predicates_list:
+        if pred.operator == "at":
+            stringList.append(str(pred.operator) + '(' + str(pred.object) + ', (' + 
+                              str(round(pred.locationInformation.pose.position.x, 2)) + ', ' + 
+                              str(round(pred.locationInformation.pose.position.y, 2)) + ', ' + 
+                              str(round(pred.locationInformation.pose.position.z, 2)) + '))')
+        else:
+            stringList.append(str(pred.operator) + '(' + str(pred.object) + ')')
+    return stringList

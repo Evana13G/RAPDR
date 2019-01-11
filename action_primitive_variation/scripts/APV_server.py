@@ -140,6 +140,7 @@ def handle_gripperLeft(data):
     if shouldRecord is not False:
         try:
             leftGripper_bag.writeToBag('left_gripper_pose', data)
+            # jointState_bag.writeToBag('left_gripper_pose', data)
         finally:
             pass
 
@@ -159,9 +160,14 @@ def handle_gripperRight(data):
 #     ROSbag_with_CPs('jointState', bagData, segs) 
 
 def extract_change_points():
-    bagData =  predicates_bag.getVisualizableData()
+
+    bagData =  leftGripper_bag.getVisualizableData()
+
     segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv')
-    ROSbag_with_CPs('predicate', bagData, segs) 
+    cps = segs.getCompressedChangePoints()
+    positionInfo = leftGripper_bag.getROSBagDataAtCps(segs.getCompressedChangePoints(), ['left_gripper_pose'], cps)
+    ROSbag_with_CPs('leftGripper', bagData, segs)
+    return positionInfo
     # return 1
     
 """

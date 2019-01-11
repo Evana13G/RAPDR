@@ -70,7 +70,7 @@ class BayesianChangePoint(object):
                 content[tup[0]].append(tup[1])
             return trajs, content, aggregateCps
 
-    def clusterChangePoints(self, points, threshold=50):
+    def clusterChangePoints(self, points, threshold=80):
         cps = np.array(self.get2DTraj(points))
         clusters = shc.fclusterdata(cps, threshold, criterion="distance")
         labels = list(set(clusters))
@@ -89,17 +89,16 @@ class BayesianChangePoint(object):
 
         return clusters, groups, mins
 
-        # plt.scatter(*np.transpose(cps), c=clusters)
-        # plt.axis("equal")
-        # title = "threshold: %f, number of clusters: %d" % (thresh, len(set(clusters)))
-        # plt.title(title)
-        # plt.show()
-
     def get2DTraj(self, traj):
         twoDee = []
         for elem in traj:
             twoDee.append([elem, elem])
         return twoDee
+
+    # def getROSBagDataAtCps(self, bag, topics):
+    #     print("********************************")
+    #     for topic, msg, t in self.bag.read_messages(topics=topics):
+    #         print(msg)
 
 
 ##############################################################################################

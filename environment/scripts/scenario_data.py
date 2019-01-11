@@ -55,7 +55,7 @@ import baxter_interface
 from environment.srv import *
 from environment.msg import *
 from util.image_converter import ImageConverter
-from util.proximity_calculator import *
+from util.data_conversion import *
 from util.wall_controller import *
 
 LeftButtonPose = None
@@ -110,7 +110,7 @@ def setPoseWall(data):
 
 def checkElements(prevWallState):
     global WallState
-    if 'pressed(left_button)' in pddlStringFormat():
+    if 'pressed(left_button)' in pddlStringFormat(predicates_list):
         WallState = "DOWN"
     else:
         WallState = "UP"
@@ -168,19 +168,7 @@ def updatePhysicalStateBasedPredicates():
 
 def getPredicates(data):
     # data can be the form you want it in, for example PDDL and rounded 
-    return ScenarioDataSrvResponse(pddlStringFormat())
-
-def pddlStringFormat():
-    stringList = []
-    for pred in predicates_list:
-        if pred.operator == "at":
-            stringList.append(str(pred.operator) + '(' + str(pred.object) + ', (' + 
-                              str(round(pred.locationInformation.pose.position.x, 2)) + ', ' + 
-                              str(round(pred.locationInformation.pose.position.y, 2)) + ', ' + 
-                              str(round(pred.locationInformation.pose.position.z, 2)) + '))')
-        else:
-            stringList.append(str(pred.operator) + '(' + str(pred.object) + ')')
-    return stringList
+    return ScenarioDataSrvResponse(pddlStringFormat(predicates_list))
 
 def main():
     rospy.init_node("scenario_data_node")

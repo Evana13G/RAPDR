@@ -13,6 +13,6 @@
     (button_at right_button loc2)
     (object_at block loc3))
 
-(:goal (and (object_at block loc0a) (pressed left_button)))
+(:goal (and (object_at block loc0b) (pressed left_button)))
 
 )
