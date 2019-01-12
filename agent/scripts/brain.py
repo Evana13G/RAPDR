@@ -33,21 +33,28 @@ def main():
     rospy.wait_for_service('APV_srv', timeout=60)
     rospy.wait_for_service('partial_plan_executor_srv', timeout=60)
     rospy.wait_for_service('scenario_data_srv', timeout=60)
+    rospy.wait_for_service('plan_generator_srv', timeout=60)
 
     KB = KnowledgeBase()
 
     try:
+        #### This is where the highest level of the main algorithm should be implemented
 
         goal = "(:goal (and (object_at block loc0b) (pressed left_button)))"
         
-        data = KB.getDomainData()
+        domain = KB.getDomainData()
 
-        taskName = data['domain']
-        types = data['types']
-        predicates = data['predicates']
-        requirements = data['requirements']
-        actions = data['actions']
+        taskName = domain['domain']
+        types = domain['types']
+        predicates = domain['predicates']
+        requirements = domain['requirements']
+        actions = domain['actions']
 
+        scenarioData = rospy.ServiceProxy('scenario_data_srv', ScenarioDataSrv)
+        currentState = scenarioData()
+        print(currentState.predicates)
+        print(currentState.objects)
+        print(currentState.init)
         planGenerator = rospy.ServiceProxy('plan_generator_srv', PlanGeneratorSrv)
         
         resp = planGenerator(Domain(taskName, types, predicates, requirements, actions))

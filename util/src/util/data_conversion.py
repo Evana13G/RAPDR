@@ -64,3 +64,54 @@ def pddlStringFormat(predicates_list):
         else:
             stringList.append(str(pred.operator) + '(' + str(pred.object) + ')')
     return stringList
+
+def pddlObjectsStringFormat(predicates_list):
+    waypoints = ''
+    buttons = ''
+    grippers = ''
+    objs = ''
+    for pred in predicates_list:
+        if pred.operator == "at":
+            waypoints = waypoints + ('(' + str(round(pred.locationInformation.pose.position.x, 2)) + ', ' + 
+                                           str(round(pred.locationInformation.pose.position.y, 2)) + ', ' + 
+                                           str(round(pred.locationInformation.pose.position.z, 2)) + ') ')
+        if 'button' in str(pred.object):
+            buttons = buttons + str(pred.object) + ' '
+        elif 'gripper' in str(pred.object):
+            grippers = grippers + str(pred.object) + ' '
+        else:
+            objs = objs + str(pred.object) + ' '
+
+    waypoints = waypoints + '- waypoint'
+    buttons = buttons + '- buttons'
+    grippers = grippers + '- grippers'
+    objs = objs + '- objects'
+    return [waypoints, buttons, grippers, objs]
+
+    # loc0a loc0b loc0 loc1 loc2 loc3 - waypoint
+    # left_button right_button - button
+    # block - obj
+    # left right - gripper
+
+def pddlInitStringFormat(predicates_list):
+    stringList = []
+    for pred in predicates_list:
+        if pred.operator == "at":
+            loc = ('(' + str(round(pred.locationInformation.pose.position.x, 2)) + ', ' + 
+                         str(round(pred.locationInformation.pose.position.y, 2)) + ', ' + 
+                         str(round(pred.locationInformation.pose.position.z, 2)) + ')')
+            if 'button' in str(pred.object):
+                stringList.append('(button_at ' + pred.object + ' ' + loc + ')')
+            elif 'gripper' in str(pred.object):
+                stringList.append('(gripper_at ' + pred.object + ' ' + loc + ')')
+            else:
+                stringList.append('(object_at ' + pred.object + ' ' + loc + ')')
+        else:
+            stringList.append('(' + pred.operator + ' ' + pred.object + ')')
+    return stringList
+
+    # (gripper_at left loc0a)
+    # (gripper_at right loc0b)
+    # (button_at left_button loc1)
+    # (button_at right_button loc2)
+    # (object_at block loc3)

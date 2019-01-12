@@ -167,19 +167,9 @@ def updatePhysicalStateBasedPredicates():
     predicates_list = new_predicates
 
 def getPredicates(data):
-    if data.format == 'pddl'
-        return ScenarioDataSrvResponse(pddlStringFormat(predicates_list))
-    else:
-    # Needs to be in list form
-    # loc0a loc0b loc0 loc1 loc2 loc3 - waypoint
-    # left_button right_button - button
-    # block - obj
-    # left right - gripper
-        return ScenarioDataSrvResponse(pddlStringFormat(predicates_list))
-
-
-
-
+    return ScenarioDataSrvResponse(pddlStringFormat(predicates_list), 
+                                   pddlObjectsStringFormat(predicates_list),
+                                   pddlInitStringFormat(predicates_list))
 
 def main():
     rospy.init_node("scenario_data_node")
