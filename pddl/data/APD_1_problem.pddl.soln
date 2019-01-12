@@ -1,2 +1,1 @@
-(press_button right loc0b left_button loc1)
-(obtain_object right loc0b block loc3)
+(press_button left_gripper 0.57,0.17,0.08 left_button 0.53,0.15,-0.27)

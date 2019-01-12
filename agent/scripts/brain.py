@@ -69,8 +69,9 @@ def main():
         currentState = scenarioData()
         objs = currentState.objects
         init = currentState.init
-        
-        goal = ['(object_at block loc0b)', '(pressed left_button)']
+
+        goal = ['(pressed left_button)']
+
 
         domain = Domain(domainName, requirements, types, predicates, actions)
         problem = Problem(task, domainName, objs, init, goal)

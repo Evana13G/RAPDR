@@ -60,15 +60,15 @@ class KnowledgeBase(object):
         _a2.addEffect(StaticPredicate('gripper_at', ['?g', '?loc0']))
         _a2.addEffect(StaticPredicate('pressed', ['?b']))
 
-        # _actions.append(_a1)
-        # _actions.append(_a2)
+        _actions.append(_a1)
+        _actions.append(_a2)
 
-        _actions.append(Action('obtain_object', [Variable('?g', 'gripper'), Variable('?loc0', 'waypoint'), Variable('?o', 'object'), Variable('?loc1', 'waypoint')], 
-                                                [StaticPredicate('gripper_at', ['?g', '?loc0']), StaticPredicate('object_at', ['?o', '?loc1'])],
-                                                [StaticPredicate('gripper_at', ['?g', '?loc0']), StaticPredicate('not', [StaticPredicate('object_at', ['?o', '?loc1'])])]))
-        _actions.append(Action('press_button',  [Variable('?g', 'gripper'), Variable('?loc0', 'location'), Variable('?b', 'button'), Variable('?loc1', 'waypoint')], 
-                                                [StaticPredicate('gripper_at', ['?g', '?loc0']), StaticPredicate('button_at', ['?b', '?loc1'])],
-                                                [StaticPredicate('gripper_at', ['?g', '?loc0']), StaticPredicate('pressed', ['?b'])]))
+        # _actions.append(Action('obtain_object', [Variable('?g', 'gripper'), Variable('?loc0', 'waypoint'), Variable('?o', 'object'), Variable('?loc1', 'waypoint')], 
+        #                                         [StaticPredicate('gripper_at', ['?g', '?loc0']), StaticPredicate('object_at', ['?o', '?loc1'])],
+        #                                         [StaticPredicate('gripper_at', ['?g', '?loc0']), StaticPredicate('not', [StaticPredicate('object_at', ['?o', '?loc1'])])]))
+        # _actions.append(Action('press_button',  [Variable('?g', 'gripper'), Variable('?loc0', 'waypoint'), Variable('?b', 'button'), Variable('?loc1', 'waypoint')], 
+        #                                         [StaticPredicate('gripper_at', ['?g', '?loc0']), StaticPredicate('button_at', ['?b', '?loc1'])],
+        #                                         [StaticPredicate('gripper_at', ['?g', '?loc0']), StaticPredicate('pressed', ['?b'])]))
 
         self.domain = _domain
         self.requirements = _reqs
@@ -143,7 +143,7 @@ class StaticPredicate():
     def __str__(self):
         args = ''
         for var in self.vars:
-            args = args + var + ' '
+            args = args + str(var) + ' '
         return "(" + self.operator + ' ' + args + ")"
 
 
@@ -181,12 +181,20 @@ class Action():
         for p in self.params:
             s = s + str(p) + ' '
         s = s + ')\n'
-        s = s + '    :precondition (and'
-        for pcs in self.preconditions:
-            s = s + '\n        ' + str(pcs)
-        s = s + ')\n'
-        s = s + '    :effect (and'
-        for pcs in self.preconditions:
-            s = s + '\n        ' + str(pcs)
-        s = s + ')\n)'
+
+        if len(self.preconditions) > 1:    
+            s = s + '    :precondition (and'
+            for pcs in self.preconditions:
+                s = s + '\n        ' + str(pcs)
+            s = s + ')\n'
+        else:
+            s = s + '    :precondition ' + str(self.preconditions[0]) + '\n'
+
+        if len(self.effects) > 1:  
+            s = s + '    :effect (and'
+            for e in self.effects:
+                s = s + '\n        ' + str(e)
+            s = s + ')\n)'
+        else:
+            s = s + ':effect ' + str(self.effects[0]) + '\n)'
         return s

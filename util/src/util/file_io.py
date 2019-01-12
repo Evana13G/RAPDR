@@ -93,11 +93,13 @@ def writeToProblemFile(filePath, _task, _domain, _objs, _init, _goals):
         init = init + '\n    ' + i
     init = init + '\n)\n\n'
 
-    goals = '(:goal (and '
-    for g in _goals:
-        goals = goals + '\n    ' + g
-    goals = goals + ')\n)\n\n'
-
+    if len(_goals) > 1:
+        goals = '(:goal (and '
+        for g in _goals:
+            goals = goals + '\n    ' + g
+        goals = goals + ')\n)\n\n'
+    else:
+        goals = '(:goal ' + _goals[0] + ')\n\n'
 
     # # open file 
     with open(filePath, 'w') as f:

@@ -22,17 +22,17 @@
         (object_at ?o ?loc1 ))
     :effect (and
         (gripper_at ?g ?loc0 )
-        (object_at ?o ?loc1 ))
+        (not (object_at ?o ?loc1 ) ))
 )
 
 (:action press_button
-    :parameters (?g - gripper ?loc0 - location ?b - button ?loc1 - waypoint )
+    :parameters (?g - gripper ?loc0 - waypoint ?b - button ?loc1 - waypoint )
     :precondition (and
         (gripper_at ?g ?loc0 )
         (button_at ?b ?loc1 ))
     :effect (and
         (gripper_at ?g ?loc0 )
-        (button_at ?b ?loc1 ))
+        (pressed ?b ))
 )
 
 )

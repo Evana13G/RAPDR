@@ -66,15 +66,16 @@ def pddlStringFormat(predicates_list):
     return stringList
 
 def pddlObjectsStringFormat(predicates_list):
-    waypoints = ''
+    waypoints = []
     buttons = ''
     grippers = ''
     objs = ''
     for pred in predicates_list:
         if pred.operator == "at":
-            waypoints = waypoints + ('(' + str(round(pred.locationInformation.pose.position.x, 2)) + ', ' + 
-                                           str(round(pred.locationInformation.pose.position.y, 2)) + ', ' + 
-                                           str(round(pred.locationInformation.pose.position.z, 2)) + ') ')
+            loc = (str(round(pred.locationInformation.pose.position.x, 2)) + ',' + 
+                   str(round(pred.locationInformation.pose.position.y, 2)) + ',' + 
+                   str(round(pred.locationInformation.pose.position.z, 2))) + ' '
+            waypoints.append(loc)
         if 'button' in str(pred.object):
             buttons = buttons + str(pred.object) + ' '
         elif 'gripper' in str(pred.object):
@@ -82,10 +83,11 @@ def pddlObjectsStringFormat(predicates_list):
         else:
             objs = objs + str(pred.object) + ' '
 
-    waypoints = waypoints + '- waypoint'
-    buttons = buttons + '- buttons'
-    grippers = grippers + '- grippers'
-    objs = objs + '- objects'
+    waypoints = list(set(waypoints))
+    waypoints = ''.join(waypoints) + '- waypoint'
+    buttons = buttons + '- button'
+    grippers = grippers + '- gripper'
+    objs = objs + '- obj'
     return [waypoints, buttons, grippers, objs]
 
     # loc0a loc0b loc0 loc1 loc2 loc3 - waypoint
@@ -97,9 +99,9 @@ def pddlInitStringFormat(predicates_list):
     stringList = []
     for pred in predicates_list:
         if pred.operator == "at":
-            loc = ('(' + str(round(pred.locationInformation.pose.position.x, 2)) + ', ' + 
-                         str(round(pred.locationInformation.pose.position.y, 2)) + ', ' + 
-                         str(round(pred.locationInformation.pose.position.z, 2)) + ')')
+            loc = (str(round(pred.locationInformation.pose.position.x, 2)) + ',' + 
+                   str(round(pred.locationInformation.pose.position.y, 2)) + ',' + 
+                   str(round(pred.locationInformation.pose.position.z, 2))) 
             if 'button' in str(pred.object):
                 stringList.append('(button_at ' + pred.object + ' ' + loc + ')')
             elif 'gripper' in str(pred.object):
