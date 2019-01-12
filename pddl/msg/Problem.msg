@@ -1,5 +1,5 @@
-string taskName
-string goal
-string[] objectNames
-string[] objectTypes
-string[] initPredicates
+string task
+string domain
+string[] objects
+string[] init
+string[] goals

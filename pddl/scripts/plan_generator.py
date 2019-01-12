@@ -20,23 +20,42 @@ from std_msgs.msg import (
 from tf.transformations import *
 
 from util.knowledge_base import KnowledgeBase
+from util.file_io import * 
 from action_primitive_variation.srv import *
 from agent.srv import * 
 from pddl.srv import *
 
 
-# AP_names = ['press_button', 'obtain_object']
-
-# AP_services = ['press_button_srv', 'obtain_object_srv']
-# AP_srvs = [PressButtonSrv, ObtainObjectSrv]
-
-# KB = KnowledgeBase(AP_names, AP_services, AP_srvs)
-
 def generate_plan(req):
 
-    # load file and parse 
-    # solution_file = req.full_plan_filepath
-    # plan = []
+    domainFile = req.filename + '_domain.pddl'
+    problemFile = req.filename + '_problem.pddl'
+    solutionFile = req.filename + '.pddl.soln'
+    
+    dataFilepath = os.path.dirname(os.path.realpath(__file__)) + "/../data/"
+    domainFilepath = dataFilepath + domainFile
+    problemFilepath = dataFilepath + problemFile
+
+    # write to the files
+    writeToDomainFile(domainFilepath, 
+                      req.domain.name, 
+                      req.domain.requirements,
+                      req.domain.types, 
+                      req.domain.predicates, 
+                      req.domain.actions)
+
+    writeToProblemFile(problemFilepath, 
+                       req.problem.task,
+                       req.problem.domain,
+                       req.problem.objects,
+                       req.problem.init, 
+                       req.problem.goals)
+
+    pddlDriver = os.path.dirname(os.path.realpath(__file__)) + "/../../../pyperplan/src/pyperplan.py"
+
+    # os.system('python3 ' + pddlDriver + ' ' + domainFilepath + ' ' + problemFilepath)
+
+
 
     # with open(solution_file) as f:
     #     plan_data = f.readlines()
@@ -53,7 +72,7 @@ def generate_plan(req):
     #     action['params'] = params
     #     plan.append(action)
 
-    return PlanGeneratorSrvResponse("yo")
+    return PlanGeneratorSrvResponse(1)
 
 
 ############### START: ROSbag handling

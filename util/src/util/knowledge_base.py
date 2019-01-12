@@ -131,7 +131,7 @@ class Predicate(object):
     def __str__(self):
         args = ''
         for v in self.vars:
-            args = args + str(v) + ' '
+            args = args + ' ' + str(v)
         return "(" + self.operator + args + ")"
 
 
@@ -176,57 +176,17 @@ class Action():
         self.effects.append(predicate)
 
     def __str__(self):
-        s = self.name + ' :parameters ('
+        s = '(:action ' + self.name + '\n'
+        s = s + '    :parameters ('
         for p in self.params:
             s = s + str(p) + ' '
-        s = s + ') '
-        s = s + ':precondition (and '
+        s = s + ')\n'
+        s = s + '    :precondition (and'
         for pcs in self.preconditions:
-            s = s + str(pcs) + ' '
-        s = s + ')'
-        s = s + ':effect (and '
+            s = s + '\n        ' + str(pcs)
+        s = s + ')\n'
+        s = s + '    :effect (and'
         for pcs in self.preconditions:
-            s = s + str(pcs) + ' '
-        s = s + '))'
+            s = s + '\n        ' + str(pcs)
+        s = s + ')\n)'
         return s
-
-
-
-# (define (domain rapdr1)
-
-# (:requirements :strips :typing :fluents :disjunctive-preconditions)
-
-# (:types
-#     location obj gripper button - object
-#     waypoint - location
-# )
-
-# (:predicates
-#     (gripper_at ?g - gripper ?wp - waypoint)
-#     (object_at ?o - obj ?wp - waypoint)
-#     (button_at ?b - button ?wp - waypoint)
-#     (pressed ?b - button)
-#     (is_visible ?o - obj)
-# )
-
-# ;; Grab an object and bring it back to orig location
-# (:action obtain_object
-#     :parameters (?g - gripper ?loc0 - waypoint ?o - obj ?loc1 - waypoint)
-#     :precondition (and
-#         (gripper_at ?g ?loc0)
-#         (object_at ?o ?loc1))
-#     :effect (and
-#         (object_at ?o ?loc0)
-#         (not (object_at ?o ?loc1)))
-# )
-
-# ;; Press a button with gripper
-# (:action press_button
-#     :parameters (?g - gripper ?loc0 - waypoint ?b - button ?loc1 - waypoint)
-#     :precondition (and
-#         (gripper_at ?g ?loc0)
-#         (button_at ?b ?loc1))
-#     :effect (and
-#         (gripper_at ?g ?loc0)
-#         (pressed ?b))
-# )

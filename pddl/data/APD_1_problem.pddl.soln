@@ -1,0 +1,2 @@
+(press_button right loc0b left_button loc1)
+(obtain_object right loc0b block loc3)

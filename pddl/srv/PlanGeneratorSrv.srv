@@ -1,3 +1,5 @@
 Domain domain
+Problem problem
+string filename
 ---
-string filepath
+int64 success_bool

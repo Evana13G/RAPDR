@@ -1,5 +1,5 @@
-string taskName
+string name
+string[] requirements
 string[] types
 string[] predicates
-string[] requirements
 string[] actions

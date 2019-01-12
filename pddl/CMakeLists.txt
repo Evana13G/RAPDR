@@ -16,9 +16,9 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 add_message_files(
-FILES
-Domain.msg
-Problem.msg
+  FILES
+  Problem.msg
+  Domain.msg
 )
 
 add_service_files(
