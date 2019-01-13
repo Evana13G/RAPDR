@@ -9,14 +9,14 @@
 
 (:predicates
     (gripper_at ?g - gripper ?wp - waypoint)
-    (object_at ?o - object ?wp - waypoint)
+    (object_at ?o - obj ?wp - waypoint)
     (button_at ?b - button ?wp - waypoint)
     (pressed ?b - button)
-    (object ?o - object)
+    (is_visible ?o - obj)
 )
 
 (:action obtain_object
-    :parameters (?g - gripper ?loc0 - waypoint ?o - object ?loc1 - waypoint )
+    :parameters (?g - gripper ?loc0 - waypoint ?o - obj ?loc1 - waypoint )
     :precondition (and
         (gripper_at ?g ?loc0 )
         (object_at ?o ?loc1 ))

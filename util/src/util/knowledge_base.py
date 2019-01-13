@@ -34,23 +34,23 @@ class KnowledgeBase(object):
         _types.append(Type('location', ['waypoint']))
 
         _preds.append(Predicate('gripper_at', [Variable('?g', 'gripper'), Variable('?wp', 'waypoint')]))
-        _preds.append(Predicate('object_at', [Variable('?o', 'object'), Variable('?wp', 'waypoint')]))
+        _preds.append(Predicate('object_at', [Variable('?o', 'obj'), Variable('?wp', 'waypoint')]))
         _preds.append(Predicate('button_at', [Variable('?b', 'button'), Variable('?wp', 'waypoint')]))
         _preds.append(Predicate('pressed', [Variable('?b', 'button')]))
-        _preds.append(Predicate('object', [Variable('?o', 'object')]))
+        _preds.append(Predicate('is_visible', [Variable('?o', 'obj')]))
 
         
-        _a1 = Action('obtain_object', [], [], [])
+        _a1 = Action('obtain_object', [], [], [], ObtainObjectSrv)
         _a1.addVar(Variable('?g', 'gripper'))
         _a1.addVar(Variable('?loc0', 'waypoint'))
-        _a1.addVar(Variable('?o', 'object'))
+        _a1.addVar(Variable('?o', 'obj'))
         _a1.addVar(Variable('?loc1', 'waypoint'))
         _a1.addPreCond(StaticPredicate('gripper_at', ['?g', '?loc0']))
         _a1.addPreCond(StaticPredicate('object_at', ['?o', '?loc1']))
         _a1.addEffect(StaticPredicate('gripper_at', ['?g', '?loc0']))
         _a1.addEffect(StaticPredicate('not', [StaticPredicate('object_at', ['?o', '?loc1'])]))
 
-        _a2 = Action('press_button', [], [], [])
+        _a2 = Action('press_button', [], [], [], PressButtonSrv)
         _a2.addVar(Variable('?g', 'gripper'))
         _a2.addVar(Variable('?loc0', 'waypoint'))
         _a2.addVar(Variable('?b', 'button'))
@@ -102,12 +102,18 @@ class KnowledgeBase(object):
 
         return data
 
+    def getService(self, actionName):
+        for action in self.actions:
+            if action.getName() == actionName:
+                return action.getSrv()
 
+    def getServiceFile(self, actionName):
+        for action in self.actions:
+            if action.getName() == actionName:
+                return action.getSrvFile()
 
-    def storeKBData(self, filename):
-        print("Not implementedYet")
-
-
+    def getActions(self):
+        return self.actions
 
 class Type(object):
     def __init__(self, parent, children):
@@ -152,19 +158,24 @@ class Variable():
         self.variable = _var
         self.type = _type
 
-    def getVarName(self):
+    def getName(self):
         return self.variable
+
+    def getType(self):
+        return self.type
 
     def __str__(self):
         return self.variable + ' - ' + self.type
 
 
 class Action():
-    def __init__(self, actionName, _params, _preConds, _effects):
+    def __init__(self, actionName, _params, _preConds, _effects, _srvFile):
         self.name = actionName
         self.params = _params
         self.preconditions = _preConds # list of predicates (recursive)
         self.effects = _effects
+        self.srv = actionName + '_srv'
+        self.srvFile = _srvFile
 
     def addVar(self, var):
         self.params.append(var) # check to make sure this actually sets it 
@@ -174,6 +185,23 @@ class Action():
 
     def addEffect(self, predicate):
         self.effects.append(predicate)
+
+    def getName(self):
+        return self.name 
+
+    def getSrv(self):
+        return self.srv
+
+    def getSrvFile(self):
+        return self.srvFile
+
+    def getNonLocationVars(self):
+        args = []
+        for v in self.params:
+            t = v.getType()
+            if (t != 'waypoint') and (t != 'location'):
+                args.append(t)
+        return args
 
     def __str__(self):
         s = '(:action ' + self.name + '\n'

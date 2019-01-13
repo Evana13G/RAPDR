@@ -112,3 +112,23 @@ def writeToProblemFile(filePath, _task, _domain, _objs, _init, _goals):
         f.write(')')
 
 
+def getPlanFromSolutionFile(filePath):
+    plan_data = None
+    plan = []
+    with open(filePath) as f:
+        plan_data = f.readlines()
+
+    for full_action in plan_data:
+
+        data = full_action.replace(")\n", "").replace("(", "").replace("left_gripper", "left").replace("right_gripper", "right")
+
+        args = data.split()
+        action = {}
+        params = []
+        action['actionName'] = args[0]
+        params.append(args[1])
+        params.append(args[3])
+        action['params'] = params
+        plan.append(action)
+    
+    return plan

@@ -90,10 +90,38 @@ def pddlObjectsStringFormat(predicates_list):
     objs = objs + '- obj'
     return [waypoints, buttons, grippers, objs]
 
-    # loc0a loc0b loc0 loc1 loc2 loc3 - waypoint
-    # left_button right_button - button
-    # block - obj
-    # left right - gripper
+def pddlObjects(predicates_list):
+    waypoints = []
+    buttons = []
+    grippers = []
+    objs = []
+    for pred in predicates_list.predicates:
+        if pred.operator == "at":
+            loc = (str(round(pred.locationInformation.pose.position.x, 2)) + ',' + 
+                   str(round(pred.locationInformation.pose.position.y, 2)) + ',' + 
+                   str(round(pred.locationInformation.pose.position.z, 2))) + ' '
+            waypoints.append(loc)
+        if 'button' in str(pred.object):
+            buttons.append(str(pred.object))
+        elif 'gripper' in str(pred.object):
+            modifiedName = str(pred.object).replace('_gripper', '')
+            grippers.append(modifiedName)
+        else:
+            objs.append(str(pred.object))
+
+    waypoints = list(set(waypoints))
+    buttons = list(set(buttons))
+    grippers = list(set(grippers))
+    objs = list(set(objs))
+
+    objects = {}
+    objects['types'] = ['waypoints', 'buttons', 'grippers', 'objs']
+    objects['waypoint'] = waypoints
+    objects['button'] = buttons
+    objects['gripper'] = grippers
+    objects['obj'] = objs
+
+    return objects
 
 def pddlInitStringFormat(predicates_list):
     stringList = []

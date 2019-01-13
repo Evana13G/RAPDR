@@ -2,4 +2,4 @@ Domain domain
 Problem problem
 string filename
 ---
-int64 success_bool
+ActionList plan

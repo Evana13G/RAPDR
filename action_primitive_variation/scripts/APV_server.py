@@ -64,6 +64,8 @@ jointState_bag = RosBag('jointState')
 BlockPose = None
 shouldRecord = False
 
+KB = KnowledgeBase()
+
 def handle_APV(req):
     global gripper
     global actionToVary
@@ -199,7 +201,7 @@ def openBags():
 
 
 def execute_action(actionName, params):
-    b = rospy.ServiceProxy(KB.getService(actionName), KB.getSrv(actionName))
+    b = rospy.ServiceProxy(KB.getService(actionName), KB.getServiceFile(actionName))
     resp = None
     rospy.wait_for_service(KB.getService(actionName), timeout=60)
     try:

@@ -23,6 +23,7 @@ from util.knowledge_base import KnowledgeBase
 from util.file_io import * 
 from action_primitive_variation.srv import *
 from agent.srv import * 
+from pddl.msg import *
 from pddl.srv import *
 
 
@@ -30,11 +31,12 @@ def generate_plan(req):
 
     domainFile = req.filename + '_domain.pddl'
     problemFile = req.filename + '_problem.pddl'
-    solutionFile = req.filename + '.pddl.soln'
+    solutionFile = req.filename + '_problem.pddl.soln'
     
     dataFilepath = os.path.dirname(os.path.realpath(__file__)) + "/../data/"
     domainFilepath = dataFilepath + domainFile
     problemFilepath = dataFilepath + problemFile
+    solutionFilepath = dataFilepath + solutionFile
 
     # write to the files
     writeToDomainFile(domainFilepath, 
@@ -51,28 +53,14 @@ def generate_plan(req):
                        req.problem.init, 
                        req.problem.goals)
 
-    pddlDriver = os.path.dirname(os.path.realpath(__file__)) + "/../../../pyperplan/src/pyperplan.py"
+    pddlDriver = os.path.dirname(os.path.realpath(__file__)) + "/../../../pyperplan/src/pyperplan.py" 
+    os.system('python3 ' + pddlDriver + ' ' + domainFilepath + ' ' + problemFilepath)
 
-    # os.system('python3 ' + pddlDriver + ' ' + domainFilepath + ' ' + problemFilepath)
-
-
-
-    # with open(solution_file) as f:
-    #     plan_data = f.readlines()
-
-    # for full_action in plan_data:
-    #     data = full_action.replace(")\n", "").replace("(", "")
-
-    #     args = data.split()
-    #     action = {}
-    #     params = []
-    #     action['actionName'] = args[0]
-    #     params.append(args[1])
-    #     params.append(args[3])
-    #     action['params'] = params
-    #     plan.append(action)
-
-    return PlanGeneratorSrvResponse(1)
+    plan = getPlanFromSolutionFile(solutionFilepath)
+    actionList = []
+    for act in plan:
+        actionList.append(Action(act['actionName'], act['params']))
+    return PlanGeneratorSrvResponse(ActionList(actionList))
 
 
 ############### START: ROSbag handling

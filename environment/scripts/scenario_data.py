@@ -169,7 +169,8 @@ def updatePhysicalStateBasedPredicates():
 def getPredicates(data):
     return ScenarioDataSrvResponse(pddlStringFormat(predicates_list), 
                                    pddlObjectsStringFormat(predicates_list),
-                                   pddlInitStringFormat(predicates_list))
+                                   pddlInitStringFormat(predicates_list),
+                                   PredicateList(predicates_list))
 
 def main():
     rospy.init_node("scenario_data_node")
