@@ -43,13 +43,14 @@ button_name = None
 poseStampedTo = None
 
 class PhysicalAgent(object):
-    def __init__(self, limb='left', hover_distance = 0.15, verbose=True):
-        self._limb_name = limb # string
+    def __init__(self, limb='left_gripper', hover_distance = 0.15, verbose=True):
+        self._limb_name = limb.replace('_gripper', '') # string
+        # print('***************')
         self._hover_distance = hover_distance # in meters
         self._verbose = verbose # bool
-        self._limb = baxter_interface.Limb(limb)
-        self._gripper = baxter_interface.Gripper(limb)
-        ns = "ExternalTools/" + limb + "/PositionKinematicsNode/IKService"
+        self._limb = baxter_interface.Limb(self._limb_name)
+        self._gripper = baxter_interface.Gripper(self._limb_name)
+        ns = "ExternalTools/" + self._limb_name + "/PositionKinematicsNode/IKService"
         self._iksvc = rospy.ServiceProxy(ns, SolvePositionIK)
         rospy.wait_for_service(ns, 5.0)
         # verify robot is enabled

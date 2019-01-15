@@ -62,7 +62,7 @@ def execute_action(req):
     # rospy.wait_for_service(KB.getService(actionName), timeout=60)
 
     # Assuming I get initial position and final position
-    pa = PhysicalAgent(limb="left", hover_distance=0.0) # 
+    pa = PhysicalAgent(limb='left_gripper', hover_distance=0.0) # 
 
 
 

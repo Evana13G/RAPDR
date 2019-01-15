@@ -5,7 +5,6 @@ import sys
 import cv2
 import math
 import time
-
 import argparse
 import struct
 import sys
@@ -13,7 +12,6 @@ import copy
 import numpy as np
 import rospy
 import rospkg
-
 
 from geometry_msgs.msg import (
     PoseStamped,
@@ -29,12 +27,9 @@ from std_msgs.msg import (
     Empty,
 )
 
-# from baxter_core_msgs.srv import (
-#     SolvePositionIK,
-#     SolvePositionIKRequest,
-# )
-
+import knowledge_base 
 from tf.transformations import *
+
 # import baxter_interface
 # from environment.srv import *
 # from environment.msg import *
@@ -66,46 +61,38 @@ def pddlStringFormat(predicates_list):
     return stringList
 
 def pddlObjectsStringFormat(predicates_list):
-    waypoints = []
-    buttons = ''
-    grippers = ''
-    objs = ''
-    for pred in predicates_list:
-        if pred.operator == "at":
-            loc = (str(round(pred.locationInformation.pose.position.x, 2)) + ',' + 
-                   str(round(pred.locationInformation.pose.position.y, 2)) + ',' + 
-                   str(round(pred.locationInformation.pose.position.z, 2))) + ' '
-            waypoints.append(loc)
-        if 'button' in str(pred.object):
-            buttons = buttons + str(pred.object) + ' '
-        elif 'gripper' in str(pred.object):
-            grippers = grippers + str(pred.object) + ' '
-        else:
-            objs = objs + str(pred.object) + ' '
+    strData = []
+    objData = pddlObjects(predicates_list, False)
+    for objType in ['waypoint', 'button', 'gripper', 'obj']:
+        s = ''
+        for item in objData[objType]:
+            s = s + item + ' '
+        s = s + '- ' + objType
+        strData.append(s)
+    return strData
 
-    waypoints = list(set(waypoints))
-    waypoints = ''.join(waypoints) + '- waypoint'
-    buttons = buttons + '- button'
-    grippers = grippers + '- gripper'
-    objs = objs + '- obj'
-    return [waypoints, buttons, grippers, objs]
 
-def pddlObjects(predicates_list):
+def pddlObjects(predicates_list, mod=True):
     waypoints = []
     buttons = []
     grippers = []
     objs = []
-    for pred in predicates_list.predicates:
+    for pred in predicates_list:
         if pred.operator == "at":
-            loc = (str(round(pred.locationInformation.pose.position.x, 2)) + ',' + 
-                   str(round(pred.locationInformation.pose.position.y, 2)) + ',' + 
-                   str(round(pred.locationInformation.pose.position.z, 2))) + ' '
-            waypoints.append(loc)
+            if mod == True:
+                loc = (str(round(pred.locationInformation.pose.position.x, 2)) + ',' + 
+                       str(round(pred.locationInformation.pose.position.y, 2)) + ',' + 
+                       str(round(pred.locationInformation.pose.position.z, 2))) + ' '
+                waypoints.append(loc)
+            else: 
+                loc = (str(round(pred.locationInformation.pose.position.x, 2)) + ',' + 
+                       str(round(pred.locationInformation.pose.position.y, 2)) + ',' + 
+                       str(round(pred.locationInformation.pose.position.z, 2)))
+                waypoints.append(loc)
         if 'button' in str(pred.object):
             buttons.append(str(pred.object))
         elif 'gripper' in str(pred.object):
-            modifiedName = str(pred.object).replace('_gripper', '')
-            grippers.append(modifiedName)
+            grippers.append(str(pred.object))
         else:
             objs.append(str(pred.object))
 
@@ -115,7 +102,7 @@ def pddlObjects(predicates_list):
     objs = list(set(objs))
 
     objects = {}
-    objects['types'] = ['waypoints', 'buttons', 'grippers', 'objs']
+    objects['types'] = ['waypoint', 'button', 'gripper', 'obj']
     objects['waypoint'] = waypoints
     objects['button'] = buttons
     objects['gripper'] = grippers
@@ -145,3 +132,62 @@ def pddlInitStringFormat(predicates_list):
     # (button_at left_button loc1)
     # (button_at right_button loc2)
     # (object_at block loc3)
+
+def pddlInitKBFormat(_vars, args, predicates_list):
+    predList = []
+    nonLocationTypes = []
+    varSymbols = []
+    coorespondingVarTypes = []
+
+    for v in _vars:
+        varSymbols.append(v.getName())
+        coorespondingVarTypes.append(v.getType())
+
+
+    # print(args)
+    # print('********')
+    # print(_vars)
+    # print('********')
+    # print(nonLocationTypes)
+    # print('********')
+    # print(varSymbols)
+    # print('********')
+    # print(coorespondingVarTypes)
+    # print('********')
+
+    for pred in predicates_list.predicates:
+        if pred.object in args:
+            if pred.operator == "at":
+                # modOp = 
+                if 'button' in str(pred.object):
+                    typeIndex =  coorespondingVarTypes.index('button')
+                    loc = varSymbols[typeIndex + 1]
+                    obj = varSymbols[typeIndex]
+                    predList.append(knowledge_base.StaticPredicate('button_at ', [obj, loc]))
+                elif ('gripper' in str(pred.object)):
+                    typeIndex =  coorespondingVarTypes.index('gripper')
+                    loc = varSymbols[typeIndex + 1]
+                    obj = varSymbols[typeIndex]
+                    predList.append(knowledge_base.StaticPredicate('gripper_at ', [obj, loc]))
+                else:
+                    typeIndex =  coorespondingVarTypes.index('obj')
+                    loc = varSymbols[typeIndex + 1]
+                    obj = varSymbols[typeIndex]
+                    predList.append(knowledge_base.StaticPredicate('object_at ', [obj, loc]))
+            else:
+                if 'button' in str(pred.object):
+                    typeIndex =  coorespondingVarTypes.index('button')
+                    obj = varSymbols[typeIndex]
+                    predList.append(knowledge_base.StaticPredicate(pred.operator, [obj]))
+                elif 'gripper' in str(pred.object):
+                    typeIndex =  coorespondingVarTypes.index('gripper')
+                    obj = varSymbols[typeIndex]
+                    predList.append(knowledge_base.StaticPredicate(pred.operator, [obj]))
+                else:
+                    typeIndex =  coorespondingVarTypes.index('obj')
+                    obj = varSymbols[typeIndex]
+                    predList.append(knowledge_base.StaticPredicate(pred.operator, [obj]))
+
+
+
+    return predList

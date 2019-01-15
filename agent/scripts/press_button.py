@@ -86,11 +86,12 @@ def handle_pressButton(req):
         poseTo = RightButtonPose
     else:
         poseTo = BlockPose
-    
-    
+        
+    print("******************************")
+    print(limb)
     hover_distance = 0.15
     
-    if limb == 'left':
+    if limb == 'left_gripper':
 		starting_joint_angles_l = {'left_w0': 0.6699952259595108,
 								   'left_w1': 1.030009435085784,
                                    'left_w2': -0.4999997247485215,
@@ -110,7 +111,7 @@ def handle_pressButton(req):
     currentAction = PhysicalAgent(limb, hover_distance)    
 
     # Shouldnt have to start at starting pose 
-    if limb == 'left':
+    if limb == 'left_gripper':
         currentAction.move_to_start(starting_joint_angles_l)
     else:
         currentAction.move_to_start(starting_joint_angles_r)
@@ -119,7 +120,7 @@ def handle_pressButton(req):
     currentAction.approach(hoverOverPose(poseTo))
     currentAction.approach(poseTo)
     currentAction.approach(hoverOverPose(poseTo))
-    if limb == 'left':
+    if limb == 'left_gripper':
         currentAction.move_to_start(starting_joint_angles_l)
     else:
         currentAction.move_to_start(starting_joint_angles_r)

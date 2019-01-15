@@ -133,7 +133,7 @@ def blockPoseToGripper(poseVar):
     return newPoseStamped
 
 def moveLeftArmToStart():
-    pa = PhysicalAgent('left')
+    pa = PhysicalAgent('left_gripper')
     starting_joint_angles_l = {'left_w0': 0.6699952259595108,
                                'left_w1': 1.030009435085784,
                                'left_w2': -0.4999997247485215,
@@ -144,7 +144,7 @@ def moveLeftArmToStart():
     pa.move_to_start(starting_joint_angles_l)
 
 def moveRightArmToStart():
-    pa = PhysicalAgent('right')
+    pa = PhysicalAgent('right_gripper')
     starting_joint_angles_r = {'right_e0': -0.39888044530362166,
                                 'right_e1': 1.9341522973651006,
                                 'right_s0': 0.936293285623961,

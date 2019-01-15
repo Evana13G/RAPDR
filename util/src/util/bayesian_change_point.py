@@ -61,7 +61,7 @@ class BayesianChangePoint(object):
             for row in reader:
                 # get keys
                 trajs.append(row[0])
-                content_list.append((row[0], int(row[2]))) # tuple 
+                content_list.append((row[0], float(row[2]))) # tuple 
                 aggregateCps.append(row[2])
             trajs = list(set(trajs))
             for traj in trajs:
@@ -70,7 +70,7 @@ class BayesianChangePoint(object):
                 content[tup[0]].append(tup[1])
             return trajs, content, aggregateCps
 
-    def clusterChangePoints(self, points, threshold=75):
+    def clusterChangePoints(self, points, threshold=100):
         cps = np.array(self.get2DTraj(points))
         clusters = shc.fclusterdata(cps, threshold, criterion="distance")
         labels = list(set(clusters))
@@ -80,11 +80,11 @@ class BayesianChangePoint(object):
             groups.append([])
         
         for i in range(len(cps)-1):
-            groups[clusters[i]-1].append(int(cps[i][0]))
+            groups[clusters[i]-1].append(float(cps[i][0]))
         
         mins = []
         for chunk in groups:
-            if(len(chunk) > 7):
+            if(len(chunk) > 3):
                 mins.append(min(chunk))
 
         return clusters, groups, mins
@@ -99,7 +99,6 @@ class BayesianChangePoint(object):
     #     print("********************************")
     #     for topic, msg, t in self.bag.read_messages(topics=topics):
     #         print(msg)
-
 
 ##############################################################################################
 ##################################### SETTERS AND GETTERS ####################################

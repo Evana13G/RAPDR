@@ -21,6 +21,7 @@ from std_msgs.msg import (
 
 from action_primitive_variation.srv import *
 from agent.srv import *
+from util.data_conversion import * 
 
 class KnowledgeBase(object):
     def __init__(self):
@@ -33,11 +34,11 @@ class KnowledgeBase(object):
         _types.append(Type('object', ['location', 'obj', 'gripper', 'button']))
         _types.append(Type('location', ['waypoint']))
 
-        _preds.append(Predicate('gripper_at', [Variable('?g', 'gripper'), Variable('?wp', 'waypoint')]))
-        _preds.append(Predicate('object_at', [Variable('?o', 'obj'), Variable('?wp', 'waypoint')]))
-        _preds.append(Predicate('button_at', [Variable('?b', 'button'), Variable('?wp', 'waypoint')]))
-        _preds.append(Predicate('pressed', [Variable('?b', 'button')]))
-        _preds.append(Predicate('is_visible', [Variable('?o', 'obj')]))
+        _preds.append(TemplatedPredicate('gripper_at', [Variable('?g', 'gripper'), Variable('?wp', 'waypoint')]))
+        _preds.append(TemplatedPredicate('object_at', [Variable('?o', 'obj'), Variable('?wp', 'waypoint')]))
+        _preds.append(TemplatedPredicate('button_at', [Variable('?b', 'button'), Variable('?wp', 'waypoint')]))
+        _preds.append(TemplatedPredicate('pressed', [Variable('?b', 'button')]))
+        _preds.append(TemplatedPredicate('is_visible', [Variable('?o', 'obj')]))
 
         
         _a1 = Action('obtain_object', [], [], [], ObtainObjectSrv)
@@ -112,8 +113,29 @@ class KnowledgeBase(object):
             if action.getName() == actionName:
                 return action.getSrvFile()
 
+    def getAction(self, name):
+        for action in self.actions:
+            if action.getName() == name:
+                return action
+
     def getActions(self):
-        return self.actions
+        return copy.deepcopy(self.actions)
+
+    def addAction(self, name, origAction, args, preconds, effects, srvFile, params):
+
+        theOGaction = self.getAction(origAction)
+        newActionName = name
+        newActionVars = theOGaction.getArgs()
+
+        newActionPreconds = pddlInitKBFormat(newActionVars, args, preconds)
+        newActionEffects = pddlInitKBFormat(newActionVars, args, effects)
+        
+        newActionSrvFile = srvFile
+        newActionParams = params
+
+        newAction = Action(newActionName, newActionVars, newActionPreconds, newActionEffects, newActionSrvFile, newActionParams)
+        
+        self.actions.append(newAction)
 
 class Type(object):
     def __init__(self, parent, children):
@@ -129,7 +151,7 @@ class Type(object):
         return s
 
 # class Predicate(object):
-class Predicate(object):
+class TemplatedPredicate(object):
     def __init__(self, _operator, _vars):
         self.operator = _operator
         self.vars = _vars
@@ -141,7 +163,7 @@ class Predicate(object):
         return "(" + self.operator + args + ")"
 
 
-class StaticPredicate():
+class StaticPredicate(object):
     def __init__(self, _operator, _args):
         self.operator = _operator
         self.vars = _args
@@ -153,7 +175,7 @@ class StaticPredicate():
         return "(" + self.operator + ' ' + args + ")"
 
 
-class Variable():
+class Variable(object):
     def __init__(self, _var, _type):
         self.variable = _var
         self.type = _type
@@ -168,20 +190,24 @@ class Variable():
         return self.variable + ' - ' + self.type
 
 
-class Action():
-    def __init__(self, actionName, _params, _preConds, _effects, _srvFile):
+class Action(object):
+    def __init__(self, actionName, _args, _preConds, _effects, _srvFile, _params=None):
         self.name = actionName
-        self.params = _params
+        self.args = _args
         self.preconditions = _preConds # list of predicates (recursive)
         self.effects = _effects
         self.srv = actionName + '_srv'
         self.srvFile = _srvFile
+        self.executionParams = _params
 
     def addVar(self, var):
-        self.params.append(var) # check to make sure this actually sets it 
+        self.args.append(var) # check to make sure this actually sets it 
 
     def addPreCond(self, predicate):
         self.preconditions.append(predicate)
+
+    def getArgs(self):
+        return copy.deepcopy(self.args)
 
     def addEffect(self, predicate):
         self.effects.append(predicate)
@@ -197,7 +223,7 @@ class Action():
 
     def getNonLocationVars(self):
         args = []
-        for v in self.params:
+        for v in self.args:
             t = v.getType()
             if (t != 'waypoint') and (t != 'location'):
                 args.append(t)
@@ -206,7 +232,7 @@ class Action():
     def __str__(self):
         s = '(:action ' + self.name + '\n'
         s = s + '    :parameters ('
-        for p in self.params:
+        for p in self.args:
             s = s + str(p) + ' '
         s = s + ')\n'
 
@@ -215,14 +241,20 @@ class Action():
             for pcs in self.preconditions:
                 s = s + '\n        ' + str(pcs)
             s = s + ')\n'
-        else:
+        elif len(self.preconditions) == 1:
             s = s + '    :precondition ' + str(self.preconditions[0]) + '\n'
+        else:
+            # s = s
+            s = s + '    :precondition (and)\n'
 
         if len(self.effects) > 1:  
             s = s + '    :effect (and'
             for e in self.effects:
                 s = s + '\n        ' + str(e)
             s = s + ')\n)'
-        else:
-            s = s + ':effect ' + str(self.effects[0]) + '\n)'
+        elif len(self.effects) == 1:  
+            s = s + '    :effect ' + str(self.effects[0]) + '\n)'
+        else: 
+            # s = s 
+            s = s + '    :effect (and)\n'
         return s

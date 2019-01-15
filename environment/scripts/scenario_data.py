@@ -158,7 +158,6 @@ def updatePhysicalStateBasedPredicates():
     for pred in predicates_list:
         if not (pred.operator == "pressed"):
             new_predicates.append(pred)
-
     if is_touching(LeftGripperPose, LeftButtonPose) or is_touching(RightGripperPose, LeftButtonPose):
         new_predicates.append(Predicate(operator="pressed", object="left_button", locationInformation=None)) 
     if is_touching(LeftGripperPose, RightButtonPose) or is_touching(RightGripperPose, RightButtonPose):

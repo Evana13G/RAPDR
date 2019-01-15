@@ -46,12 +46,6 @@ from action_primitive_variation.srv import *
 from agent.srv import * 
 from environment.msg import *
 
-actionToVary = None 
-gripper = None
-obj = None
-button = None
-
-bags = []
 
 block_bag = RosBag('block')
 leftButton_bag = RosBag('leftButton')
@@ -60,28 +54,24 @@ leftGripper_bag = RosBag('leftGripper')
 rightGripper_bag = RosBag('rightGripper')
 predicates_bag = RosBag('predicate')
 jointState_bag = RosBag('jointState')
-
-BlockPose = None
-shouldRecord = False
-
 KB = KnowledgeBase()
 
+shouldRecord = False
+
+
 def handle_APV(req):
-    global gripper
-    global actionToVary
-    global obj
-    global button
     global shouldRecord
     
     params = []
     actionToVary = req.actionName
     gripper = req.gripper
+    obj = req.obj
+    button = req.button
+
     if gripper is not '': 
         params.append(gripper)
-    obj = req.obj
     if obj is not '': 
         params.append(obj)
-    button = req.button
     if button is not '': 
         params.append(button)
 
@@ -89,7 +79,7 @@ def handle_APV(req):
     shouldRecord = True
     execute_action(actionToVary, params)
     shouldRecord = False
-    changePoints = extract_change_points()
+    changePoints = extract_change_points(gripper)
     closeBags()
 
     return APVSrvResponse(changePoints)
@@ -147,24 +137,23 @@ def handle_gripperRight(data):
             pass
 ############### END: Call back functions that check to see if ROSbag should be being recorded
 
-############### START: ROSbag handling
 
-# def visualize_change_points():
-#     bagData = jointState_bag.getVisualizableData()
-#     segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv')
-#     ROSbag_with_CPs('jointState', bagData, segs) 
+def extract_change_points(gripperToConsider):
+    if gripperToConsider == 'left_gripper':
+        bagData = leftGripper_bag.getVisualizableData()
+        segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv')
+        cps = segs.getCompressedChangePoints()
+        positionInfo = leftGripper_bag.getROSBagDataAtCps(segs.getCompressedChangePoints(), ['left_gripper_pose'], cps)
+        ROSbag_with_CPs('leftGripper', bagData, segs)
+        return positionInfo
+    else:
+        bagData = rightGripper_bag.getVisualizableData()
+        segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv')
+        cps = segs.getCompressedChangePoints()
+        positionInfo = rightGripper_bag.getROSBagDataAtCps(segs.getCompressedChangePoints(), ['right_gripper_pose'], cps)
+        ROSbag_with_CPs('rightGripper', bagData, segs)
+        return positionInfo
 
-def extract_change_points():
-
-    bagData =  leftGripper_bag.getVisualizableData()
-
-    segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv')
-    cps = segs.getCompressedChangePoints()
-    positionInfo = leftGripper_bag.getROSBagDataAtCps(segs.getCompressedChangePoints(), ['left_gripper_pose'], cps)
-    # ROSbag_with_CPs('leftGripper', bagData, segs)
-    return positionInfo
-    # return 1
-    
 """
 header: 
   seq: 422998
@@ -220,15 +209,6 @@ def execute_action(actionName, params):
 def main():
     rospy.init_node("APV_node")
     rospy.wait_for_message("/robot/sim/started", Empty)
-
-    global bags 
-    # bags['block_bag'] = rosbag.Bag('block.bag' ,'w')
-    # bags['leftButton_bag'] = rosbag.Bag('leftButton.bag' ,'w')
-    # bags['rightButton_bag'] = rosbag.Bag('rightButton.bag' ,'w')
-    # bags['leftGripper_bag'] = rosbag.Bag('leftGripper.bag' ,'w')
-    # bags['rightGripper_bag'] = rosbag.Bag('rightGripper.bag' ,'w')
-    # bags.append(RosBag('jointState'))
-
 
     rospy.Subscriber("left_button_pose", PoseStamped, handle_buttonLeft)
     rospy.Subscriber("right_button_pose", PoseStamped, handle_buttonRight)    

@@ -63,7 +63,7 @@ class RosBag(object):
 
         gripperInfo = []
         for pt in cps:
-            gripperInfo.append(allMsgs[pt])
+            gripperInfo.append(allMsgs[int(pt)])
 
         return gripperInfo
 
@@ -139,7 +139,7 @@ class RosBag(object):
             right_w1 = right_w1[:halfLen]
             right_w2 = right_w2[:halfLen]
 
-            print(type(left_e0[0]))
+            # print(type(left_e0[0]))
             return [left_e0, left_e1, left_s0, left_s1, left_w0, left_w1, left_w2]
                 # right_e0, right_e1, right_s0, right_s1, right_w0, right_w1, right_w2]
 
@@ -221,7 +221,7 @@ class RosBag(object):
  
             for topic, msg, t in self.bag.read_messages(topics=['left_gripper_pose']):
 
-                print("Time?:  " + str(t))
+                # print("Time?:  " + str(t))
 
                 lg_x.append(msg.pose.position.x)
                 lg_y.append(msg.pose.position.y)
@@ -240,6 +240,31 @@ class RosBag(object):
             # plt.show()
 
             return [lg_x, lg_y, lg_z]
-        
+
+        elif self.name == "rightGripper":
+
+            rg_x = []
+            rg_y = []
+            rg_z = []
+
+ 
+            for topic, msg, t in self.bag.read_messages(topics=['right_gripper_pose']):
+
+                # print("Time?:  " + str(t))
+
+                rg_x.append(msg.pose.position.x)
+                rg_y.append(msg.pose.position.y)
+                rg_z.append(msg.pose.position.z)
+
+
+            halfLen = len(rg_x)/2
+
+            rg_x = rg_x[:halfLen]
+            rg_y = rg_y[:halfLen]
+            rg_z = rg_z[:halfLen]
+
+            return [rg_x, rg_y, rg_z]
         else:
             return []
+
+

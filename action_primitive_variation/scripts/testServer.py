@@ -33,7 +33,7 @@ def main():
     try:
         b = rospy.ServiceProxy('APV_srv', APVSrv)
         # resp = b('obtain_object', 'left', 'block', None)
-        resp = b('press_button', 'left', 'left_button', None)
+        resp = b('press_button', 'left_gripper', 'left_button', None)
         print(resp)
     except rospy.ServiceException, e:
         print("Service call failed: %s"%e)

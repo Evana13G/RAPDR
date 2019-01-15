@@ -5,7 +5,7 @@ import sys
 import cv2
 import math
 import time
-
+import os
 import argparse
 import struct
 import sys
@@ -13,7 +13,6 @@ import copy
 import numpy as np
 import rospy
 import rospkg
-
 
 from geometry_msgs.msg import (
     PoseStamped,
@@ -29,17 +28,9 @@ from std_msgs.msg import (
     Empty,
 )
 
-# from baxter_core_msgs.srv import (
-#     SolvePositionIK,
-#     SolvePositionIKRequest,
-# )
-
 from tf.transformations import *
 
-
-
-# domain = Domain(domainName, requirements, types, predicates, actions)
-
+APVimage_Filepath = os.path.dirname(os.path.realpath(__file__)) + "/../../../action_primitive_variation/images/"
 
 def writeToDomainFile(filePath, _name, _reqs, _types, _preds, _actions):
 
@@ -115,20 +106,30 @@ def writeToProblemFile(filePath, _task, _domain, _objs, _init, _goals):
 def getPlanFromSolutionFile(filePath):
     plan_data = None
     plan = []
+
     with open(filePath) as f:
         plan_data = f.readlines()
 
     for full_action in plan_data:
-
-        data = full_action.replace(")\n", "").replace("(", "").replace("left_gripper", "left").replace("right_gripper", "right")
-
+        data = full_action.replace(")\n", "").replace("(", "")
         args = data.split()
         action = {}
         params = []
         action['actionName'] = args[0]
-        params.append(args[1])
-        params.append(args[3])
+        for p in range(len(args) -1):
+            if args[p+1] is not None: 
+                params.append(args[p+1])
+        
         action['params'] = params
         plan.append(action)
     
     return plan
+
+def saveFigureToImage(fig, filename, loc):
+    if loc == 'APV':
+        fig.savefig(str(APVimage_Filepath) + str(filename))
+
+
+
+
+
