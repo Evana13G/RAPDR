@@ -88,8 +88,7 @@ def main():
         if executionSuccess != 1:
 
             momentOfFailurePreds = scenarioData().predicates
-            print("Preds at moment of failure: ")
-            print(momentOfFailurePreds)
+
             # Should prob break this into a diff module... findNewAction module 
             # Do one that can for each action, return new sub actoins to try ?
 
@@ -116,7 +115,7 @@ def main():
                 print("..Trying APV...")
                 print(APVtrials[trialNo])
 
-                if (APVtrials[trialNo][0] == 'press_button'):
+                if (APVtrials[trialNo][0] == 'press_button') and (APVtrials[trialNo][2] == 'left_button'):
                 # if (APVtrials[trialNo][0] == 'press_button') or (APVtrials[trialNo][0] == 'obtain_object'):
                     try:
                         resp = APV(APVtrials[trialNo][0], APVtrials[trialNo][1], APVtrials[trialNo][2], APVtrials[trialNo][3])
@@ -155,8 +154,6 @@ def main():
 
             # Now that we have new actions.... 
             domainDict = KB.getDomainData()
-            print("Domain Data: ")
-            print(domainDict)
             domainName = domainDict['domain']
             types = domainDict['types']
             predicates = domainDict['predicates']
@@ -167,7 +164,6 @@ def main():
             currentState = scenarioData()
             objs = currentState.objects
             init = currentState.init
-
             goal = ['(is_visible block)']
             domain = Domain(domainName, requirements, types, predicates, actions)
             problem = Problem(task, domainName, objs, init, goal)

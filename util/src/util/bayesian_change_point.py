@@ -84,8 +84,10 @@ class BayesianChangePoint(object):
         
         mins = []
         for chunk in groups:
-            if(len(chunk) > 3):
+            if(len(chunk) > 10):
                 mins.append(min(chunk))
+                mins.append(max(chunk))
+                mins.append(np.mean(np.array(chunk)))
 
         return clusters, groups, mins
 

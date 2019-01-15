@@ -77,6 +77,11 @@ class KnowledgeBase(object):
         self.predicates = _preds
         self.actions = _actions
 
+    def typeChecker(self, elementName):
+        for t in self.types:
+            for c in t.getChildrenTypes():
+                if c in str(elementName):
+                    return c
 
     def getDomainData(self):
         
@@ -125,14 +130,9 @@ class KnowledgeBase(object):
 
         theOGaction = self.getAction(origAction)
         newActionName = name
-        newActionVars = theOGaction.getArgs()
-
-        newActionPreconds = pddlInitKBFormat(newActionVars, args, preconds)
-        newActionEffects = pddlInitKBFormat(newActionVars, args, effects)
-        
+        newActionVars, newActionPreconds, newActionEffects = pddlActionKBFormat(theOGaction.getArgs(), args, preconds, effects)
         newActionSrvFile = srvFile
         newActionParams = params
-
         newAction = Action(newActionName, newActionVars, newActionPreconds, newActionEffects, newActionSrvFile, newActionParams)
         
         self.actions.append(newAction)
@@ -141,6 +141,9 @@ class Type(object):
     def __init__(self, parent, children):
         self.parentType = parent
         self.childrenTypes = children
+
+    def getChildrenTypes(self):
+        return self.childrenTypes
 
     def __str__(self):
         s = ''

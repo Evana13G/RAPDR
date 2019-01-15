@@ -27,7 +27,7 @@ from std_msgs.msg import (
     Empty,
 )
 
-import knowledge_base 
+from knowledge_base import Variable  
 from tf.transformations import *
 
 # import baxter_interface
@@ -53,9 +53,9 @@ def pddlStringFormat(predicates_list):
     for pred in predicates_list:
         if pred.operator == "at":
             stringList.append(str(pred.operator) + '(' + str(pred.object) + ', (' + 
-                              str(round(pred.locationInformation.pose.position.x, 2)) + ', ' + 
-                              str(round(pred.locationInformation.pose.position.y, 2)) + ', ' + 
-                              str(round(pred.locationInformation.pose.position.z, 2)) + '))')
+                              str(round(pred.locationInformation.pose.position.x, 1)) + ', ' + 
+                              str(round(pred.locationInformation.pose.position.y, 1)) + ', ' + 
+                              str(round(pred.locationInformation.pose.position.z, 1)) + '))')
         else:
             stringList.append(str(pred.operator) + '(' + str(pred.object) + ')')
     return stringList
@@ -80,14 +80,14 @@ def pddlObjects(predicates_list, mod=True):
     for pred in predicates_list:
         if pred.operator == "at":
             if mod == True:
-                loc = (str(round(pred.locationInformation.pose.position.x, 2)) + ',' + 
-                       str(round(pred.locationInformation.pose.position.y, 2)) + ',' + 
-                       str(round(pred.locationInformation.pose.position.z, 2))) + ' '
+                loc = (str(round(pred.locationInformation.pose.position.x, 1)) + ',' + 
+                       str(round(pred.locationInformation.pose.position.y, 1)) + ',' + 
+                       str(round(pred.locationInformation.pose.position.z, 1))) + ' '
                 waypoints.append(loc)
             else: 
-                loc = (str(round(pred.locationInformation.pose.position.x, 2)) + ',' + 
-                       str(round(pred.locationInformation.pose.position.y, 2)) + ',' + 
-                       str(round(pred.locationInformation.pose.position.z, 2)))
+                loc = (str(round(pred.locationInformation.pose.position.x, 1)) + ',' + 
+                       str(round(pred.locationInformation.pose.position.y, 1)) + ',' + 
+                       str(round(pred.locationInformation.pose.position.z, 1)))
                 waypoints.append(loc)
         if 'button' in str(pred.object):
             buttons.append(str(pred.object))
@@ -114,9 +114,9 @@ def pddlInitStringFormat(predicates_list):
     stringList = []
     for pred in predicates_list:
         if pred.operator == "at":
-            loc = (str(round(pred.locationInformation.pose.position.x, 2)) + ',' + 
-                   str(round(pred.locationInformation.pose.position.y, 2)) + ',' + 
-                   str(round(pred.locationInformation.pose.position.z, 2))) 
+            loc = (str(round(pred.locationInformation.pose.position.x, 1)) + ',' + 
+                   str(round(pred.locationInformation.pose.position.y, 1)) + ',' + 
+                   str(round(pred.locationInformation.pose.position.z, 1))) 
             if 'button' in str(pred.object):
                 stringList.append('(button_at ' + pred.object + ' ' + loc + ')')
             elif 'gripper' in str(pred.object):
@@ -133,38 +133,37 @@ def pddlInitStringFormat(predicates_list):
     # (button_at right_button loc2)
     # (object_at block loc3)
 
-def pddlInitKBFormat(_vars, args, predicates_list):
+def pddlCondsKBFormat(_vars, args, predicates_list, diffs, diffsVars):
     predList = []
-    nonLocationTypes = []
     varSymbols = []
     coorespondingVarTypes = []
-
     for v in _vars:
         varSymbols.append(v.getName())
         coorespondingVarTypes.append(v.getType())
 
+    print('**************')
+    print(args)
+    print('**************')
+    print(varSymbols)
+    print('**************')
+    print(coorespondingVarTypes)
+    print('**************')
+    print(diffs)
+    print('**************')
 
-    # print(args)
-    # print('********')
-    # print(_vars)
-    # print('********')
-    # print(nonLocationTypes)
-    # print('********')
-    # print(varSymbols)
-    # print('********')
-    # print(coorespondingVarTypes)
-    # print('********')
 
     for pred in predicates_list.predicates:
-        if pred.object in args:
+        print('*** pred obj ****')
+        print(pred.object)
+        if (pred.object in args):
             if pred.operator == "at":
-                # modOp = 
+
                 if 'button' in str(pred.object):
                     typeIndex =  coorespondingVarTypes.index('button')
                     loc = varSymbols[typeIndex + 1]
                     obj = varSymbols[typeIndex]
                     predList.append(knowledge_base.StaticPredicate('button_at ', [obj, loc]))
-                elif ('gripper' in str(pred.object)):
+                elif 'gripper' in str(pred.object):
                     typeIndex =  coorespondingVarTypes.index('gripper')
                     loc = varSymbols[typeIndex + 1]
                     obj = varSymbols[typeIndex]
@@ -187,7 +186,63 @@ def pddlInitKBFormat(_vars, args, predicates_list):
                     typeIndex =  coorespondingVarTypes.index('obj')
                     obj = varSymbols[typeIndex]
                     predList.append(knowledge_base.StaticPredicate(pred.operator, [obj]))
+######
+# Currently location is not being considered
+######
+        elif (pred.object in diffs):
+            if pred.operator != "at":
+                symbolIndex =  diffs.index(pred.object)
+                obj = varSymbols[symbolIndex]
+                predList.append(knowledge_base.StaticPredicate(pred.operator, [obj]))
+
 
 
 
     return predList
+
+def getDiffs(predList1, predList2):
+    diffs = []
+    p1 = pddlInitStringFormat(predList1.predicates)
+    p2 = pddlInitStringFormat(predList2.predicates)
+
+    print('**********')
+    print(p1)
+    print('**********')
+    print(p2)
+
+    for i in range(len(p1)- 1):
+        if p1[i] not in p2:
+            diffs.append(predList1.predicates[i])
+    for i in range(len(p2) - 1):
+        if p2[i] not in p1:
+            diffs.append(predList2.predicates[i])
+
+    # print("preprocessed diffs")
+    # print(diffs)
+    # list(set(diffs))
+    return list(set(diffs))
+
+def typeChecker(elementName, types=['obj', 'gripper', 'button', 'waypoint']):
+    print('********type checker*********')
+    print(elementName)
+    for t in types:
+        if t in str(elementName):
+            return t
+        return 'obj'
+
+def pddlActionKBFormat(_vars, args, preCondsPredList, effectsPredList):
+    diffsObjs = []
+    diffsVars = []
+    templatedVars = copy.deepcopy(_vars)
+    diffs = getDiffs(preCondsPredList, effectsPredList)
+    for i in range(len(diffs) - 1):
+        diffsObjs.append(diffs[i].object)
+        diffsVars.append('?'+str(i))
+    for i in range(len(diffsObjs) - 1):
+        templatedVars.append(Variable(diffsVars[1], typeChecker(diffsObjs[i])))
+
+    preconds = pddlCondsKBFormat(_vars, args, preCondsPredList, diffsObjs, diffsVars)
+    effects = pddlCondsKBFormat(_vars, args, effectsPredList, diffsObjs, diffsVars)
+
+    return templatedVars, preconds, effects
+
