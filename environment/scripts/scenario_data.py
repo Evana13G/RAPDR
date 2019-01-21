@@ -16,6 +16,7 @@ import copy
 import numpy as np
 import rospy
 import rospkg
+
 from gazebo_msgs.srv import (
     SpawnModel,
     DeleteModel,
@@ -36,12 +37,10 @@ from geometry_msgs.msg import (
 from sensor_msgs.msg import (
     Image,
 )
-
 from gazebo_msgs.srv import (
     ApplyJointEffort,
     JointRequest,
 )
-
 from std_msgs.msg import (
     Header,
     Empty,
@@ -56,7 +55,7 @@ import baxter_interface
 from environment.srv import *
 from environment.msg import *
 from util.image_converter import ImageConverter
-from util.proximity_calculator import *
+from util.data_conversion import *
 from util.wall_controller import *
 
 LeftButtonPose = None
@@ -111,7 +110,7 @@ def setPoseWall(data):
 
 def checkElements(prevWallState):
     global WallState
-    if 'pressed(left_button)' in pddlStringFormat():
+    if 'pressed(left_button)' in pddlStringFormat(predicates_list):
         WallState = "DOWN"
     else:
         WallState = "UP"
@@ -148,7 +147,7 @@ def updateVisionBasedPredicates():
         if not (pred.operator == "is_visible"):
             new_predicates.append(pred)
 
-    # Just do blcok here 
+    # Just do block here 
     if (imageConverter.getBlockPixelCount() > 0):
         new_predicates.append(Predicate(operator="is_visible", object="block", locationInformation=None)) 
     predicates_list = new_predicates
@@ -159,7 +158,6 @@ def updatePhysicalStateBasedPredicates():
     for pred in predicates_list:
         if not (pred.operator == "pressed"):
             new_predicates.append(pred)
-
     if is_touching(LeftGripperPose, LeftButtonPose) or is_touching(RightGripperPose, LeftButtonPose):
         new_predicates.append(Predicate(operator="pressed", object="left_button", locationInformation=None)) 
     if is_touching(LeftGripperPose, RightButtonPose) or is_touching(RightGripperPose, RightButtonPose):
@@ -168,20 +166,10 @@ def updatePhysicalStateBasedPredicates():
     predicates_list = new_predicates
 
 def getPredicates(data):
-    # data can be the form you want it in, for example PDDL and rounded 
-    return ScenarioDataSrvResponse(pddlStringFormat())
-
-def pddlStringFormat():
-    stringList = []
-    for pred in predicates_list:
-        if pred.operator == "at":
-            stringList.append(str(pred.operator) + '(' + str(pred.object) + ', (' + 
-                              str(round(pred.locationInformation.pose.position.x, 2)) + ', ' + 
-                              str(round(pred.locationInformation.pose.position.y, 2)) + ', ' + 
-                              str(round(pred.locationInformation.pose.position.z, 2)) + '))')
-        else:
-            stringList.append(str(pred.operator) + '(' + str(pred.object) + ')')
-    return stringList
+    return ScenarioDataSrvResponse(pddlStringFormat(predicates_list), 
+                                   pddlObjectsStringFormat(predicates_list),
+                                   pddlInitStringFormat(predicates_list),
+                                   PredicateList(predicates_list))
 
 def main():
     rospy.init_node("scenario_data_node")

@@ -15,6 +15,17 @@ from std_msgs.msg import (
 )
 
 from action_primitive_variation.srv import APVSrv
+from util.bayesian_change_point import BayesianChangePoint
+import numpy as np
+
+# import cpdetect 
+# import sys, argparse, csv
+import matplotlib.pyplot as plt # if no vis, delete  
+import pandas as pd
+from sklearn.cluster import AgglomerativeClustering
+
+import scipy.cluster.hierarchy as shc
+
 
 def main():
     rospy.init_node("APV_test_node")
@@ -22,9 +33,13 @@ def main():
     try:
         b = rospy.ServiceProxy('APV_srv', APVSrv)
         # resp = b('obtain_object', 'left', 'block', None)
-        resp = b('press_button', 'left', 'left_button', None)
+        resp = b('press_button', 'left_gripper', 'left_button', None)
+        print(resp)
     except rospy.ServiceException, e:
         print("Service call failed: %s"%e)
+
+
+
 
 if __name__ == "__main__":
     main()

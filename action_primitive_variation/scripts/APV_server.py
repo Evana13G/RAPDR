@@ -44,73 +44,45 @@ from util.general_vis import *
 from util.ros_bag import RosBag
 from action_primitive_variation.srv import *
 from agent.srv import * 
+from environment.msg import *
 
-actionToVary = None 
-gripper = None
-obj = None
-button = None
 
-bags = []
-
-block_bag = rosbag.Bag('block.bag' ,'w')
-leftButton_bag = rosbag.Bag('leftButton.bag' ,'w')
-rightButton_bag = rosbag.Bag('rightButton.bag' ,'w')
-leftGripper_bag = rosbag.Bag('leftGripper.bag' ,'w')
-rightGripper_bag = rosbag.Bag('rightGripper.bag' ,'w')
-# jointState_bag = rosbag.Bag('jointState.bag' ,'w')
+block_bag = RosBag('block')
+leftButton_bag = RosBag('leftButton')
+rightButton_bag = RosBag('rightButton')
+leftGripper_bag = RosBag('leftGripper')
+rightGripper_bag = RosBag('rightGripper')
+predicates_bag = RosBag('predicate')
 jointState_bag = RosBag('jointState')
+KB = KnowledgeBase()
 
-BlockPose = None
 shouldRecord = False
 
-AP_names = ['press_button', 'obtain_object']
-
-AP_services = ['press_button_srv', 'obtain_object_srv']
-AP_srvs = [PressButtonSrv, ObtainObjectSrv]
-KB = KnowledgeBase(AP_names, AP_services, AP_srvs)
 
 def handle_APV(req):
-    global gripper
-    global actionToVary
-    global obj
-    global button
     global shouldRecord
     
     params = []
     actionToVary = req.actionName
     gripper = req.gripper
+    obj = req.obj
+    button = req.button
+
     if gripper is not '': 
         params.append(gripper)
-    obj = req.obj
     if obj is not '': 
         params.append(obj)
-    button = req.button
     if button is not '': 
         params.append(button)
 
-    # open the bags in case they were closed
-    global leftButton_bag 
-    global rightButton_bag 
-    global block_bag 
-    global leftGripper_bag 
-    global rightGripper_bag
-    # global jointState_bag
-
-    block_bag = rosbag.Bag('block.bag' ,'w')
-    leftButton_bag = rosbag.Bag('leftButton.bag' ,'w')
-    rightButton_bag = rosbag.Bag('rightButton.bag' ,'w')
-    leftGripper_bag = rosbag.Bag('leftGripper.bag' ,'w')
-    rightGripper_bag = rosbag.Bag('rightGripper.bag' ,'w')
-    jointState_bag.openBag()
-
+    openBags()
     shouldRecord = True
     execute_action(actionToVary, params)
     shouldRecord = False
-    visualize_change_points()
+    changePoints = extract_change_points(gripper)
     closeBags()
 
-    numberOfSegs = 1
-    return APVSrvResponse(numberOfSegs)
+    return APVSrvResponse(changePoints)
 
 
 ############### START: Call back functions that check to see if ROSbag should be being recorded
@@ -121,49 +93,66 @@ def handle_jointStates(data):
         finally:
             pass
 
+def handle_predicates(data):
+    if shouldRecord is not False:
+        try:
+            predicates_bag.writeToBag('predicate_values', data)
+        finally:
+            pass
 
 def handle_block(data):
     if shouldRecord is not False:
         try:
-            block_bag.write('block_pose', data)
+            block_bag.writeToBag('block_pose', data)
         finally:
             pass
 
 def handle_buttonLeft(data):
     if shouldRecord is not False:
         try:
-            leftButton_bag.write('left_button_pose', data)
+            leftButton_bag.writeToBag('left_button_pose', data)
         finally:
             pass
 
 def handle_buttonRight(data):
     if shouldRecord is not False:
         try:
-            rightButton_bag.write('right_button_pose', data)
+            rightButton_bag.writeToBag('right_button_pose', data)
         finally:
             pass
 
 def handle_gripperLeft(data):
     if shouldRecord is not False:
         try:
-            leftGripper_bag.write('left_gripper_pose', data)
+            leftGripper_bag.writeToBag('left_gripper_pose', data)
+            # jointState_bag.writeToBag('left_gripper_pose', data)
         finally:
             pass
 
 def handle_gripperRight(data):
     if shouldRecord is not False:
         try:
-            rightGripper_bag.write('right_gripper_pose', data)
+            rightGripper_bag.writeToBag('right_gripper_pose', data)
         finally:
             pass
 ############### END: Call back functions that check to see if ROSbag should be being recorded
 
-############### START: ROSbag handling
 
-def visualize_change_points():
-    bagData = jointState_bag.getVisualizableData()
-    segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv')
-    ROSbag_with_CPs('jointState', bagData, segs) 
+def extract_change_points(gripperToConsider):
+    if gripperToConsider == 'left_gripper':
+        bagData = leftGripper_bag.getVisualizableData()
+        segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv')
+        cps = segs.getCompressedChangePoints()
+        positionInfo = leftGripper_bag.getROSBagDataAtCps(segs.getCompressedChangePoints(), ['left_gripper_pose'], cps)
+        ROSbag_with_CPs('leftGripper', bagData, segs)
+        return positionInfo
+    else:
+        bagData = rightGripper_bag.getVisualizableData()
+        segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv')
+        cps = segs.getCompressedChangePoints()
+        positionInfo = rightGripper_bag.getROSBagDataAtCps(segs.getCompressedChangePoints(), ['right_gripper_pose'], cps)
+        ROSbag_with_CPs('rightGripper', bagData, segs)
+        return positionInfo
 
 """
 header: 
@@ -182,25 +171,26 @@ effort: [0.0, 9.124296028588603e-07, 0.009008088544217203, -0.12429816348236145,
 """
 
 def closeBags():
-    global leftButton_bag 
-    global rightButton_bag 
-    global block_bag 
-    global leftGripper_bag 
-    global rightGripper_bag 
-    global jointState_bag
-
-    leftButton_bag.close() 
-    rightButton_bag.close() 
-    block_bag.close() 
-    leftGripper_bag.close() 
-    rightGripper_bag.close() 
-
+    leftButton_bag.closeBag() 
+    rightButton_bag.closeBag() 
+    block_bag.closeBag() 
+    leftGripper_bag.closeBag() 
+    rightGripper_bag.closeBag() 
     jointState_bag.closeBag()
+
+def openBags():
+    leftButton_bag.openBag() 
+    rightButton_bag.openBag() 
+    block_bag.openBag() 
+    leftGripper_bag.openBag() 
+    rightGripper_bag.openBag() 
+    jointState_bag.openBag()
+
 ############### END: ROSbag handling
 
 
 def execute_action(actionName, params):
-    b = rospy.ServiceProxy(KB.getService(actionName), KB.getSrv(actionName))
+    b = rospy.ServiceProxy(KB.getService(actionName), KB.getServiceFile(actionName))
     resp = None
     rospy.wait_for_service(KB.getService(actionName), timeout=60)
     try:
@@ -220,21 +210,13 @@ def main():
     rospy.init_node("APV_node")
     rospy.wait_for_message("/robot/sim/started", Empty)
 
-    global bags 
-    # bags['block_bag'] = rosbag.Bag('block.bag' ,'w')
-    # bags['leftButton_bag'] = rosbag.Bag('leftButton.bag' ,'w')
-    # bags['rightButton_bag'] = rosbag.Bag('rightButton.bag' ,'w')
-    # bags['leftGripper_bag'] = rosbag.Bag('leftGripper.bag' ,'w')
-    # bags['rightGripper_bag'] = rosbag.Bag('rightGripper.bag' ,'w')
-    # bags.append(RosBag('jointState'))
-
-
     rospy.Subscriber("left_button_pose", PoseStamped, handle_buttonLeft)
     rospy.Subscriber("right_button_pose", PoseStamped, handle_buttonRight)    
     rospy.Subscriber("block_pose", PoseStamped, handle_block)
     rospy.Subscriber("left_gripper_pose", PoseStamped, handle_gripperLeft)
     rospy.Subscriber("right_gripper_pose", PoseStamped, handle_gripperRight)
     rospy.Subscriber("robot/joint_states", JointState, handle_jointStates)
+    rospy.Subscriber("predicate_values", PredicateList, handle_predicates)
 
     s = rospy.Service("APV_srv", APVSrv, handle_APV)
     rospy.spin()

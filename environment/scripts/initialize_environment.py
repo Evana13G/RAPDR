@@ -29,6 +29,7 @@ from std_msgs.msg import (
 )
 
 from util.wall_controller import *
+from util.physical_agent import PhysicalAgent
 
 from tf.transformations import *
 
@@ -131,6 +132,29 @@ def blockPoseToGripper(poseVar):
     newPoseStamped = PoseStamped(header = poseVar.header, pose = newPose)
     return newPoseStamped
 
+def moveLeftArmToStart():
+    pa = PhysicalAgent('left_gripper')
+    starting_joint_angles_l = {'left_w0': 0.6699952259595108,
+                               'left_w1': 1.030009435085784,
+                               'left_w2': -0.4999997247485215,
+                               'left_e0': -1.189968899785275,
+                               'left_e1': 1.9400238130755056,
+                               'left_s0': -0.08000397926829805,
+                               'left_s1': -0.9999781166910306}
+    pa.move_to_start(starting_joint_angles_l)
+
+def moveRightArmToStart():
+    pa = PhysicalAgent('right_gripper')
+    starting_joint_angles_r = {'right_e0': -0.39888044530362166,
+                                'right_e1': 1.9341522973651006,
+                                'right_s0': 0.936293285623961,
+                                'right_s1': -0.9939970420424453,
+                                'right_w0': 0.27417171168213983,
+                                'right_w1': 0.8298780975195674,
+                                'right_w2': -0.5085333554167599}
+    pa.move_to_start(starting_joint_angles_r)
+
+
 def main():
 
     rospy.init_node("search_and_rescue")
@@ -146,6 +170,8 @@ def main():
     pub_right_gripper_pose = rospy.Publisher('right_gripper_pose', PoseStamped, queue_size = 10)
     
     raiseWall()
+    moveLeftArmToStart()
+    moveRightArmToStart()
     
     frameid_var = "/world"
 
@@ -225,7 +251,9 @@ def main():
 
         pose_lglf = None
         pose_lgrf = None
-
+        hdr = Header(frame_id=frameid_var)
+        # hdr = Header(frame_id="")
+        
         try:
             lglf_link_state = rospy.ServiceProxy('/gazebo/get_link_state', GetLinkState)
             resp_lglf_link_state = lglf_link_state('l_gripper_l_finger', 'world')
@@ -247,7 +275,7 @@ def main():
         leftGripperPose.position.z = (pose_lglf.position.z + pose_lgrf.position.z)/2
         leftGripperPose.orientation = pose_lglf.orientation # TODO get the actual gripper orientation
         
-        poseStamped_left_gripper = PoseStamped(header=None, pose=leftGripperPose)
+        poseStamped_left_gripper = PoseStamped(header=hdr, pose=leftGripperPose)
         pub_left_gripper_pose.publish(blockPoseToGripper(poseStamped_left_gripper))
 
         rospy.wait_for_service('/gazebo/get_link_state')
@@ -277,7 +305,7 @@ def main():
         rightGripperPose.position.z = (pose_rglf.position.z + pose_rgrf.position.z)/2
         rightGripperPose.orientation = pose_rgrf.orientation # TODO get the actual gripper orientation
         
-        poseStamped_right_gripper = PoseStamped(header=None, pose=rightGripperPose)
+        poseStamped_right_gripper = PoseStamped(header=hdr, pose=rightGripperPose)
         pub_right_gripper_pose.publish(blockPoseToGripper(poseStamped_right_gripper))
 
     rate.sleep()

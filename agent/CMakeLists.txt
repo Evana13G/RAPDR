@@ -22,6 +22,7 @@ MoveToObject.srv
 MoveToButton.srv 
 PressButtonSrv.srv 
 ObtainObjectSrv.srv 
+PartialPlanExecutorSrv.srv
 test.srv
 )
 

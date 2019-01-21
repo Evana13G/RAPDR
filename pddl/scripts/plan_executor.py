@@ -22,6 +22,7 @@ from tf.transformations import *
 from util.knowledge_base import KnowledgeBase
 from action_primitive_variation.srv import *
 from agent.srv import * 
+from pddl.msg import *
 from pddl.srv import *
 
 actionToVary = None 
@@ -29,46 +30,30 @@ gripper = None
 obj = None
 button = None
 
-AP_names = ['press_button', 'obtain_object']
 
+AP_names = ['press_button', 'obtain_object']
 AP_services = ['press_button_srv', 'obtain_object_srv']
 AP_srvs = [PressButtonSrv, ObtainObjectSrv]
 
-KB = KnowledgeBase(AP_names, AP_services, AP_srvs)
+KB = KnowledgeBase()
 
 def handle_plan(req):
-
-    # load file and parse 
-    solution_file = req.full_plan_filepath
-    plan = []
-
-    with open(solution_file) as f:
-        plan_data = f.readlines()
-
-    for full_action in plan_data:
-        data = full_action.replace(")\n", "").replace("(", "")
-
-        args = data.split()
-        action = {}
-        params = []
-        action['actionName'] = args[0]
-        params.append(args[1])
-        params.append(args[3])
-        action['params'] = params
-        plan.append(action)
-
-    for action in plan:
-        execute_action(action['actionName'], action['params'])
-
-    return PlanExecutorSrvResponse(1)
-
+    try:
+        for action in req.actions.actions:
+            execute_action(action.name, action.params)
+        return PlanExecutorSrvResponse(1)        
+    except rospy.ServiceException, e:
+        print("Service call failed: %s"%e)
+        return PlanExecutorSrvResponse(0)
 
 ############### START: ROSbag handling
 
 def execute_action(actionName, params):
-    b = rospy.ServiceProxy(KB.getService(actionName), KB.getSrv(actionName))
-    resp = None
+
+    b = rospy.ServiceProxy(KB.getService(actionName), KB.getServiceFile(actionName))
     rospy.wait_for_service(KB.getService(actionName), timeout=60)
+
+    resp = None
 
     try:
         if len(params) == 1:
@@ -79,6 +64,7 @@ def execute_action(actionName, params):
             resp = b(params[0], params[1], params[2])
         elif len(params) == 4:
             resp = b(params[0], params[1], params[2], params[3])
+            
     except rospy.ServiceException, e:
         print("Service call failed: %s"%e)
 

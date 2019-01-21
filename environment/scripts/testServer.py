@@ -24,7 +24,7 @@ def main():
         # resp = b('obtain_object', 'left', 'block', None)
         resp = b()
         print("Response: ")
-        print(resp)
+        print(resp.predicates)
     except rospy.ServiceException, e:
         print("Service call failed: %s"%e)
 

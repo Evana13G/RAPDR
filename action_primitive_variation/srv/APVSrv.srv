@@ -3,4 +3,4 @@ string gripper
 string obj
 string button 
 ---
-int64 numberOfSegmentations
+geometry_msgs/PoseStamped[] endEffectorInfo

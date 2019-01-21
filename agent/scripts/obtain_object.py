@@ -34,7 +34,7 @@ from tf.transformations import *
 import baxter_interface
 
 from agent.srv import *
-from physical_agent import PhysicalAgent
+from util.physical_agent import PhysicalAgent
 
 LeftButtonPose = None
 RightButtonPose = None
@@ -93,9 +93,10 @@ def handle_ObtainObject(req):
     
     hover_distance = 0.15
 
-
+    print("******************************")
+    print(limb)
     # Shouldnt have to start at starting pose 
-    if limb == 'left':
+    if limb == 'left_gripper':
 		starting_joint_angles_l = {'left_w0': 0.6699952259595108,
 								   'left_w1': 1.030009435085784,
                                    'left_w2': -0.4999997247485215,
@@ -114,7 +115,7 @@ def handle_ObtainObject(req):
     
     currentAction = PhysicalAgent(limb, hover_distance)
     
-    if limb == 'left':
+    if limb == 'left_gripper':
         currentAction.move_to_start(starting_joint_angles_l)
     else:
         currentAction.move_to_start(starting_joint_angles_r)
@@ -124,7 +125,7 @@ def handle_ObtainObject(req):
     currentAction.approach(grabPose(poseTo))
     currentAction.gripper_close()
     currentAction.approach(hoverOverPose(poseTo))
-    if limb == 'left':
+    if limb == 'left_gripper':
         currentAction.move_to_start(starting_joint_angles_l)
     else:
         currentAction.move_to_start(starting_joint_angles_r)
