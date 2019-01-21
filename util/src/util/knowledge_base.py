@@ -20,6 +20,7 @@ from std_msgs.msg import (
 )
 
 from action_primitive_variation.srv import *
+from kb_subclasses import *
 from agent.srv import *
 from util.data_conversion import * 
 
@@ -178,7 +179,7 @@ class StaticPredicate(object):
         return "(" + self.operator + ' ' + args + ")"
 
 
-class Variable(object):
+class Variable():
     def __init__(self, _var, _type):
         self.variable = _var
         self.type = _type

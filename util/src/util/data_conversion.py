@@ -27,8 +27,9 @@ from std_msgs.msg import (
     Empty,
 )
 
-from knowledge_base import Variable  
 from tf.transformations import *
+from kb_subclasses import *
+
 
 # import baxter_interface
 # from environment.srv import *
@@ -133,7 +134,7 @@ def pddlInitStringFormat(predicates_list):
     # (button_at right_button loc2)
     # (object_at block loc3)
 
-def pddlCondsKBFormat(_vars, args, predicates_list, diffs, diffsVars):
+def pddlCondsKBFormat(_vars, args, predicates_list, diffObjs, diffsVars):
     predList = []
     varSymbols = []
     coorespondingVarTypes = []
@@ -141,15 +142,15 @@ def pddlCondsKBFormat(_vars, args, predicates_list, diffs, diffsVars):
         varSymbols.append(v.getName())
         coorespondingVarTypes.append(v.getType())
 
-    print('**************')
-    print(args)
-    print('**************')
-    print(varSymbols)
-    print('**************')
-    print(coorespondingVarTypes)
-    print('**************')
-    print(diffs)
-    print('**************')
+#    print('**************')
+#    print(args)
+#    print('**************')
+#    print(varSymbols)
+#    print('**************')
+#    print(coorespondingVarTypes)
+#    print('**************')
+#    print(diffObjs)
+#    print('**************')
 
 
     for pred in predicates_list.predicates:
@@ -162,43 +163,44 @@ def pddlCondsKBFormat(_vars, args, predicates_list, diffs, diffsVars):
                     typeIndex =  coorespondingVarTypes.index('button')
                     loc = varSymbols[typeIndex + 1]
                     obj = varSymbols[typeIndex]
-                    predList.append(knowledge_base.StaticPredicate('button_at ', [obj, loc]))
+                    predList.append(StaticPredicate('button_at ', [obj, loc]))
                 elif 'gripper' in str(pred.object):
                     typeIndex =  coorespondingVarTypes.index('gripper')
                     loc = varSymbols[typeIndex + 1]
                     obj = varSymbols[typeIndex]
-                    predList.append(knowledge_base.StaticPredicate('gripper_at ', [obj, loc]))
+                    predList.append(StaticPredicate('gripper_at ', [obj, loc]))
                 else:
                     typeIndex =  coorespondingVarTypes.index('obj')
                     loc = varSymbols[typeIndex + 1]
                     obj = varSymbols[typeIndex]
-                    predList.append(knowledge_base.StaticPredicate('object_at ', [obj, loc]))
+                    predList.append(StaticPredicate('object_at ', [obj, loc]))
             else:
                 if 'button' in str(pred.object):
                     typeIndex =  coorespondingVarTypes.index('button')
                     obj = varSymbols[typeIndex]
-                    predList.append(knowledge_base.StaticPredicate(pred.operator, [obj]))
+                    predList.append(StaticPredicate(pred.operator, [obj]))
                 elif 'gripper' in str(pred.object):
                     typeIndex =  coorespondingVarTypes.index('gripper')
                     obj = varSymbols[typeIndex]
-                    predList.append(knowledge_base.StaticPredicate(pred.operator, [obj]))
+                    predList.append(StaticPredicate(pred.operator, [obj]))
                 else:
                     typeIndex =  coorespondingVarTypes.index('obj')
                     obj = varSymbols[typeIndex]
-                    predList.append(knowledge_base.StaticPredicate(pred.operator, [obj]))
+                    predList.append(StaticPredicate(pred.operator, [obj]))
 ######
 # Currently location is not being considered
 ######
-        elif (pred.object in diffs):
+        elif (pred.object in diffObjs):
             if pred.operator != "at":
-                symbolIndex =  diffs.index(pred.object)
-                obj = varSymbols[symbolIndex]
-                predList.append(knowledge_base.StaticPredicate(pred.operator, [obj]))
-
-
-
-
+                symbolIndex =  diffObjs.index(pred.object)
+                obj = diffsVars[symbolIndex]
+                predList.append(StaticPredicate(pred.operator, [obj]))
     return predList
+
+
+def bindLocationsToVars(predicates_list, actionInitArgsList):
+    return []
+
 
 def getDiffs(predList1, predList2):
     diffs = []
@@ -235,11 +237,17 @@ def pddlActionKBFormat(_vars, args, preCondsPredList, effectsPredList):
     diffsVars = []
     templatedVars = copy.deepcopy(_vars)
     diffs = getDiffs(preCondsPredList, effectsPredList)
-    for i in range(len(diffs) - 1):
-        diffsObjs.append(diffs[i].object)
+    nonRepeatingDiffs = []
+    for o in diffs:
+        nonRepeatingDiffs.append(o.object)
+    nonRepeatingDiffs = list(set(nonRepeatingDiffs))
+
+    for i in range(len(nonRepeatingDiffs) - 1):
+        diffsObjs.append(nonRepeatingDiffs[i])
         diffsVars.append('?'+str(i))
+
     for i in range(len(diffsObjs) - 1):
-        templatedVars.append(Variable(diffsVars[1], typeChecker(diffsObjs[i])))
+        templatedVars.append(Variable(diffsVars[i], typeChecker(diffsObjs[i])))
 
     preconds = pddlCondsKBFormat(_vars, args, preCondsPredList, diffsObjs, diffsVars)
     effects = pddlCondsKBFormat(_vars, args, effectsPredList, diffsObjs, diffsVars)
