@@ -127,138 +127,139 @@ class KnowledgeBase(object):
     def getActions(self):
         return copy.deepcopy(self.actions)
 
-    def addAction(self, name, origAction, args, preconds, effects, srvFile, params):
-
+    def createAction(self, name, origAction, args, preconds, effects, srvFile, params, mode):
         theOGaction = self.getAction(origAction)
         newActionName = name
-        newActionVars, newActionPreconds, newActionEffects = pddlActionKBFormat(theOGaction.getArgs(), args, preconds, effects)
+        newActionVars, newActionPreconds, newActionEffects = pddlActionKBFormat(theOGaction.getArgs(), args, preconds, effects, mode)
         newActionSrvFile = srvFile
         newActionParams = params
         newAction = Action(newActionName, newActionVars, newActionPreconds, newActionEffects, newActionSrvFile, newActionParams)
-        
+        return newAction
+
+    def addAction(self, newAction):
         self.actions.append(newAction)
 
-class Type(object):
-    def __init__(self, parent, children):
-        self.parentType = parent
-        self.childrenTypes = children
+# class Type(object):
+#     def __init__(self, parent, children):
+#         self.parentType = parent
+#         self.childrenTypes = children
 
-    def getChildrenTypes(self):
-        return self.childrenTypes
+#     def getChildrenTypes(self):
+#         return self.childrenTypes
 
-    def __str__(self):
-        s = ''
-        for t in self.childrenTypes:
-            s = s + t + ' '
+#     def __str__(self):
+#         s = ''
+#         for t in self.childrenTypes:
+#             s = s + t + ' '
 
-        s = s + '- ' + self.parentType
-        return s
+#         s = s + '- ' + self.parentType
+#         return s
 
-# class Predicate(object):
-class TemplatedPredicate(object):
-    def __init__(self, _operator, _vars):
-        self.operator = _operator
-        self.vars = _vars
+# # class Predicate(object):
+# class TemplatedPredicate(object):
+#     def __init__(self, _operator, _vars):
+#         self.operator = _operator
+#         self.vars = _vars
 
-    def __str__(self):
-        args = ''
-        for v in self.vars:
-            args = args + ' ' + str(v)
-        return "(" + self.operator + args + ")"
-
-
-class StaticPredicate(object):
-    def __init__(self, _operator, _args):
-        self.operator = _operator
-        self.vars = _args
-
-    def __str__(self):
-        args = ''
-        for var in self.vars:
-            args = args + str(var) + ' '
-        return "(" + self.operator + ' ' + args + ")"
+#     def __str__(self):
+#         args = ''
+#         for v in self.vars:
+#             args = args + ' ' + str(v)
+#         return "(" + self.operator + args + ")"
 
 
-class Variable():
-    def __init__(self, _var, _type):
-        self.variable = _var
-        self.type = _type
+# class StaticPredicate(object):
+#     def __init__(self, _operator, _args):
+#         self.operator = _operator
+#         self.vars = _args
 
-    def getName(self):
-        return self.variable
-
-    def getType(self):
-        return self.type
-
-    def __str__(self):
-        return self.variable + ' - ' + self.type
+#     def __str__(self):
+#         args = ''
+#         for var in self.vars:
+#             args = args + str(var) + ' '
+#         return "(" + self.operator + ' ' + args + ")"
 
 
-class Action(object):
-    def __init__(self, actionName, _args, _preConds, _effects, _srvFile, _params=None):
-        self.name = actionName
-        self.args = _args
-        self.preconditions = _preConds # list of predicates (recursive)
-        self.effects = _effects
-        self.srv = actionName + '_srv'
-        self.srvFile = _srvFile
-        self.executionParams = _params
+# class Variable():
+#     def __init__(self, _var, _type):
+#         self.variable = _var
+#         self.type = _type
 
-    def addVar(self, var):
-        self.args.append(var) # check to make sure this actually sets it 
+#     def getName(self):
+#         return self.variable
 
-    def addPreCond(self, predicate):
-        self.preconditions.append(predicate)
+#     def getType(self):
+#         return self.type
 
-    def getArgs(self):
-        return copy.deepcopy(self.args)
+#     def __str__(self):
+#         return self.variable + ' - ' + self.type
 
-    def addEffect(self, predicate):
-        self.effects.append(predicate)
 
-    def getName(self):
-        return self.name 
+# class Action(object):
+#     def __init__(self, actionName, _args, _preConds, _effects, _srvFile, _params=None):
+#         self.name = actionName
+#         self.args = _args
+#         self.preconditions = _preConds # list of predicates (recursive)
+#         self.effects = _effects
+#         self.srv = actionName + '_srv'
+#         self.srvFile = _srvFile
+#         self.executionParams = _params
 
-    def getSrv(self):
-        return self.srv
+#     def addVar(self, var):
+#         self.args.append(var) # check to make sure this actually sets it 
 
-    def getSrvFile(self):
-        return self.srvFile
+#     def addPreCond(self, predicate):
+#         self.preconditions.append(predicate)
 
-    def getNonLocationVars(self):
-        args = []
-        for v in self.args:
-            t = v.getType()
-            if (t != 'waypoint') and (t != 'location'):
-                args.append(t)
-        return args
+#     def getArgs(self):
+#         return copy.deepcopy(self.args)
 
-    def __str__(self):
-        s = '(:action ' + self.name + '\n'
-        s = s + '    :parameters ('
-        for p in self.args:
-            s = s + str(p) + ' '
-        s = s + ')\n'
+#     def addEffect(self, predicate):
+#         self.effects.append(predicate)
 
-        if len(self.preconditions) > 1:    
-            s = s + '    :precondition (and'
-            for pcs in self.preconditions:
-                s = s + '\n        ' + str(pcs)
-            s = s + ')\n'
-        elif len(self.preconditions) == 1:
-            s = s + '    :precondition ' + str(self.preconditions[0]) + '\n'
-        else:
-            # s = s
-            s = s + '    :precondition (and)\n'
+#     def getName(self):
+#         return self.name 
 
-        if len(self.effects) > 1:  
-            s = s + '    :effect (and'
-            for e in self.effects:
-                s = s + '\n        ' + str(e)
-            s = s + ')\n)'
-        elif len(self.effects) == 1:  
-            s = s + '    :effect ' + str(self.effects[0]) + '\n)'
-        else: 
-            # s = s 
-            s = s + '    :effect (and)\n'
-        return s
+#     def getSrv(self):
+#         return self.srv
+
+#     def getSrvFile(self):
+#         return self.srvFile
+
+#     def getNonLocationVars(self):
+#         args = []
+#         for v in self.args:
+#             t = v.getType()
+#             if (t != 'waypoint') and (t != 'location'):
+#                 args.append(t)
+#         return args
+
+#     def __str__(self):
+#         s = '(:action ' + self.name + '\n'
+#         s = s + '    :parameters ('
+#         for p in self.args:
+#             s = s + str(p) + ' '
+#         s = s + ')\n'
+
+#         if len(self.preconditions) > 1:    
+#             s = s + '    :precondition (and'
+#             for pcs in self.preconditions:
+#                 s = s + '\n        ' + str(pcs)
+#             s = s + ')\n'
+#         elif len(self.preconditions) == 1:
+#             s = s + '    :precondition ' + str(self.preconditions[0]) + '\n'
+#         else:
+#             # s = s
+#             s = s + '    :precondition (and)\n'
+
+#         if len(self.effects) > 1:  
+#             s = s + '    :effect (and'
+#             for e in self.effects:
+#                 s = s + '\n        ' + str(e)
+#             s = s + ')\n)'
+#         elif len(self.effects) == 1:  
+#             s = s + '    :effect ' + str(self.effects[0]) + '\n)'
+#         else: 
+#             # s = s 
+#             s = s + '    :effect (and)\n'
+#         return s

@@ -32,13 +32,13 @@ def generate_plan(req):
     domainFile = req.filename + '_domain.pddl'
     problemFile = req.filename + '_problem.pddl'
     solutionFile = req.filename + '_problem.pddl.soln'
-    
+
     dataFilepath = os.path.dirname(os.path.realpath(__file__)) + "/../data/"
     domainFilepath = dataFilepath + domainFile
     problemFilepath = dataFilepath + problemFile
     solutionFilepath = dataFilepath + solutionFile
 
-    # write to the files
+    # # write to the files
     writeToDomainFile(domainFilepath, 
                       req.domain.name, 
                       req.domain.requirements,
