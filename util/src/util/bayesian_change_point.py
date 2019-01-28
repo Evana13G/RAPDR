@@ -70,7 +70,7 @@ class BayesianChangePoint(object):
                 content[tup[0]].append(tup[1])
             return trajs, content, aggregateCps
 
-    def clusterChangePoints(self, points, threshold=100):
+    def clusterChangePoints(self, points, threshold=80):
         cps = np.array(self.get2DTraj(points))
         clusters = shc.fclusterdata(cps, threshold, criterion="distance")
         labels = list(set(clusters))
@@ -82,14 +82,14 @@ class BayesianChangePoint(object):
         for i in range(len(cps)-1):
             groups[clusters[i]-1].append(float(cps[i][0]))
         
-        mins = []
+        flattened_cps = []
         for chunk in groups:
-            if(len(chunk) > 15):
-                mins.append(min(chunk))
-                # mins.append(max(chunk))
-                mins.append(np.mean(np.array(chunk)))
+            if(len(chunk) > 10):
+                flattened_cps.append(min(chunk))
+                flattened_cps.append(max(chunk))
+                flattened_cps.append(np.mean(np.array(chunk)))
 
-        return clusters, groups, mins
+        return clusters, groups, flattened_cps
 
     def get2DTraj(self, traj):
         twoDee = []

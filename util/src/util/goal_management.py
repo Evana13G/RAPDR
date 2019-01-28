@@ -13,6 +13,8 @@ def goalAccomplished(goalList, currentState):
 # def findAllCombos(objects, action):
 
 def isViable(action):
+
+	# remove actions with no effects
     return True
 
 

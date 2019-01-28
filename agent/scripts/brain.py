@@ -19,7 +19,8 @@ from pddl.srv import *
 from pddl.msg import *
 from util.knowledge_base import KnowledgeBase
 from util.data_conversion import * 
-from util.goal_management import * 
+from util.goal_management import *
+from util.file_io import deleteAllPddlFiles 
 
 import random
 from std_msgs.msg import (
@@ -55,6 +56,8 @@ def main():
         partialActionExecutor = rospy.ServiceProxy('partial_plan_executor_srv', PartialPlanExecutorSrv)
         scenarioData = rospy.ServiceProxy('scenario_data_srv', ScenarioDataSrv)
 
+        print(' ... Cleaning up data from last run')
+        deleteAllPddlFiles()
 
         #####################################################################################
         #                                                                                   #
@@ -82,8 +85,8 @@ def main():
         print('agent is able to accomplish its goal....')
         attempt = 1
 
-        while(goalAccomplished(goal, currentState.init) == False) and (attempt < 3):
-            print('\n**************************************   ATTEMPT #' + str(attempt))
+        while(goalAccomplished(goal, currentState.init) == False) and (attempt < 5):
+            print('\n***************************   ATTEMPT #' + str(attempt) + '   ***************************')
             print('Setting up domain and problem for attempt #' + str(attempt))
 
             #####################################################################################
