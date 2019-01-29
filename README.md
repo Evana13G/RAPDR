@@ -87,10 +87,21 @@ The URDF models are inside the baxter_simulation package in a folder that I beli
 
 1. For proof of concept scenario #1, we assume the following protocol:
 
-"left_gripper" - left gripper
-"right_gripper" - right gripper
-"block" - object to obtain
-"left_button" - left button
-"right_button" - right button
+"left_gripper" - left gripper \n
+"right_gripper" - right gripper \n
+"block" - object to obtain \n
+"left_button" - left button \n
+"right_button" - right button \n
+
+2. Many of the .py files might not be runnable. Navigate to their directories and run:
+
+        chmod +x [filename]
+        
+For example:
+
+        chmod +x brain.py
+        
+        
+
 
  
