@@ -15,11 +15,7 @@ Setup each of the following, in order:
 
 6. cpDetect (https://github.com/choderalab/cpdetect.git)
 
-7. Clone the RAPDR project 
-
-        cd ~/catkin_ws/src
-        git clone git@github.com:Evana13G/RAPDR.git
-          (or git clone https://github.com/Evana13G/RAPDR.git)
+7. Clone the RAPDR project
 
 ** At this point, the file heirarchy should take the following form:
 
