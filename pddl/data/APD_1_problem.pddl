@@ -3,20 +3,20 @@
 (:domain rapdr)
 
 (:objects
-    1.0,-0.0,0.0 0.81,0.02,-0.28 0.53,-0.27,-0.27 1.0,-0.0,-0.0 0.6,0.04,0.01 0.53,0.15,-0.27 0.56,-0.33,-0.04 - waypoint
+    0.8,0.0,-0.3 0.6,0.0,0.0 0.5,-0.3,-0.3 1.0,0.0,0.0 0.5,0.2,-0.3 0.6,-0.3,0.0 - waypoint
     right_button left_button - button
     left_gripper right_gripper - gripper
     wall table block - obj
 )
 
 (:init
-    (object_at table 1.0,-0.0,-0.0)
-    (object_at wall 1.0,-0.0,0.0)
-    (object_at block 0.81,0.02,-0.28)
-    (button_at right_button 0.53,-0.27,-0.27)
-    (button_at left_button 0.53,0.15,-0.27)
-    (gripper_at left_gripper 0.6,0.04,0.01)
-    (gripper_at right_gripper 0.56,-0.33,-0.04)
+    (button_at left_button 0.5,0.2,-0.3)
+    (gripper_at left_gripper 0.6,0.0,0.0)
+    (gripper_at right_gripper 0.6,-0.3,0.0)
+    (obj_at table 1.0,0.0,0.0)
+    (obj_at wall 1.0,0.0,0.0)
+    (obj_at block 0.8,0.0,-0.3)
+    (button_at right_button 0.5,-0.3,-0.3)
 )
 
 (:goal (is_visible block))

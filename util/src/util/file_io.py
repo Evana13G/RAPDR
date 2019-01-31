@@ -31,6 +31,7 @@ from std_msgs.msg import (
 from tf.transformations import *
 
 APVimage_Filepath = os.path.dirname(os.path.realpath(__file__)) + "/../../../action_primitive_variation/images/"
+PDDLdata_Filepath = os.path.dirname(os.path.realpath(__file__)) + "/../../../pddl/data/"
 
 def writeToDomainFile(filePath, _name, _reqs, _types, _preds, _actions):
 
@@ -106,23 +107,22 @@ def writeToProblemFile(filePath, _task, _domain, _objs, _init, _goals):
 def getPlanFromSolutionFile(filePath):
     plan_data = None
     plan = []
+    if (os.path.exists(filePath)):
+        with open(filePath) as f:
+            plan_data = f.readlines()
 
-    with open(filePath) as f:
-        plan_data = f.readlines()
-
-    for full_action in plan_data:
-        data = full_action.replace(")\n", "").replace("(", "")
-        args = data.split()
-        action = {}
-        params = []
-        action['actionName'] = args[0]
-        for p in range(len(args) -1):
-            if args[p+1] is not None: 
-                params.append(args[p+1])
-        
-        action['params'] = params
-        plan.append(action)
-    
+        for full_action in plan_data:
+            data = full_action.replace(")\n", "").replace("(", "")
+            args = data.split()
+            action = {}
+            params = []
+            action['actionName'] = args[0]
+            for p in range(len(args) -1):
+                if args[p+1] is not None: 
+                    params.append(args[p+1])
+            
+            action['params'] = params
+            plan.append(action)
     return plan
 
 def saveFigureToImage(fig, filename, loc):
@@ -130,6 +130,12 @@ def saveFigureToImage(fig, filename, loc):
         fig.savefig(str(APVimage_Filepath) + str(filename))
 
 
-
-
+def deleteAllPddlFiles():
+    for the_file in os.listdir(PDDLdata_Filepath):
+        file_path = os.path.join(PDDLdata_Filepath, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(e)
 

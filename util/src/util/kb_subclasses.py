@@ -145,5 +145,5 @@ class Action(object):
             s = s + '    :effect ' + str(self.effects[0]) + '\n)'
         else: 
             # s = s 
-            s = s + '    :effect (and)\n'
+            s = s + '    :effect (and)\n)' 
         return s
