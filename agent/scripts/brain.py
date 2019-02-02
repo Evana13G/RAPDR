@@ -76,7 +76,7 @@ def main():
         goal = ['(is_visible block)']
         currentState = scenarioData()
 
-        mode = ['noLoc', 'diffs']
+        mode = ['diffsOnly', 'noLoc']
 
         print('\nAgent has the following goal: ')
         print(goal)
@@ -96,11 +96,20 @@ def main():
             predicates = domainDict['predicates']
             requirements = domainDict['requirements']
             actions = domainDict['actions']
+            print(KB.getDomainData())
             print(' -- Domain setup complete')
 
             #####################################################################################
+            
             currentState = scenarioData()
-            objs = currentState.objects
+            additionalLocations = domainDict['pddlLocs']
+            initObjs = pddlObjects(currentState.predicateList.predicates)
+            newPts = copy.deepcopy(initObjs['waypoint'])
+            for loc in additionalLocations:
+                newPts.append(loc)
+            newPts = list(set(newPts))
+            initObjs['waypoint'] = newPts
+            objs = pddlObjectsStringFormat_fromDict(initObjs)
             init = currentState.init
             domain = Domain(domainName, requirements, types, predicates, actions)
             problem = Problem(task, domainName, objs, init, goal)
@@ -115,10 +124,11 @@ def main():
             # executionSuccess = planExecutor(plan.plan)
             
             # Just to gaurantee we go into APV mode for testing 
-            if attempt == 1:
-                executionSuccess = 0
-            else:
-                executionSuccess = planExecutor(plan.plan)
+            #if attempt == 1:
+            #    executionSuccess = 0
+            #else:
+            
+            executionSuccess = planExecutor(plan.plan)
 
             #####################################################################################
             if (executionSuccess == 1):
@@ -175,7 +185,11 @@ def main():
                                 if(resp_2.success_bool == 1):
                                     print(' ---- iteration ' + str(i) + ' successful!! Adding segmenation to knowledge base.')
 
-                                    new_name = "action_attempt_" + str(attempt) + '_trial' + str(trialNo) + '_seg' + str(i)
+                                    new_name = "action_attempt_" + str(attempt) + 
+                                                '_trial' + str(trialNo) + 
+                                                '_seg' + str(i) 
+                                                #'.' + poseStampedToString(resp.endEffectorInfo[i]) + 
+                                                #'.' + poseStampedToString(resp.endEffectorInfo[i+1])
                                     orig_name = APVtrials[trialNo][0]
                                     orig_args = [APVtrials[trialNo][1], APVtrials[trialNo][2], APVtrials[trialNo][3]]
                                     gripperData = [resp.endEffectorInfo[i], resp.endEffectorInfo[i+1]]
@@ -208,6 +222,7 @@ def main():
                         except rospy.ServiceException, e:
                             print("Service call failed: %s"%e)
                     trialNo = trialNo + 1 
+
             attempt = attempt + 1
 
 

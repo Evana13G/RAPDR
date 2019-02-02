@@ -31,6 +31,7 @@ class KnowledgeBase(object):
         _types = []
         _preds = []
         _actions = []
+        _pddllocs = []
 
         _types.append(Type('object', ['location', 'obj', 'gripper', 'button']))
         _types.append(Type('location', ['waypoint']))
@@ -62,21 +63,22 @@ class KnowledgeBase(object):
         _a2.addEffect(StaticPredicate('gripper_at', ['?g', '?loc0']))
         _a2.addEffect(StaticPredicate('pressed', ['?b']))
 
+
         _actions.append(_a1)
         _actions.append(_a2)
-
-        # _actions.append(Action('obtain_object', [Variable('?g', 'gripper'), Variable('?loc0', 'waypoint'), Variable('?o', 'object'), Variable('?loc1', 'waypoint')], 
-        #                                         [StaticPredicate('gripper_at', ['?g', '?loc0']), StaticPredicate('object_at', ['?o', '?loc1'])],
-        #                                         [StaticPredicate('gripper_at', ['?g', '?loc0']), StaticPredicate('not', [StaticPredicate('object_at', ['?o', '?loc1'])])]))
-        # _actions.append(Action('press_button',  [Variable('?g', 'gripper'), Variable('?loc0', 'waypoint'), Variable('?b', 'button'), Variable('?loc1', 'waypoint')], 
-        #                                         [StaticPredicate('gripper_at', ['?g', '?loc0']), StaticPredicate('button_at', ['?b', '?loc1'])],
-        #                                         [StaticPredicate('gripper_at', ['?g', '?loc0']), StaticPredicate('pressed', ['?b'])]))
 
         self.domain = _domain
         self.requirements = _reqs
         self.types = _types
         self.predicates = _preds
         self.actions = _actions
+        self.pddlLocs = _pddllocs
+
+    def addLocs(self, newLocs):
+        _newLocs = copy.deepcopy(self.pddlLocs)
+        for loc in newLocs:
+            _newLocs.append(str(loc))
+        self.pddlLocs = _newLocs
 
     def typeChecker(self, elementName):
         for t in self.types:
@@ -91,6 +93,7 @@ class KnowledgeBase(object):
         _types = []
         _preds = []
         _acts = []
+        _locs = []
         
         for r in self.requirements:
             _reqs.append(':' + r)
@@ -100,12 +103,15 @@ class KnowledgeBase(object):
             _preds.append(str(p))
         for a in self.actions:
             _acts.append(str(a))
+        for l in self.pddlLocs:
+            _locs.append(str(l))
             
         data['domain'] = self.domain
         data['requirements'] = _reqs
         data['types'] = _types
         data['predicates'] = _preds
         data['actions'] = _acts
+        data['pddlLocs'] = _locs
 
         return data
 
@@ -130,11 +136,16 @@ class KnowledgeBase(object):
     def createAction(self, name, origAction, args, preconds, effects, srvFile, params, mode):
         theOGaction = self.getAction(origAction)
         newActionName = name
-        newActionVars, newActionPreconds, newActionEffects = pddlActionKBFormat(theOGaction.getArgs(), args, preconds, effects, mode)
+        newActionVars, newActionPreconds, newActionEffects, pddlLocs = pddlActionKBFormat(theOGaction.getArgs(), args, preconds, effects, mode)
         newActionSrvFile = srvFile
         newActionParams = params
-        newAction = Action(newActionName, newActionVars, newActionPreconds, newActionEffects, newActionSrvFile, newActionParams)
+        newAction = Action(newActionName, newActionVars, newActionPreconds, newActionEffects, newActionSrvFile, newActionParams, pddlLocs)
         return newAction
 
     def addAction(self, newAction):
         self.actions.append(newAction)
+        locs = copy.deepcopy(newAction.getLocs())
+        for loc in newAction.getExecutionParams():
+            locs.append(poseStampedToString(loc))
+        locs = list(set(locs))
+        self.addLocs(locs)

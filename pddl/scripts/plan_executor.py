@@ -49,24 +49,38 @@ def handle_plan(req):
 ############### START: ROSbag handling
 
 def execute_action(actionName, params):
+    if 'seg' in actionName:   
+        b = rospy.ServiceProxy('partial_plan_executor_srv', PartialPlanExecutorSrv)
+        rospy.wait_for_service('partial_plan_executor_srv', timeout=60)
+        #endEffectors = actionName.split('.')
 
-    b = rospy.ServiceProxy(KB.getService(actionName), KB.getServiceFile(actionName))
-    rospy.wait_for_service(KB.getService(actionName), timeout=60)
-
-    resp = None
-
-    try:
-        if len(params) == 1:
-            resp = b(params[0])
-        elif len(params) == 2:
-            resp = b(params[0], params[1])   
-        elif len(params) == 3:
-            resp = b(params[0], params[1], params[2])
-        elif len(params) == 4:
-            resp = b(params[0], params[1], params[2], params[3])
-            
-    except rospy.ServiceException, e:
-        print("Service call failed: %s"%e)
+        resp = None
+        try:
+            if len(params) == 1:
+                resp = b(params[0])
+            elif len(params) == 2:
+                resp = b(params[0], params[1])   
+            elif len(params) == 3:
+                resp = b(params[0], params[1], params[2])
+            elif len(params) == 4:
+                resp = b(params[0], params[1], params[2], params[3])
+        except rospy.ServiceException, e:
+            print("Service call failed: %s"%e)
+    else:
+        b = rospy.ServiceProxy(KB.getService(actionName), KB.getServiceFile(actionName))
+        rospy.wait_for_service(KB.getService(actionName), timeout=60)
+        resp = None
+        try:
+            if len(params) == 1:
+                resp = b(params[0])
+            elif len(params) == 2:
+                resp = b(params[0], params[1])   
+            elif len(params) == 3:
+                resp = b(params[0], params[1], params[2])
+            elif len(params) == 4:
+                resp = b(params[0], params[1], params[2], params[3])
+        except rospy.ServiceException, e:
+            print("Service call failed: %s"%e)
 
 
 def main():

@@ -62,6 +62,16 @@ def pddlObjectsStringFormat(predicates_list):
         strData.append(s)
     return strData
 
+def pddlObjectsStringFormat_fromDict(dictObj):
+    strData = []
+    for objType in ['waypoint', 'button', 'gripper', 'obj']:
+        s = ''
+        for item in dictObj[objType]:
+            s = s + item + ' '
+        s = s + '- ' + objType
+        strData.append(s)
+    return strData
+
 def pddlObjects(predicates_list, mod=True):
     waypoints = []
     buttons = []
@@ -111,7 +121,7 @@ def pddlInitStringFormat(predicates_list):
             stringList.append('(' + pred.operator + ' ' + pred.object + ')')
     return stringList
 
-def pddlCondsKBFormat(_vars, args, predicates_list):
+def pddlCondsKBFormat(_vars, args, predicates_list, mode):
     predList = []
     varSymbols = []
     coorespondingVarTypes = []
@@ -124,8 +134,8 @@ def pddlCondsKBFormat(_vars, args, predicates_list):
     # print(varSymbols)
     # print(" **** coorespondingVarTypes **** ")
     # print(coorespondingVarTypes)
-    # print(" **** args **** ")
-    # print(args)
+    #print(" **** args **** ")
+    #print(args)
 
     for pred in predicates_list:
         if (pred.object in args):
@@ -135,37 +145,69 @@ def pddlCondsKBFormat(_vars, args, predicates_list):
             _symbol_obj = varSymbols[i_obj]
             # print('_symbol_obj = ' + str(_symbol_obj))
 
-            ##### START: Non-at() pred CODE
-            # if pred.operator == "at":
-            #     i_loc = args.index(poseStampedToString(pred.locationInformation))
-            #     # print('i_loc = ' + str(i_loc))
-            #     _symbol_loc = varSymbols[i_loc]
-            #     # print('_symbol_loc = ' + str(_symbol_loc))
-            #     _type_obj = coorespondingVarTypes[i_obj]
-            #     # print('_type_obj = ' + str(_type_obj))
-            #     predList.append(StaticPredicate(_type_obj + '_at ', [_symbol_obj, _symbol_loc]))
-            # else:
-            #     predList.append(StaticPredicate(pred.operator, [_symbol_obj]))
-            ##### END: Non-at() pred CODE
-            
-            ##### START: Non-at() pred CODE
-            if pred.operator != "at":
-                predList.append(StaticPredicate(pred.operator, [_symbol_obj]))
-            ##### END: Non-at() pred CODE
+            if 'noLoc' in mode:
+                if pred.operator != "at":
+                    predList.append(StaticPredicate(pred.operator, [_symbol_obj]))
+            else:
+                if pred.operator == "at":
+                    i_loc = args.index(poseStampedToString(pred.locationInformation))
+                    # print('i_loc = ' + str(i_loc))
+                    _symbol_loc = varSymbols[i_loc]
+                    # print('_symbol_loc = ' + str(_symbol_loc))
+                    _type_obj = coorespondingVarTypes[i_obj]
+                    # print('_type_obj = ' + str(_type_obj))
+                    predList.append(StaticPredicate(_type_obj + '_at ', [_symbol_obj, _symbol_loc]))
+                else:
+                    predList.append(StaticPredicate(pred.operator, [_symbol_obj])) 
 
     return predList
 
-def getPredicateDiffs(predList1, predList2):
+def getPredicateDiffs(predList1, predList2, mode=[]):
     diffs = []
     p1 = pddlInitStringFormat(predList1)
     p2 = pddlInitStringFormat(predList2)
-    for i in range(len(p1)):
-        if p1[i] not in p2:
-            diffs.append(predList1[i])
-    for i in range(len(p2)):
-        if p2[i] not in p1:
-            diffs.append(predList2[i])
+    if 'noLoc' in mode:
+        for i in range(len(p1)):
+            if p1[i] not in p2:
+                if not ('at' in p1[i]):
+                    diffs.append(predList1[i])
+        for i in range(len(p2)):
+            if p2[i] not in p1:
+                if not ('at' in p2[i]):
+                    diffs.append(predList2[i])
+    else:
+        for i in range(len(p1)):
+            if p1[i] not in p2:
+                diffs.append(predList1[i])
+        for i in range(len(p2)):
+            if p2[i] not in p1:
+                diffs.append(predList2[i])
+
     return list(set(diffs))
+
+def removeNonArgPredicates(predList, args):
+    newList = []
+    for pred in predList:
+        if pred.object in args:
+            newList.append(pred)
+    return newList
+
+def getPredicateCommonElements(predList1, predList2):
+    common = []
+    commonStr = []
+    p1 = pddlInitStringFormat(predList1)
+    p2 = pddlInitStringFormat(predList2)
+    for i in range(len(p1)):
+        if p1[i] in p2:
+            if p1[i] not in commonStr:
+                commonStr.append(p1[i])
+                common.append(predList1[i])
+    for i in range(len(p2)):
+        if p2[i] in p1:
+            if p2[i] not in commonStr:
+                commonStr.append(p2[i])
+                common.append(predList2[i])
+    return common
 
 def removePredicateList(listToRemoveFrom, listToRemove):
     newList = []
@@ -191,9 +233,9 @@ def poseStampedToString(val):
             str(y) + ',' + 
             str(z))
 
-def getElementDiffs(predList1, predList2, OGargs=[]):
+def getElementDiffs(predList1, predList2, mode=[], OGargs=[]):
     nonRepeatingDiffs =[]
-    diffs = getPredicateDiffs(predList1, predList2)
+    diffs = getPredicateDiffs(predList1, predList2, mode)
     for o in diffs:
         if o not in OGargs:
             nonRepeatingDiffs.append(o.object)
@@ -228,9 +270,24 @@ def removeNoneInstances(lst):
 
 def pddlActionKBFormat(_vars, args, preCondsPredList, effectsPredList, mode=[]):
 
+    #print('\nWelcome to the function from hell!')
     diffsObjs = []
     diffsVars = []
     templatedVars = []
+
+    # print '\n**** Initial Info ****'
+    # print '\nOG vars'
+    # for v in _vars:
+    #     print v
+    # print '\nPassed args'
+    # for a in args:
+    #     print a
+    # print '\nPreconditions'
+    # for p in preCondsPredList.predicates:
+    #     print p
+    # print '\nEffects'
+    # for e in effectsPredList.predicates:
+    #     print e
 
     # Strip out 'None's and loc info
     args = removeNoneInstances(args)
@@ -238,16 +295,36 @@ def pddlActionKBFormat(_vars, args, preCondsPredList, effectsPredList, mode=[]):
         if _v.getType() != 'waypoint':
             templatedVars.append(_v)
 
-    object_diffs = getElementDiffs(preCondsPredList.predicates, effectsPredList.predicates, args) # consider these in appending more templated vars  
+    # print '\n**** Templated Variables, remove waypoints ****'
+    # for v in templatedVars:
+    #     print v
+
+    object_diffs = getElementDiffs(preCondsPredList.predicates, effectsPredList.predicates, mode, args) # consider these in appending more templated vars  
     
-    print(object_diffs)
+    # print '\n**** Object Diffs ****'
+    # for o in object_diffs:
+    #     print o
 
-    predicate_diffs = getPredicateDiffs(preCondsPredList.predicates, effectsPredList.predicates)
+    _preconditions = removeNonArgPredicates(preCondsPredList.predicates, (args + object_diffs))
+    _effects = removeNonArgPredicates(effectsPredList.predicates, (args + object_diffs))
 
-    print(pddlInitStringFormat(predicate_diffs))
 
-    newPreconditions = removePredicateList(preCondsPredList.predicates, predicate_diffs)
-    newEffects = removePredicateList(effectsPredList.predicates, predicate_diffs)
+    common_pred = getPredicateCommonElements(_preconditions, _effects)
+
+    # print '\n**** Predicate In Common ****'
+    # for p in common_pred:
+    #     print p
+
+    newPreconditions = _preconditions
+    newEffects = removePredicateList(_effects, common_pred)
+
+    # print '\n**** New Preconditions ****'
+    # for p in newPreconditions:
+    #     print p
+    # print '\n**** New Effects ****'
+    # for p in newEffects:
+    #     print p
+
 
     for i in range(len(object_diffs)):
         templatedVars.append(Variable('?obj'+str(i), typeChecker(object_diffs[i])))
@@ -255,13 +332,18 @@ def pddlActionKBFormat(_vars, args, preCondsPredList, effectsPredList, mode=[]):
     if 'noLoc' in mode:
         templatedVars = templatedVars
         args = args + object_diffs  # merge the arguments
-
+        locArgs = []
     else:
         locVars, locArgs = getBoundLocs(newPreconditions + newEffects)
+        # print '\nlocVars'
+        # for i in locVars:
+        #     print i.getName()
+        # print '\nlocArgs'
+        # print locArgs
         templatedVars = templatedVars + locVars
         args = args + object_diffs + locArgs # merge the arguments
 
-    preconds = pddlCondsKBFormat(templatedVars, args, newPreconditions)
-    effects = pddlCondsKBFormat(templatedVars, args, newEffects)
+    preconds = pddlCondsKBFormat(templatedVars, args, newPreconditions, mode)
+    effects = pddlCondsKBFormat(templatedVars, args, newEffects, mode)
 
-    return templatedVars, preconds, effects
+    return templatedVars, preconds, effects, locArgs

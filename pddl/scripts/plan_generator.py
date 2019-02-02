@@ -59,7 +59,7 @@ def generate_plan(req):
     plan = getPlanFromSolutionFile(solutionFilepath)
     actionList = []
     for act in plan:
-        actionList.append(Action(act['actionName'], act['params']))
+        actionList.append(Action(act['actionName'], act['params'], None))
     return PlanGeneratorSrvResponse(ActionList(actionList))
 
 

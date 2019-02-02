@@ -70,7 +70,7 @@ class BayesianChangePoint(object):
                 content[tup[0]].append(tup[1])
             return trajs, content, aggregateCps
 
-    def clusterChangePoints(self, points, threshold=80):
+    def clusterChangePoints(self, points, threshold=100):
         cps = np.array(self.get2DTraj(points))
         clusters = shc.fclusterdata(cps, threshold, criterion="distance")
         labels = list(set(clusters))

@@ -35,4 +35,12 @@
         (pressed ?b ))
 )
 
+(:action action_attempt_2_trial1_seg3
+    :parameters (?g - gripper ?b - button ?obj0 - obj ?obj1 - obj )
+    :precondition (and)
+    :effect (and
+        (is_visible ?obj1 )
+        (pressed ?b ))
+)
+
 )
