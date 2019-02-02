@@ -78,9 +78,8 @@ class Variable():
     def __str__(self):
         return self.variable + ' - ' + self.type
 
-
 class Action(object):
-    def __init__(self, actionName, _args, _preConds, _effects, _srvFile, _params=None):
+    def __init__(self, actionName, _args, _preConds, _effects, _srvFile, _params=None, _locs=[]):
         self.name = actionName
         self.args = _args
         self.preconditions = _preConds # list of predicates (recursive)
@@ -88,6 +87,7 @@ class Action(object):
         self.srv = actionName + '_srv'
         self.srvFile = _srvFile
         self.executionParams = _params
+        self.PDDLlocs = _locs
 
     def addVar(self, var):
         self.args.append(var) # check to make sure this actually sets it 
@@ -109,6 +109,15 @@ class Action(object):
 
     def getSrvFile(self):
         return self.srvFile
+
+    def getEffects(self):
+        return copy.deepcopy(self.effects)
+
+    def getLocs(self):
+        return self.PDDLlocs
+
+    def getExecutionParams(self):
+        return self.executionParams
 
     def getNonLocationVars(self):
         args = []

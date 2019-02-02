@@ -67,8 +67,6 @@ def writeToDomainFile(filePath, _name, _reqs, _types, _preds, _actions):
         f.write(actions)
         f.write(')')
 
-
-
 def writeToProblemFile(filePath, _task, _domain, _objs, _init, _goals):
 
     define = 'define (problem  ' + _task + ')\n\n'

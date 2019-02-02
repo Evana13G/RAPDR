@@ -11,21 +11,8 @@ def goalAccomplished(goalList, currentState):
 
 
 # def findAllCombos(objects, action):
-
 def isViable(action):
-
-	# remove actions with no effects
+    if action.getEffects() == []:
+        return False
     return True
 
-
-
-# def createAction(self, name, origAction, args, preconds, effects, srvFile, params):
-
-#     theOGaction = self.getAction(origAction)
-    
-#     newActionName = name
-#     newActionVars, newActionPreconds, newActionEffects = pddlActionKBFormat(theOGaction.getArgs(), args, preconds, effects)
-#     newActionSrvFile = srvFile
-#     newActionParams = params
-#     newAction = Action(newActionName, newActionVars, newActionPreconds, newActionEffects, newActionSrvFile, newActionParams)
-    
