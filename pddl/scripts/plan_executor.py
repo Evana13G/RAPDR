@@ -56,7 +56,7 @@ def execute_action(actionName, params, endEffectorList):
         #endEffectors = actionName.split('.')
         resp = None
         try: # You do need params 
-            resp = b(endEffectorList[0], endEffectorList[1]) 
+            resp = b(params[0], endEffectorList[0], endEffectorList[1]) 
         except rospy.ServiceException, e:
             print("Service call failed: %s"%e)
     else:

@@ -85,7 +85,7 @@ def main():
         print('agent is able to accomplish its goal....')
         attempt = 1
 
-        while(goalAccomplished(goal, currentState.init) == False) and (attempt < 5):
+        while(goalAccomplished(goal, currentState.init) == False):
             print('\n***************************   ATTEMPT #' + str(attempt) + '   ***************************')
             print('Setting up domain and problem for attempt #' + str(attempt))
 
@@ -102,16 +102,14 @@ def main():
             #####################################################################################
             currentState = scenarioData()
             additionalLocations = domainDict['pddlLocs']
-            initObjs = pddlObjects(currentState.predicateList.predicates)
+            
+            initObjs = pddlObjects(currentState.predicateList.predicates, False)
             newPts = copy.deepcopy(initObjs['waypoint'])
-
             for loc in additionalLocations:
                 newPts.append(loc)
-
             newPts = list(set(newPts))
             initObjs['waypoint'] = newPts
             objs = pddlObjectsStringFormat_fromDict(initObjs)
-
             init = currentState.init
             domain = Domain(domainName, requirements, types, predicates, actions)
             problem = Problem(task, domainName, objs, init, goal)
@@ -146,7 +144,7 @@ def main():
                 momentOfFailurePreds = scenarioData().predicates
                 APVtrials = []
                 ##### Here is where you decide what to iterate over
-                objectsToIterate = pddlObjects(currentState.predicateList.predicates)
+                objectsToIterate = pddlObjects(currentState.predicateList.predicates, False)
                 for action in KB.getActions():
 
                     args = action.getNonLocationVars()
@@ -181,6 +179,7 @@ def main():
                                 # print(" ---- starting iteration #" + str(i+1))
                                 startingState = scenarioData().predicateList
                                 resp_2 = partialActionExecutor(APVtrials[trialNo][1], resp.endEffectorInfo[i], resp.endEffectorInfo[i+1])
+                                sleep(1)
                                 endingState = scenarioData().predicateList
 
                                 ##### Here is where you decide what gets added 

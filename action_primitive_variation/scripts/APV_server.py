@@ -57,7 +57,7 @@ jointState_bag = RosBag('jointState')
 KB = KnowledgeBase()
 
 shouldRecord = False
-
+vis = False
 
 def handle_APV(req):
     global shouldRecord
@@ -144,14 +144,16 @@ def extract_change_points(gripperToConsider):
         segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv')
         cps = segs.getCompressedChangePoints()
         positionInfo = leftGripper_bag.getROSBagDataAtCps(segs.getCompressedChangePoints(), ['left_gripper_pose'], cps)
-        ROSbag_with_CPs('leftGripper', bagData, segs)
+        if vis == True:
+            ROSbag_with_CPs('leftGripper', bagData, segs)
         return positionInfo
     else:
         bagData = rightGripper_bag.getVisualizableData()
         segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv')
         cps = segs.getCompressedChangePoints()
         positionInfo = rightGripper_bag.getROSBagDataAtCps(segs.getCompressedChangePoints(), ['right_gripper_pose'], cps)
-        ROSbag_with_CPs('rightGripper', bagData, segs)
+        if vis == True:
+            ROSbag_with_CPs('rightGripper', bagData, segs)
         return positionInfo
 
 """

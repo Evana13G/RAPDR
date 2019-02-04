@@ -353,3 +353,4 @@ def pddlActionKBFormat(_vars, args, preCondsPredList, effectsPredList, mode=[]):
     effects = pddlCondsKBFormat(templatedVars, args, newEffects, mode)
 
     return templatedVars, preconds, effects, locArgs
+
