@@ -85,7 +85,7 @@ def main():
         print('agent is able to accomplish its goal....')
         attempt = 1
 
-        while(goalAccomplished(goal, currentState.init) == False) and (attempt < 5):
+        while(goalAccomplished(goal, currentState.init) == False):
             print('\n***************************   ATTEMPT #' + str(attempt) + '   ***************************')
             print('Setting up domain and problem for attempt #' + str(attempt))
 
@@ -96,13 +96,14 @@ def main():
             predicates = domainDict['predicates']
             requirements = domainDict['requirements']
             actions = domainDict['actions']
-            print(KB.getDomainData())
+            # print(KB.getDomainData())
             print(' -- Domain setup complete')
 
             #####################################################################################
             currentState = scenarioData()
             additionalLocations = domainDict['pddlLocs']
-            initObjs = pddlObjects(currentState.predicateList.predicates)
+            
+            initObjs = pddlObjects(currentState.predicateList.predicates, False)
             newPts = copy.deepcopy(initObjs['waypoint'])
             for loc in additionalLocations:
                 newPts.append(loc)
@@ -143,7 +144,7 @@ def main():
                 momentOfFailurePreds = scenarioData().predicates
                 APVtrials = []
                 ##### Here is where you decide what to iterate over
-                objectsToIterate = pddlObjects(currentState.predicateList.predicates)
+                objectsToIterate = pddlObjects(currentState.predicateList.predicates, False)
                 for action in KB.getActions():
 
                     args = action.getNonLocationVars()
@@ -161,7 +162,7 @@ def main():
             #####################################################################################
                 print('\nFinding segmentation possibilities (across all combos generated) for attempt #' + str(attempt))
                 trialNo = 0
-                while(trialNo < len(APVtrials)):
+                while(trialNo < len(APVtrials)): # Change this to be stochastic selection
                     print(" -- Combo # " + str(trialNo) + ': ' + str(APVtrials[trialNo]))
 
                     if (APVtrials[trialNo][0] == 'press_button') and (APVtrials[trialNo][2] == 'left_button'):
@@ -170,7 +171,7 @@ def main():
                             #### Find change points
                             resp = APV(APVtrials[trialNo][0], APVtrials[trialNo][1], APVtrials[trialNo][2], APVtrials[trialNo][3])
                             print(' ---- ' + str(len(resp.endEffectorInfo)) + " total change points found")
-                            print(" -- Trying partial plan execution on segmentations")
+                            print("\n Trying partial plan execution on segmentations")
 
                             #### Iterate across segmentations
                             i = 0
@@ -178,11 +179,12 @@ def main():
                                 # print(" ---- starting iteration #" + str(i+1))
                                 startingState = scenarioData().predicateList
                                 resp_2 = partialActionExecutor(APVtrials[trialNo][1], resp.endEffectorInfo[i], resp.endEffectorInfo[i+1])
+                                sleep(1)
                                 endingState = scenarioData().predicateList
 
                                 ##### Here is where you decide what gets added 
                                 if(resp_2.success_bool == 1):
-                                    print(' ---- iteration ' + str(i) + ' successful')
+                                    print(' -- iteration ' + str(i) + ' successful!')
 
                                     new_name = "action_attempt_" + str(attempt) + '_trial' + str(trialNo) + '_seg' + str(i) 
                                                 #'.' + poseStampedToString(resp.endEffectorInfo[i]) + 
@@ -210,11 +212,11 @@ def main():
                                                                 mode)
 
                                     if isViable(newAction):
-                                        print(' ------ Segmentation VIABLE!!! Adding NEW ACTION to knowledge base.')
+                                        print(' ---- Segmentation VIABLE! Adding to knowledge base')
                                         KB.addAction(newAction)
 
                                 else:
-                                    print(' ---- iteration ' + str(i) + ' not successful')
+                                    print(' -- iteration ' + str(i) + ' not successful')
                                 i = i + 1 
                         except rospy.ServiceException, e:
                             print("Service call failed: %s"%e)
