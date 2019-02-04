@@ -21,6 +21,8 @@ add_message_files(
   ActionList.msg
   Problem.msg
   Domain.msg
+  LocationBindingList.msg
+  LocationBinding.msg
 )
 
 add_service_files(

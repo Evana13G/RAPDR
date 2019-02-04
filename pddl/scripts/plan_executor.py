@@ -48,15 +48,15 @@ def handle_plan(req):
 
 ############### START: ROSbag handling
 
-def execute_action(actionName, params, endEffectors):
+
+def execute_action(actionName, params, endEffectorList):
     if 'seg' in actionName:   
         b = rospy.ServiceProxy('partial_plan_executor_srv', PartialPlanExecutorSrv)
         rospy.wait_for_service('partial_plan_executor_srv', timeout=60)
         #endEffectors = actionName.split('.')
-
         resp = None
-        try:
-            resp = b(endEffectors[0], endEffectors[1])
+        try: # You do need params 
+            resp = b(endEffectorList[0], endEffectorList[1]) 
         except rospy.ServiceException, e:
             print("Service call failed: %s"%e)
     else:

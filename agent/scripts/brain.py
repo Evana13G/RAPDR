@@ -100,7 +100,6 @@ def main():
             print(' -- Domain setup complete')
 
             #####################################################################################
-            
             currentState = scenarioData()
             additionalLocations = domainDict['pddlLocs']
             initObjs = pddlObjects(currentState.predicateList.predicates)
@@ -121,7 +120,7 @@ def main():
 
             #####################################################################################
             print('\nTriggering plan generation and execution for attempt #' + str(attempt))
-            plan = planGenerator(domain, problem, filename)
+            plan = planGenerator(domain, problem, filename, KB.getActionsLocs())
             print(' -- Plan generation complete')
         
             # executionSuccess = planExecutor(plan.plan)
@@ -181,7 +180,7 @@ def main():
                             while i <= len(resp.endEffectorInfo) - 2:
                                 # print(" ---- starting iteration #" + str(i+1))
                                 startingState = scenarioData().predicateList
-                                resp_2 = partialActionExecutor(resp.endEffectorInfo[i], resp.endEffectorInfo[i+1])
+                                resp_2 = partialActionExecutor(APVtrials[trialNo][1], resp.endEffectorInfo[i], resp.endEffectorInfo[i+1])
                                 endingState = scenarioData().predicateList
 
                                 ##### Here is where you decide what gets added 

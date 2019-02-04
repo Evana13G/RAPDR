@@ -21,6 +21,7 @@ from std_msgs.msg import (
 
 from action_primitive_variation.srv import *
 from kb_subclasses import *
+from pddl.msg import * 
 from agent.srv import *
 from util.data_conversion import * 
 
@@ -73,6 +74,9 @@ class KnowledgeBase(object):
         self.predicates = _preds
         self.actions = _actions
         self.pddlLocs = _pddllocs
+    
+    def test(self, req):
+        return 1
 
     def addLocs(self, newLocs):
         _newLocs = copy.deepcopy(self.pddlLocs)
@@ -133,6 +137,12 @@ class KnowledgeBase(object):
 
     def getActions(self):
         return copy.deepcopy(self.actions)
+
+    def getActionsLocs(self):
+        locBindings = []
+        for action in self.actions:
+            locBindings.append(LocationBinding(action.getName(), action.getExecutionParams()))
+        return LocationBindingList(locBindings)
 
     def createAction(self, name, origAction, args, preconds, effects, srvFile, params, mode):
         theOGaction = self.getAction(origAction)
