@@ -100,7 +100,6 @@ def main():
             print(' -- Domain setup complete')
 
             #####################################################################################
-            
             currentState = scenarioData()
             additionalLocations = domainDict['pddlLocs']
             initObjs = pddlObjects(currentState.predicateList.predicates)
@@ -118,7 +117,7 @@ def main():
 
             #####################################################################################
             print('\nTriggering plan generation and execution for attempt #' + str(attempt))
-            plan = planGenerator(domain, problem, filename)
+            plan = planGenerator(domain, problem, filename, KB.getActionsLocs())
             print(' -- Plan generation complete')
         
             # executionSuccess = planExecutor(plan.plan)
@@ -178,16 +177,14 @@ def main():
                             while i <= len(resp.endEffectorInfo) - 2:
                                 # print(" ---- starting iteration #" + str(i+1))
                                 startingState = scenarioData().predicateList
-                                resp_2 = partialActionExecutor(resp.endEffectorInfo[i], resp.endEffectorInfo[i+1])
+                                resp_2 = partialActionExecutor(APVtrials[trialNo][1], resp.endEffectorInfo[i], resp.endEffectorInfo[i+1])
                                 endingState = scenarioData().predicateList
 
                                 ##### Here is where you decide what gets added 
                                 if(resp_2.success_bool == 1):
-                                    print(' ---- iteration ' + str(i) + ' successful!! Adding segmenation to knowledge base.')
+                                    print(' ---- iteration ' + str(i) + ' successful')
 
-                                    new_name = "action_attempt_" + str(attempt) + 
-                                                '_trial' + str(trialNo) + 
-                                                '_seg' + str(i) 
+                                    new_name = "action_attempt_" + str(attempt) + '_trial' + str(trialNo) + '_seg' + str(i) 
                                                 #'.' + poseStampedToString(resp.endEffectorInfo[i]) + 
                                                 #'.' + poseStampedToString(resp.endEffectorInfo[i+1])
                                     orig_name = APVtrials[trialNo][0]
@@ -213,11 +210,11 @@ def main():
                                                                 mode)
 
                                     if isViable(newAction):
-                                        print(' ---- Segmentation VIABLE!!! Adding NEW ACTION to knowledge base.')
+                                        print(' ------ Segmentation VIABLE!!! Adding NEW ACTION to knowledge base.')
                                         KB.addAction(newAction)
 
                                 else:
-                                    print(' ---- iteration ' + str(i) + ' not successful. Segmentation will not be added to the knowledge base')
+                                    print(' ---- iteration ' + str(i) + ' not successful')
                                 i = i + 1 
                         except rospy.ServiceException, e:
                             print("Service call failed: %s"%e)

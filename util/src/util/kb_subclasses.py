@@ -51,7 +51,6 @@ class TemplatedPredicate(object):
             args = args + ' ' + str(v)
         return "(" + self.operator + args + ")"
 
-
 class StaticPredicate(object):
     def __init__(self, _operator, _args):
         self.operator = _operator
@@ -62,7 +61,6 @@ class StaticPredicate(object):
         for var in self.vars:
             args = args + str(var) + ' '
         return "(" + self.operator + ' ' + args + ")"
-
 
 class Variable():
     def __init__(self, _var, _type):
