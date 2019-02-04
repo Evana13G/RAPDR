@@ -57,9 +57,14 @@ def generate_plan(req):
     os.system('python3 ' + pddlDriver + ' ' + domainFilepath + ' ' + problemFilepath)
 
     plan = getPlanFromSolutionFile(solutionFilepath)
+
+    bindings = {}
+    for bind in req.bindings.bindings:
+      bindings[bind.actionName] = bind.endEffectorInfo
     actionList = []
+    
     for act in plan:
-        actionList.append(Action(act['actionName'], act['params'], None))
+        actionList.append(Action(act['actionName'], act['params'], bindings[act['actionName']]))
     return PlanGeneratorSrvResponse(ActionList(actionList))
 
 

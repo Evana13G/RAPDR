@@ -1,3 +1,4 @@
+string limb
 geometry_msgs/PoseStamped initPosition
 geometry_msgs/PoseStamped endPosition
 ---

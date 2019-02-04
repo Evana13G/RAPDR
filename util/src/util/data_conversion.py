@@ -162,28 +162,24 @@ def pddlCondsKBFormat(_vars, args, predicates_list, mode):
 
     return predList
 
-def getPredicateDiffs(predList1, predList2, mode=[]):
+def getPredicateDiffs(predList1, predList2):
     diffs = []
     p1 = pddlInitStringFormat(predList1)
     p2 = pddlInitStringFormat(predList2)
-    if 'noLoc' in mode:
-        for i in range(len(p1)):
-            if p1[i] not in p2:
-                if not ('at' in p1[i]):
-                    diffs.append(predList1[i])
-        for i in range(len(p2)):
-            if p2[i] not in p1:
-                if not ('at' in p2[i]):
-                    diffs.append(predList2[i])
-    else:
-        for i in range(len(p1)):
-            if p1[i] not in p2:
-                diffs.append(predList1[i])
-        for i in range(len(p2)):
-            if p2[i] not in p1:
-                diffs.append(predList2[i])
+    for i in range(len(p1)):
+        if p1[i] not in p2:
+            diffs.append(predList1[i])
+    for i in range(len(p2)):
+        if p2[i] not in p1:
+            diffs.append(predList2[i])
+    return diffs
 
-    return list(set(diffs))
+def removeLocPredicates(predList):
+    newList = []
+    for pred in predList:
+        if pred.operator != 'at':
+            newList.append(pred)
+    return newList
 
 def removeNonArgPredicates(predList, args):
     newList = []
@@ -233,18 +229,21 @@ def poseStampedToString(val):
             str(y) + ',' + 
             str(z))
 
-def getElementDiffs(predList1, predList2, mode=[], OGargs=[]):
+def getElementDiffs(predList1, predList2, OGargs=[]):
     nonRepeatingDiffs =[]
-    diffs = getPredicateDiffs(predList1, predList2, mode)
+    diffs = getPredicateDiffs(predList1, predList2)
     for o in diffs:
-        if o not in OGargs:
+        if str(o.object) not in OGargs:
             nonRepeatingDiffs.append(o.object)
     return list(set(nonRepeatingDiffs))
 
 def typeChecker(elementName, types=["obj", "gripper", "button", "waypoint"]):
+    # print('element name in type checker ' + elementName)
     for t in types:
         if t in str(elementName):
+            # print(t)
             return t
+        # print('obj')
         return "obj"
 
 def getBoundLocs(preds):
@@ -278,16 +277,16 @@ def pddlActionKBFormat(_vars, args, preCondsPredList, effectsPredList, mode=[]):
     # print '\n**** Initial Info ****'
     # print '\nOG vars'
     # for v in _vars:
-    #     print v
+    #     print(str(v))
     # print '\nPassed args'
     # for a in args:
-    #     print a
+    #     print(str(a))
     # print '\nPreconditions'
     # for p in preCondsPredList.predicates:
-    #     print p
+    #     print(str(p))
     # print '\nEffects'
     # for e in effectsPredList.predicates:
-    #     print e
+    #     print(str(e))
 
     # Strip out 'None's and loc info
     args = removeNoneInstances(args)
@@ -299,11 +298,18 @@ def pddlActionKBFormat(_vars, args, preCondsPredList, effectsPredList, mode=[]):
     # for v in templatedVars:
     #     print v
 
-    object_diffs = getElementDiffs(preCondsPredList.predicates, effectsPredList.predicates, mode, args) # consider these in appending more templated vars  
+    if 'noLoc' in mode:
+        pre = removeLocPredicates(preCondsPredList.predicates)
+        eff = removeLocPredicates(effectsPredList.predicates)
+    else:
+        pre = preCondsPredList.predicates
+        eff = effectsPredList.predicates
+
+    object_diffs = getElementDiffs(pre, eff, args) # consider these in appending more templated vars  
     
     # print '\n**** Object Diffs ****'
     # for o in object_diffs:
-    #     print o
+    #     print(o)
 
     _preconditions = removeNonArgPredicates(preCondsPredList.predicates, (args + object_diffs))
     _effects = removeNonArgPredicates(effectsPredList.predicates, (args + object_diffs))
@@ -327,7 +333,7 @@ def pddlActionKBFormat(_vars, args, preCondsPredList, effectsPredList, mode=[]):
 
 
     for i in range(len(object_diffs)):
-        templatedVars.append(Variable('?obj'+str(i), typeChecker(object_diffs[i])))
+        templatedVars.append(Variable('?obj' +str(i), typeChecker(object_diffs[i])))
 
     if 'noLoc' in mode:
         templatedVars = templatedVars
