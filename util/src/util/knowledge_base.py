@@ -78,6 +78,7 @@ class KnowledgeBase(object):
         _newLocs = copy.deepcopy(self.pddlLocs)
         for loc in newLocs:
             _newLocs.append(str(loc))
+        _newLocs = list(set(_newLocs))
         self.pddlLocs = _newLocs
 
     def typeChecker(self, elementName):

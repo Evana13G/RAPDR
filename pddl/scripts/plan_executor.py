@@ -40,7 +40,7 @@ KB = KnowledgeBase()
 def handle_plan(req):
     try:
         for action in req.actions.actions:
-            execute_action(action.name, action.params)
+            execute_action(action.name, action.params, action.motionPoints)
         return PlanExecutorSrvResponse(1)        
     except rospy.ServiceException, e:
         print("Service call failed: %s"%e)
@@ -48,7 +48,7 @@ def handle_plan(req):
 
 ############### START: ROSbag handling
 
-def execute_action(actionName, params):
+def execute_action(actionName, params, endEffectors):
     if 'seg' in actionName:   
         b = rospy.ServiceProxy('partial_plan_executor_srv', PartialPlanExecutorSrv)
         rospy.wait_for_service('partial_plan_executor_srv', timeout=60)
@@ -56,14 +56,7 @@ def execute_action(actionName, params):
 
         resp = None
         try:
-            if len(params) == 1:
-                resp = b(params[0])
-            elif len(params) == 2:
-                resp = b(params[0], params[1])   
-            elif len(params) == 3:
-                resp = b(params[0], params[1], params[2])
-            elif len(params) == 4:
-                resp = b(params[0], params[1], params[2], params[3])
+            resp = b(endEffectors[0], endEffectors[1])
         except rospy.ServiceException, e:
             print("Service call failed: %s"%e)
     else:

@@ -96,7 +96,7 @@ def main():
             predicates = domainDict['predicates']
             requirements = domainDict['requirements']
             actions = domainDict['actions']
-            print(KB.getDomainData())
+            # print(KB.getDomainData())
             print(' -- Domain setup complete')
 
             #####################################################################################
@@ -105,11 +105,14 @@ def main():
             additionalLocations = domainDict['pddlLocs']
             initObjs = pddlObjects(currentState.predicateList.predicates)
             newPts = copy.deepcopy(initObjs['waypoint'])
+
             for loc in additionalLocations:
                 newPts.append(loc)
+
             newPts = list(set(newPts))
             initObjs['waypoint'] = newPts
             objs = pddlObjectsStringFormat_fromDict(initObjs)
+
             init = currentState.init
             domain = Domain(domainName, requirements, types, predicates, actions)
             problem = Problem(task, domainName, objs, init, goal)
@@ -162,7 +165,7 @@ def main():
             #####################################################################################
                 print('\nFinding segmentation possibilities (across all combos generated) for attempt #' + str(attempt))
                 trialNo = 0
-                while(trialNo < len(APVtrials)):
+                while(trialNo < len(APVtrials)): # Change this to be stochastic selection
                     print(" -- Combo # " + str(trialNo) + ': ' + str(APVtrials[trialNo]))
 
                     if (APVtrials[trialNo][0] == 'press_button') and (APVtrials[trialNo][2] == 'left_button'):
@@ -171,7 +174,7 @@ def main():
                             #### Find change points
                             resp = APV(APVtrials[trialNo][0], APVtrials[trialNo][1], APVtrials[trialNo][2], APVtrials[trialNo][3])
                             print(' ---- ' + str(len(resp.endEffectorInfo)) + " total change points found")
-                            print(" -- Trying partial plan execution on segmentations")
+                            print("\n Trying partial plan execution on segmentations")
 
                             #### Iterate across segmentations
                             i = 0
@@ -183,11 +186,9 @@ def main():
 
                                 ##### Here is where you decide what gets added 
                                 if(resp_2.success_bool == 1):
-                                    print(' ---- iteration ' + str(i) + ' successful!! Adding segmenation to knowledge base.')
+                                    print(' -- iteration ' + str(i) + ' successful!')
 
-                                    new_name = "action_attempt_" + str(attempt) + 
-                                                '_trial' + str(trialNo) + 
-                                                '_seg' + str(i) 
+                                    new_name = "action_attempt_" + str(attempt) + '_trial' + str(trialNo) + '_seg' + str(i) 
                                                 #'.' + poseStampedToString(resp.endEffectorInfo[i]) + 
                                                 #'.' + poseStampedToString(resp.endEffectorInfo[i+1])
                                     orig_name = APVtrials[trialNo][0]
@@ -213,11 +214,11 @@ def main():
                                                                 mode)
 
                                     if isViable(newAction):
-                                        print(' ---- Segmentation VIABLE!!! Adding NEW ACTION to knowledge base.')
+                                        print(' ---- Segmentation VIABLE! Adding to knowledge base')
                                         KB.addAction(newAction)
 
                                 else:
-                                    print(' ---- iteration ' + str(i) + ' not successful. Segmentation will not be added to the knowledge base')
+                                    print(' -- iteration ' + str(i) + ' not successful')
                                 i = i + 1 
                         except rospy.ServiceException, e:
                             print("Service call failed: %s"%e)
