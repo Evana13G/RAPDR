@@ -17,12 +17,8 @@
 
 (:action obtain_object
     :parameters (?g - gripper ?loc0 - waypoint ?o - obj ?loc1 - waypoint )
-    :precondition (and
-        (gripper_at ?g ?loc0 )
-        (obj_at ?o ?loc1 ))
-    :effect (and
-        (gripper_at ?g ?loc0 )
-        (not (obj_at ?o ?loc1 ) ))
+    :precondition (obj_at ?o ?loc1 )
+    :effect (obj_at ?o ?loc0 )
 )
 
 (:action press_button
@@ -30,17 +26,13 @@
     :precondition (and
         (gripper_at ?g ?loc0 )
         (button_at ?b ?loc1 ))
-    :effect (and
-        (gripper_at ?g ?loc0 )
-        (pressed ?b ))
+    :effect (pressed ?b )
 )
 
-(:action action_attempt_2_trial1_seg3
-    :parameters (?g - gripper ?b - button ?obj0 - obj ?obj1 - obj )
+(:action action_attempt_1_trial1_seg3
+    :parameters (?g - gripper ?b - button )
     :precondition (and)
-    :effect (and
-        (is_visible ?obj1 )
-        (pressed ?b ))
+    :effect (pressed ?b )
 )
 
 )

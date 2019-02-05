@@ -208,6 +208,7 @@ def main():
                                     orig_name = APVtrials[trialNo][0]
                                     orig_args = [APVtrials[trialNo][1], APVtrials[trialNo][2], APVtrials[trialNo][3]]
                                     gripperData = [resp.endEffectorInfo[i], resp.endEffectorInfo[i+1]]
+                                    gripper = orig_args[0]
 
                                     newActionData = {}
                                     newActionData['name'] = new_name
@@ -216,6 +217,7 @@ def main():
                                     newActionData['preconditions'] = startingState
                                     newActionData['effects'] = endingState
                                     newActionData['srvFile'] = PartialPlanExecutorSrv
+                                    newActionData['gripper'] = gripper
                                     newActionData['params'] = gripperData
 
                                     newAction = KB.createAction(new_name, 
@@ -224,26 +226,43 @@ def main():
                                                                 startingState, 
                                                                 endingState, 
                                                                 PartialPlanExecutorSrv, 
+                                                                gripper,
                                                                 gripperData, 
                                                                 mode)
 
                                     if isViable(newAction):
                                         print(' ---- Segmentation VIABLE! Adding to knowledge base')
                                         KB.addAction(newAction)
-
+                                        newPrims.append(newAction)
                                 else:
                                     print(' -- iteration ' + str(i) + ' not successful')
                                 i = i + 1 
                         except rospy.ServiceException, e:
                             print("Service call failed: %s"%e)
                     trialNo = trialNo + 1 
-
-                    algoMode = 'planAndRun'   
+                algoMode = 'planAndRun'   
             else:
+                print(' ******* new primitives ******* ')
+                for a in newPrims:
+                    print(a.getName())
                 if newPrims == []:
+                    print('No Prims to Execute')
                     algoMode = 'APV'
                 else:
-                    print('run new action')
+                    print('Execute a Prim')
+                    if len(newPrims) == 1:
+                        actionIndex = 0
+                        actionToExecute = newPrims[actionIndex]
+                    else:
+                        actionIndex = random.randint(0, len(newPrims)-1)
+                        actionToExecute = newPrims[actionIndex]
+                    # execute and track the action 
+                    #PAargs = actionToExecute.getArgs()
+                    #gripper = 
+                    resp_3 = partialActionExecutor(actionToExecute.getGripper(), actionToExecute.getExecutionParams()[0], actionToExecute.getExecutionParams()[1])
+                    #if resp_3 == 1:
+                    del newPrims[actionIndex]
+
             currentState = scenarioData()
             attempt = attempt + 1
 

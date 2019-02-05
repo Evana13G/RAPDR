@@ -49,7 +49,7 @@ class KnowledgeBase(object):
         _a1.addVar(Variable('?loc0', 'waypoint'))
         _a1.addVar(Variable('?o', 'obj'))
         _a1.addVar(Variable('?loc1', 'waypoint'))
-        _a1.addPreCond(StaticPredicate('gripper_at', ['?g', '?loc0']))
+        #_a1.addPreCond(StaticPredicate('gripper_at', ['?g', '?loc0']))
         _a1.addPreCond(StaticPredicate('obj_at', ['?o', '?loc1']))
         _a1.addEffect(StaticPredicate('obj_at', ['?o', '?loc0']))
         #_a1.addEffect(StaticPredicate('not', [StaticPredicate('obj_at', ['?o', '?loc1'])]))
@@ -63,7 +63,6 @@ class KnowledgeBase(object):
         _a2.addPreCond(StaticPredicate('button_at', ['?b', '?loc1']))
         #_a2.addEffect(StaticPredicate('gripper_at', ['?g', '?loc0']))
         _a2.addEffect(StaticPredicate('pressed', ['?b']))
-
 
         _actions.append(_a1)
         _actions.append(_a2)
@@ -144,13 +143,14 @@ class KnowledgeBase(object):
             locBindings.append(LocationBinding(action.getName(), action.getExecutionParams()))
         return LocationBindingList(locBindings)
 
-    def createAction(self, name, origAction, args, preconds, effects, srvFile, params, mode):
+    def createAction(self, name, origAction, args, preconds, effects, srvFile, gripper, params, mode):
         theOGaction = self.getAction(origAction)
         newActionName = name
         newActionVars, newActionPreconds, newActionEffects, pddlLocs = pddlActionKBFormat(theOGaction.getArgs(), args, preconds, effects, mode)
         newActionSrvFile = srvFile
         newActionParams = params
-        newAction = Action(newActionName, newActionVars, newActionPreconds, newActionEffects, newActionSrvFile, newActionParams, pddlLocs)
+        newwActionGripper = gripper
+        newAction = Action(newActionName, newActionVars, newActionPreconds, newActionEffects, newActionSrvFile, newwActionGripper, newActionParams, pddlLocs)
         return newAction
 
     def addAction(self, newAction):
