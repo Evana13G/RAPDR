@@ -51,8 +51,8 @@ class KnowledgeBase(object):
         _a1.addVar(Variable('?loc1', 'waypoint'))
         _a1.addPreCond(StaticPredicate('gripper_at', ['?g', '?loc0']))
         _a1.addPreCond(StaticPredicate('obj_at', ['?o', '?loc1']))
-        _a1.addEffect(StaticPredicate('gripper_at', ['?g', '?loc0']))
-        _a1.addEffect(StaticPredicate('not', [StaticPredicate('obj_at', ['?o', '?loc1'])]))
+        _a1.addEffect(StaticPredicate('obj_at', ['?o', '?loc0']))
+        #_a1.addEffect(StaticPredicate('not', [StaticPredicate('obj_at', ['?o', '?loc1'])]))
 
         _a2 = Action('press_button', [], [], [], PressButtonSrv)
         _a2.addVar(Variable('?g', 'gripper'))
@@ -61,7 +61,7 @@ class KnowledgeBase(object):
         _a2.addVar(Variable('?loc1', 'waypoint'))
         _a2.addPreCond(StaticPredicate('gripper_at', ['?g', '?loc0']))
         _a2.addPreCond(StaticPredicate('button_at', ['?b', '?loc1']))
-        _a2.addEffect(StaticPredicate('gripper_at', ['?g', '?loc0']))
+        #_a2.addEffect(StaticPredicate('gripper_at', ['?g', '?loc0']))
         _a2.addEffect(StaticPredicate('pressed', ['?b']))
 
 

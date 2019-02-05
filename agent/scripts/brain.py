@@ -11,6 +11,7 @@
 
 
 import rospy
+import time
 
 from agent.srv import *
 from action_primitive_variation.srv import *
@@ -73,10 +74,17 @@ def main():
         #####################################################################################
         print(' ... Setting up initial data')
         task = 'APD'
-        goal = ['(is_visible block)']
-        currentState = scenarioData()
 
+
+        currentState = scenarioData()
+        goalLoc = poseStampedToString(getPredicateLocation(currentState.predicateList.predicates, 'at', 'left_gripper'))
+        #goal = ['(is_visible block)']
+        goal1 = '(obj_at block ' + goalLoc  + ')'
+        goal = [goal1]
         mode = ['diffsOnly', 'noLoc']
+        algoMode = 'APV'
+        newPrims = []
+        #mode = ['diffsOnly']
 
         print('\nAgent has the following goal: ')
         print(goal)
@@ -131,15 +139,23 @@ def main():
             executionSuccess = planExecutor(plan.plan)
 
             #####################################################################################
+            currentState = scenarioData()
             if (executionSuccess == 1):
-                print(' -- Plan execution complete: Goal accomplished!')
-                # Maybe check the goal?
+                print(' -- Plan execution complete')
+                if (goalAccomplished(goal, currentState.init) == False):
+                    print(' ---- Goal COMPLETE ')
+                    break
             else:
-                print(' -- Plan execution complete: Goal NOT accomplished')
+                print(' -- Plan execution failed')
+
+
+
                 # Should prob break this into a diff module... findNewAction module 
                 # Do one that can for each action, return new sub actoins to try ?
 
             #####################################################################################
+
+            if algoMode == 'APV':
                 print('\nGenerating all possible action/arg combinations (to send to APV) for attempt #' + str(attempt))
                 momentOfFailurePreds = scenarioData().predicates
                 APVtrials = []
@@ -179,7 +195,7 @@ def main():
                                 # print(" ---- starting iteration #" + str(i+1))
                                 startingState = scenarioData().predicateList
                                 resp_2 = partialActionExecutor(APVtrials[trialNo][1], resp.endEffectorInfo[i], resp.endEffectorInfo[i+1])
-                                sleep(1)
+                                time.sleep(2)
                                 endingState = scenarioData().predicateList
 
                                 ##### Here is where you decide what gets added 
@@ -222,6 +238,13 @@ def main():
                             print("Service call failed: %s"%e)
                     trialNo = trialNo + 1 
 
+                    algoMode = 'planAndRun'   
+            else:
+                if newPrims == []:
+                    algoMode = 'APV'
+                else:
+                    print('run new action')
+            currentState = scenarioData()
             attempt = attempt + 1
 
 

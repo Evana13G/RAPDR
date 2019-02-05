@@ -30,6 +30,14 @@ from std_msgs.msg import (
 from tf.transformations import *
 from kb_subclasses import *
 
+
+
+def getPredicateLocation(predList, _oprtr, _obj):
+    for pred in predList:
+        if ((pred.operator == _oprtr) and (pred.object == _obj)):
+            return pred.locationInformation
+    return None
+
 def is_touching(object1_loc, object2_loc, epsilon=0.135):
     if ((object1_loc is not None) and (object2_loc is not None)):
         obj1 = np.array((object1_loc.pose.position.x, 
