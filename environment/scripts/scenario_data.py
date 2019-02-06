@@ -84,6 +84,7 @@ def setPoseButtonRight(data):
     updatePredicates("at", "right_button", data)
 
 def setPoseBlock(data):
+    #print("Inside setPoseBlock")
     global BlockPose
     BlockPose = data
     updatePredicates("at", "block", data)
@@ -155,6 +156,9 @@ def updateVisionBasedPredicates():
 def updatePhysicalStateBasedPredicates():
     global predicates_list
     new_predicates = []
+    while(BlockPose == None):
+        sys.stdout.flush()
+        print("BlockPose is None")
     for pred in predicates_list:
         if ((not (pred.operator == "pressed")) or(not (pred.operator == "obtained"))):
             new_predicates.append(pred)
@@ -181,16 +185,18 @@ def main():
     global imageConverter 
 
     predicatesPublisher = rospy.Publisher('predicate_values', PredicateList, queue_size = 10)
+    rospy.sleep(1)
     imageConverter = ImageConverter()
 
+    rospy.Subscriber("block_pose", PoseStamped, setPoseBlock)
     rospy.Subscriber("left_gripper_pose", PoseStamped, setPoseGripperLeft)
     rospy.Subscriber("right_gripper_pose", PoseStamped, setPoseGripperRight)
     rospy.Subscriber("left_button_pose", PoseStamped, setPoseButtonLeft)
     rospy.Subscriber("right_button_pose", PoseStamped, setPoseButtonRight)
-    rospy.Subscriber("block_pose", PoseStamped, setPoseBlock)
     rospy.Subscriber("cafe_table_pose", PoseStamped, setPoseTable)
     rospy.Subscriber("grey_wall_pose", PoseStamped, setPoseWall)
 
+    rospy.sleep(5)
     s = rospy.Service("scenario_data_srv", ScenarioDataSrv, getPredicates)
 
     rospy.spin()

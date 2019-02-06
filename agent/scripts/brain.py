@@ -92,8 +92,10 @@ def main():
         print('to find new actions and replan with those actions. Process repeats until the ')
         print('agent is able to accomplish its goal....')
         attempt = 1
-
+        attemptsTime = []
+        totalTimeStart = time.time()
         while(goalAccomplished(goal, currentState.init) == False):
+            trialStart = time.time()
             print('\n***************************   ATTEMPT #' + str(attempt) + '   ***************************')
             print('Setting up domain and problem for attempt #' + str(attempt))
 
@@ -274,7 +276,13 @@ def main():
                     del newPrims[actionIndex]
 
             currentState = scenarioData()
+            trialEnd = time.time()
+            attemptsTime.append(trialEnd - trialStart)
             attempt = attempt + 1
+        totalTimeEnd = time.time()
+        print("Times for each trial (in s): ")
+        print(attemptsTime);
+        print("Total time elapsed: " + str(totalTimeEnd - totalTimeStart))
 
 
     except rospy.ServiceException, e:

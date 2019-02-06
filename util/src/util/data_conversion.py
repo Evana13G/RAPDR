@@ -51,6 +51,11 @@ def is_touching(object1_loc, object2_loc, epsilon=0.135):
         return False
 
 def is_obtained(object1_loc, object2_loc):
+    #print("object1_loc is BlockPose, object2_loc is Wallpose")
+    #print("BlockPose: ")
+    #print(object1_loc)
+    #print("WallPose")
+    #print(object2_loc)
     if object1_loc.pose.position.x < object2_loc.pose.position.x:
         return True
     return False

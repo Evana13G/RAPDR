@@ -177,7 +177,7 @@ def main():
 
     while not rospy.is_shutdown():
 		
-        rate = rospy.Rate(10) # 10hz
+        rate = rospy.Rate(100) # 10hz
 		
         #Get cafe_table pose
         rospy.wait_for_service('/gazebo/get_model_state')
