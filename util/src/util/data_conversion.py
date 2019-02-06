@@ -50,6 +50,11 @@ def is_touching(object1_loc, object2_loc, epsilon=0.135):
             return True 
         return False
 
+def is_obtained(object1_loc, object2_loc):
+    if object1_loc.pose.position.x < object2_loc.pose.position.x:
+        return True
+    return False
+
 def pddlStringFormat(predicates_list):
     stringList = []
     for pred in predicates_list:

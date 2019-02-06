@@ -123,14 +123,11 @@ def handle_ObtainObject(req):
     currentAction.approach(grabPose(poseTo))
     currentAction.gripper_close()
     currentAction.approach(hoverOverPose(poseTo))
-
-    currentAction._retract()
-
-
-    #if limb == 'left_gripper':
-    #    currentAction.move_to_start(starting_joint_angles_l)
-    #else:
-    #    currentAction.move_to_start(starting_joint_angles_r)
+    
+    if limb == 'left_gripper':
+       currentAction.move_to_start(starting_joint_angles_l)
+    else:
+       currentAction.move_to_start(starting_joint_angles_r)
     
     return ObtainObjectSrvResponse(1)
 
