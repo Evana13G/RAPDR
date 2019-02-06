@@ -77,7 +77,7 @@ def main():
 
 
         currentState = scenarioData()
-        goalLoc = poseStampedToString(getPredicateLocation(currentState.predicateList.predicates, 'at', 'left_gripper'))
+        goalLoc = poseStampedToString(getPredicateLocation(currentState.predicateList.predicates, 'at', 'right_gripper'))
         #goal = ['(is_visible block)']
         goal1 = '(obj_at block ' + goalLoc  + ')'
         goal = [goal1]
@@ -115,6 +115,7 @@ def main():
             newPts = copy.deepcopy(initObjs['waypoint'])
             for loc in additionalLocations:
                 newPts.append(loc)
+            newPts.append(goalLoc)
             newPts = list(set(newPts))
             initObjs['waypoint'] = newPts
             objs = pddlObjectsStringFormat_fromDict(initObjs)
@@ -160,6 +161,8 @@ def main():
                 momentOfFailurePreds = scenarioData().predicates
                 APVtrials = []
                 ##### Here is where you decide what to iterate over
+
+                # Maybe just defualt to left gripper to make it easier 
                 objectsToIterate = pddlObjects(currentState.predicateList.predicates, False)
                 for action in KB.getActions():
 
@@ -167,9 +170,13 @@ def main():
                     actionTrials = []
                     actionTrials.append(action.getName())
                     for arg in args:
+                        #if arg == 'gripper':
+                        #    actionTrials.append('left_gripper')
+                        #else:
                         itemsChoices = objectsToIterate[arg]
                         choice = itemsChoices[random.randint(0, len(itemsChoices) - 1)]
                         actionTrials.append(choice)
+
                     if len(args) < 4:
                         actionTrials.append(None)
                     APVtrials.append(actionTrials)
@@ -178,14 +185,16 @@ def main():
             #####################################################################################
                 print('\nFinding segmentation possibilities (across all combos generated) for attempt #' + str(attempt))
                 trialNo = 0
-                while(trialNo < len(APVtrials)): # Change this to be stochastic selection
-                    print(" -- Combo # " + str(trialNo) + ': ' + str(APVtrials[trialNo]))
+                while(len(APVtrials) >= 1): # Change this to be stochastic selection
+                    comboChoice = random.randint(0, len(APVtrials) - 1)
+                    print(" -- Combo # " + str(trialNo) + ': ' + str(APVtrials[comboChoice]))
 
-                    if (APVtrials[trialNo][0] == 'press_button') and (APVtrials[trialNo][2] == 'left_button'):
-
+                    #if (APVtrials[trialNo][0] == 'press_button') and (APVtrials[trialNo][2] == 'left_button'):
+                    if True:
                         try:
                             #### Find change points
-                            resp = APV(APVtrials[trialNo][0], APVtrials[trialNo][1], APVtrials[trialNo][2], APVtrials[trialNo][3])
+                            
+                            resp = APV(APVtrials[comboChoice][0], APVtrials[comboChoice][1], APVtrials[comboChoice][2], APVtrials[comboChoice][3])
                             print(' ---- ' + str(len(resp.endEffectorInfo)) + " total change points found")
                             print("\n Trying partial plan execution on segmentations")
 
@@ -194,7 +203,7 @@ def main():
                             while i <= len(resp.endEffectorInfo) - 2:
                                 # print(" ---- starting iteration #" + str(i+1))
                                 startingState = scenarioData().predicateList
-                                resp_2 = partialActionExecutor(APVtrials[trialNo][1], resp.endEffectorInfo[i], resp.endEffectorInfo[i+1])
+                                resp_2 = partialActionExecutor(APVtrials[comboChoice][1], resp.endEffectorInfo[i], resp.endEffectorInfo[i+1])
                                 time.sleep(2)
                                 endingState = scenarioData().predicateList
 
@@ -205,8 +214,8 @@ def main():
                                     new_name = "action_attempt_" + str(attempt) + '_trial' + str(trialNo) + '_seg' + str(i) 
                                                 #'.' + poseStampedToString(resp.endEffectorInfo[i]) + 
                                                 #'.' + poseStampedToString(resp.endEffectorInfo[i+1])
-                                    orig_name = APVtrials[trialNo][0]
-                                    orig_args = [APVtrials[trialNo][1], APVtrials[trialNo][2], APVtrials[trialNo][3]]
+                                    orig_name = APVtrials[comboChoice][0]
+                                    orig_args = [APVtrials[comboChoice][1], APVtrials[comboChoice][2], APVtrials[comboChoice][3]]
                                     gripperData = [resp.endEffectorInfo[i], resp.endEffectorInfo[i+1]]
                                     gripper = orig_args[0]
 
@@ -237,6 +246,7 @@ def main():
                                 else:
                                     print(' -- iteration ' + str(i) + ' not successful')
                                 i = i + 1 
+                            del APVtrials[comboChoice]
                         except rospy.ServiceException, e:
                             print("Service call failed: %s"%e)
                     trialNo = trialNo + 1 
