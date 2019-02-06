@@ -93,8 +93,6 @@ def handle_ObtainObject(req):
     
     hover_distance = 0.15
 
-    print("******************************")
-    print(limb)
     # Shouldnt have to start at starting pose 
     if limb == 'left_gripper':
 		starting_joint_angles_l = {'left_w0': 0.6699952259595108,
@@ -125,10 +123,14 @@ def handle_ObtainObject(req):
     currentAction.approach(grabPose(poseTo))
     currentAction.gripper_close()
     currentAction.approach(hoverOverPose(poseTo))
-    if limb == 'left_gripper':
-        currentAction.move_to_start(starting_joint_angles_l)
-    else:
-        currentAction.move_to_start(starting_joint_angles_r)
+
+    currentAction._retract()
+
+
+    #if limb == 'left_gripper':
+    #    currentAction.move_to_start(starting_joint_angles_l)
+    #else:
+    #    currentAction.move_to_start(starting_joint_angles_r)
     
     return ObtainObjectSrvResponse(1)
 

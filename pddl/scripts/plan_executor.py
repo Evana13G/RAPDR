@@ -63,15 +63,9 @@ def execute_action(actionName, params, endEffectorList):
         b = rospy.ServiceProxy(KB.getService(actionName), KB.getServiceFile(actionName))
         rospy.wait_for_service(KB.getService(actionName), timeout=60)
         resp = None
+        
         try:
-            if len(params) == 1:
-                resp = b(params[0])
-            elif len(params) == 2:
-                resp = b(params[0], params[1])   
-            elif len(params) == 3:
-                resp = b(params[0], params[1], params[2])
-            elif len(params) == 4:
-                resp = b(params[0], params[1], params[2], params[3])
+            resp = b(params[0], params[2])   
         except rospy.ServiceException, e:
             print("Service call failed: %s"%e)
 

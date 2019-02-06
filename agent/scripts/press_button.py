@@ -87,8 +87,6 @@ def handle_pressButton(req):
     else:
         poseTo = BlockPose
         
-    print("******************************")
-    print(limb)
     hover_distance = 0.15
     
     if limb == 'left_gripper':
