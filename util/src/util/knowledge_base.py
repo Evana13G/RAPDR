@@ -42,7 +42,7 @@ class KnowledgeBase(object):
         _preds.append(TemplatedPredicate('button_at', [Variable('?b', 'button'), Variable('?wp', 'waypoint')]))
         _preds.append(TemplatedPredicate('pressed', [Variable('?b', 'button')]))
         _preds.append(TemplatedPredicate('is_visible', [Variable('?o', 'obj')]))
-
+        _preds.append(TemplatedPredicate('obtained', [Variable('?o', 'obj')]))
         
         _a1 = Action('obtain_object', [], [], [], ObtainObjectSrv)
         _a1.addVar(Variable('?g', 'gripper'))

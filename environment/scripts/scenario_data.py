@@ -156,12 +156,14 @@ def updatePhysicalStateBasedPredicates():
     global predicates_list
     new_predicates = []
     for pred in predicates_list:
-        if not (pred.operator == "pressed"):
+        if ((not (pred.operator == "pressed")) or(not (pred.operator == "obtained"))):
             new_predicates.append(pred)
     if is_touching(LeftGripperPose, LeftButtonPose) or is_touching(RightGripperPose, LeftButtonPose):
         new_predicates.append(Predicate(operator="pressed", object="left_button", locationInformation=None)) 
     if is_touching(LeftGripperPose, RightButtonPose) or is_touching(RightGripperPose, RightButtonPose):
         new_predicates.append(Predicate(operator="pressed", object="right_button", locationInformation=None)) 
+    if is_obtained(BlockPose, WallPose):
+        new_predicates.append(Predicate(operator="obtained", object="block", locationInformation=None))
     
     predicates_list = new_predicates
 
