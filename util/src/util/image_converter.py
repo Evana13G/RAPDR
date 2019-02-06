@@ -59,9 +59,6 @@ from environment.srv import *
 class ImageConverter:
     def __init__(self):
         self.bridge = CvBridge()
-        self.initTime = 0
-        self.savedFrames = {}
-        self.savedFramesStr = ""
         self.image_sub = rospy.Subscriber("/cameras/head_camera/image", Image, self.callbackImage)
         self.block_pixels = 0
 
@@ -71,10 +68,7 @@ class ImageConverter:
         except CvBridgeError as e:
             print(e)
         frame = cv_image
-        #cv2.imshow('frame', frame)
-#        frame = cv2.resize(frame,None,fx=0.25, fy=0.25, interpolation = cv2.INTER_CUBIC)
-#        frameCopy = frame.copy()
-#        # Convert BGR to HSV
+        # Convert BGR to HSV
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         lower_green = np.array([40,40,40])
         upper_green = np.array([200,255,255])
@@ -85,7 +79,6 @@ class ImageConverter:
         mask = cv2.inRange(hsv, lower_green, upper_green)
 
         self.block_pixels = np.count_nonzero(mask)
-
 
 
        # contours,_ = cv2.findContours(mask,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
