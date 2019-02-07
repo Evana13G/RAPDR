@@ -156,7 +156,7 @@ def updatePhysicalStateBasedPredicates():
     global predicates_list
     new_predicates = []
     for pred in predicates_list:
-        if ((not (pred.operator == "pressed")) or(not (pred.operator == "obtained"))):
+        if ((not (pred.operator == "pressed")) and (not (pred.operator == "obtained"))):
             new_predicates.append(pred)
     if is_touching(LeftGripperPose, LeftButtonPose) or is_touching(RightGripperPose, LeftButtonPose):
         new_predicates.append(Predicate(operator="pressed", object="left_button", locationInformation=None)) 
@@ -183,14 +183,15 @@ def main():
     predicatesPublisher = rospy.Publisher('predicate_values', PredicateList, queue_size = 10)
     imageConverter = ImageConverter()
 
+    rospy.Subscriber("block_pose", PoseStamped, setPoseBlock)
     rospy.Subscriber("left_gripper_pose", PoseStamped, setPoseGripperLeft)
     rospy.Subscriber("right_gripper_pose", PoseStamped, setPoseGripperRight)
     rospy.Subscriber("left_button_pose", PoseStamped, setPoseButtonLeft)
     rospy.Subscriber("right_button_pose", PoseStamped, setPoseButtonRight)
-    rospy.Subscriber("block_pose", PoseStamped, setPoseBlock)
     rospy.Subscriber("cafe_table_pose", PoseStamped, setPoseTable)
     rospy.Subscriber("grey_wall_pose", PoseStamped, setPoseWall)
 
+    rospy.sleep(1)
     s = rospy.Service("scenario_data_srv", ScenarioDataSrv, getPredicates)
 
     rospy.spin()

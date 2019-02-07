@@ -51,8 +51,13 @@ def is_touching(object1_loc, object2_loc, epsilon=0.135):
         return False
 
 def is_obtained(object1_loc, object2_loc):
-    if object1_loc.pose.position.x < object2_loc.pose.position.x:
-        return True
+    if (object1_loc is not None) and (object2_loc is not None): 
+        x1 = object1_loc.pose.position.x
+        # x2 = object2_loc.pose.position.x
+        x2 = 0.7
+        if x1 < x2:
+            return True
+    print('Unable to detect if object is obtained')
     return False
 
 def pddlStringFormat(predicates_list):
