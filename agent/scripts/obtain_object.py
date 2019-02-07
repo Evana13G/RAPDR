@@ -122,8 +122,8 @@ def handle_ObtainObject(req):
     currentAction.approach(hoverOverPose(poseTo))
     currentAction.approach(grabPose(poseTo))
     currentAction.gripper_close()
-    currentAction.approach(hoverOverPose(poseTo))
-    
+    currentAction.approach(hoverOverPose(poseTo)) 
+
     if limb == 'left_gripper':
        currentAction.move_to_start(starting_joint_angles_l)
     else:

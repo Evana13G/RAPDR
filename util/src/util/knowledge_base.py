@@ -52,6 +52,8 @@ class KnowledgeBase(object):
         #_a1.addPreCond(StaticPredicate('gripper_at', ['?g', '?loc0']))
         _a1.addPreCond(StaticPredicate('obj_at', ['?o', '?loc1']))
         _a1.addEffect(StaticPredicate('obj_at', ['?o', '?loc0']))
+        _a1.addEffect(StaticPredicate('obtained', ['?o']))
+
         #_a1.addEffect(StaticPredicate('not', [StaticPredicate('obj_at', ['?o', '?loc1'])]))
 
         _a2 = Action('press_button', [], [], [], PressButtonSrv)

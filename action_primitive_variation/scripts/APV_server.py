@@ -60,8 +60,10 @@ shouldRecord = False
 vis = False
 
 def handle_APV(req):
+
+    if 'seg' in req.actionName:
+        return APVSrvResponse([])
     global shouldRecord
-    
     params = []
     actionToVary = req.actionName
     gripper = req.gripper
