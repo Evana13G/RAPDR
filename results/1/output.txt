@@ -1,0 +1,158 @@
+
+################################################################################
+################################################################################
+## Action Primivitive Discovery in Robotic Agents through Action Segmentation ##
+## -- a proof of concept model for knowledge aquisition in intelligent agents ##
+## -- Evana Gizzi, Mateo Guaman Castro, Jivko Sinapov, 2018                   ##
+################################################################################
+################################################################################
+
+ ... Setting up services
+ ... Cleaning up data from last run
+ ... Setting up initial data
+
+Agent has the following goal: 
+['(obtained block)']
+
+Agent will attempt to accomplish this goal. If attempt fails, agent will try
+to find new actions and replan with those actions. Process repeats until the 
+agent is able to accomplish its goal....
+
+***************************   ATTEMPT #1   ***************************
+Setting up domain and problem for attempt #1
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #1
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1549639354.239879, 76.363000]: Robot Enabled
+[INFO] [1549639355.379169, 77.449000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #1
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #1
+ -- Combo # 0: ['press_button', 'left_gripper', 'left_button', None]
+ ---- 6 total change points found
+
+ Trying partial plan execution on segmentations
+[INFO] [1549639392.739352, 111.889000]: Robot Enabled
+[INFO] [1549639393.840171, 112.933000]: Robot Enabled
+ -- iteration 0 successful!
+ ---- Segmentation VIABLE! Adding to knowledge base
+ -- iteration 1 successful!
+ -- iteration 2 successful!
+ -- iteration 3 successful!
+ -- iteration 4 successful!
+ -- Combo # 1: ['press_button', 'right_gripper', 'left_button', None]
+ ---- 6 total change points found
+
+ Trying partial plan execution on segmentations
+[INFO] [1549639528.116234, 236.595000]: Robot Enabled
+[INFO] [1549639534.091835, 242.180000]: Robot Enabled
+ -- iteration 0 successful!
+ ---- Segmentation VIABLE! Adding to knowledge base
+ -- iteration 1 successful!
+ -- iteration 2 successful!
+ ---- Segmentation VIABLE! Adding to knowledge base
+ -- iteration 3 successful!
+ -- iteration 4 successful!
+ -- Combo # 2: ['obtain_object', 'left_gripper', 'table', None]
+ ---- 6 total change points found
+
+ Trying partial plan execution on segmentations
+[INFO] [1549639704.139447, 387.768000]: Robot Enabled
+[INFO] [1549639705.273301, 388.822000]: Robot Enabled
+ -- iteration 0 successful!
+ -- iteration 1 successful!
+ -- iteration 2 successful!
+ -- iteration 3 successful!
+ -- iteration 4 successful!
+ -- Combo # 3: ['obtain_object', 'left_gripper', 'block', None]
+ ---- 15 total change points found
+
+ Trying partial plan execution on segmentations
+[INFO] [1549639826.700466, 494.275000]: Robot Enabled
+[INFO] [1549639827.827239, 495.311000]: Robot Enabled
+ -- iteration 0 successful!
+ -- iteration 1 successful!
+ -- iteration 2 successful!
+ -- iteration 3 successful!
+ -- iteration 4 successful!
+ -- iteration 5 successful!
+ -- iteration 6 successful!
+ -- iteration 7 successful!
+ -- iteration 8 successful!
+ -- iteration 9 successful!
+ -- iteration 10 successful!
+ -- iteration 11 successful!
+ -- iteration 12 successful!
+ -- iteration 13 successful!
+ -- Combo # 4: ['obtain_object', 'left_gripper', 'wall', None]
+ ---- 9 total change points found
+
+ Trying partial plan execution on segmentations
+[INFO] [1549640027.095977, 670.692000]: Robot Enabled
+[INFO] [1549640028.228155, 671.741000]: Robot Enabled
+ -- iteration 0 successful!
+ -- iteration 1 successful!
+ -- iteration 2 successful!
+ -- iteration 3 successful!
+ -- iteration 4 successful!
+ -- iteration 5 successful!
+ -- iteration 6 successful!
+ -- iteration 7 successful!
+
+***************************   ATTEMPT #2   ***************************
+Setting up domain and problem for attempt #2
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #2
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1549640163.089656, 788.832000]: Robot Enabled
+[INFO] [1549640169.508466, 794.420000]: Robot Enabled
+Executing a Primitive
+
+***************************   ATTEMPT #3   ***************************
+Setting up domain and problem for attempt #3
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #3
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1549640191.572849, 814.935000]: Robot Enabled
+[INFO] [1549640192.743993, 815.996000]: Robot Enabled
+
+***************************   ATTEMPT #4   ***************************
+Setting up domain and problem for attempt #4
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #4
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1549640255.736480, 875.049000]: Robot Enabled
+[INFO] [1549640256.836536, 876.092000]: Robot Enabled
+Executing a Primitive
+
+***************************   ATTEMPT #5   ***************************
+Setting up domain and problem for attempt #5
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #5
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1549640301.350616, 916.158000]: Robot Enabled
+[INFO] [1549640302.580493, 917.191000]: Robot Enabled
+Executing a Primitive
+
+Goal accomplished!
+
+Times for each trial (in s): 
+[805.4092779159546, 93.49982500076294, 6.860627889633179, 80.79222989082336, 51.85300898551941]
+Total time elapsed: 1038.41499901
