@@ -169,15 +169,26 @@ def main():
                 ##### Here is where you decide what to iterate over
 
                 # Maybe just defualt to left gripper to make it easier 
-                objectsToIterate = pddlObjects(currentState.predicateList.predicates, False)
-                for action in KB.getActions():
+                
+                APVtrials.append(['obtain_object', 'left_gripper', 'wall', None]) 
+                APVtrials.append(['obtain_object', 'left_gripper', 'table', None]) 
+                APVtrials.append(['obtain_object', 'left_gripper', 'block', None]) 
+                APVtrials.append(['press_button', 'left_gripper', 'left_button', None]) 
+                APVtrials.append(['press_button', 'right_gripper', 'left_button', None]) 
 
+
+                
+                ##### BOTH need this #####
+                # objectsToIterate = pddlObjects(currentState.predicateList.predicates, False)
+                # for action in KB.getActions():
+
+
+                    ############ UNDER CONSTRUCTION ############
                     # args = action.getNonLocationVars()
                     # actionTrial = []
                     # actionTrial.append(action.getName())
                     # actionTrial.append('left_gripper')
                     # APVtrials.append(actionTrial)
-
                     # for i in range(len(args)-1):
                     #     newTrials = []
                     #     lenTrials = len(APVtrials)
@@ -186,25 +197,26 @@ def main():
                     #             newTrial = copy.deepcopy(APVtrials[j])
                     #             newTrial.append(argChoice)
                     #             newTrials.append(newTrial)
-
                     #     APVtrials = newTrials
+                    ############################################
+
+                    ############### ORIGINAL CODE ###############
+                    # args = action.getNonLocationVars()
+                    # actionTrials = []
+                    # actionTrials.append(action.getName())
+                    #for arg in args:
+                    #    if arg == 'gripper':
+                    #        actionTrials.append('left_gripper')
+                    #    else:
+                    #    itemsChoices = objectsToIterate[arg]
+                    #    choice = itemsChoices[random.randint(0, len(itemsChoices) - 1)]
+                    #    actionTrials.append(choice)
+                    # if len(args) < 4:
+                    #     actionTrials.append(None)
+                    # APVtrials.append(actionTrials)
+                    ############################################
 
 
-                    args = action.getNonLocationVars()
-                    actionTrials = []
-                    actionTrials.append(action.getName())
-                    for arg in args:
-                        #if arg == 'gripper':
-                        #    actionTrials.append('left_gripper')
-                        #else:
-                        itemsChoices = objectsToIterate[arg]
-                        choice = itemsChoices[random.randint(0, len(itemsChoices) - 1)]
-                        actionTrials.append(choice)
-
-                    if len(args) < 4:
-                        actionTrials.append(None)
-                    
-                    APVtrials.append(actionTrials)
                     
                 print(' -- generation complete, ' + str(len(APVtrials)) + ' total combos found')
                 for t in APVtrials:
