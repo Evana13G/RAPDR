@@ -78,12 +78,14 @@ def main():
 
         currentState = scenarioData()
         goalLoc = poseStampedToString(getPredicateLocation(currentState.predicateList.predicates, 'at', 'right_gripper'))
-        #goal = ['(is_visible block)']
-        goal1 = '(obj_at block ' + goalLoc  + ')'
+        goal1 = '(obtained block)'
+        # goal2 = '(obj_at block ' + goalLoc  + ')'
         goal = [goal1]
         mode = ['diffsOnly', 'noLoc']
         algoMode = 'APV'
         newPrims = []
+        gripperExecutingNewPrim = 'left'
+        gripperExecutionValidity = True
         #mode = ['diffsOnly']
 
         print('\nAgent has the following goal: ')
@@ -92,8 +94,10 @@ def main():
         print('to find new actions and replan with those actions. Process repeats until the ')
         print('agent is able to accomplish its goal....')
         attempt = 1
-
+        attemptsTime = []
+        totalTimeStart = time.time()
         while(goalAccomplished(goal, currentState.init) == False):
+            trialStart = time.time()
             print('\n***************************   ATTEMPT #' + str(attempt) + '   ***************************')
             print('Setting up domain and problem for attempt #' + str(attempt))
 
@@ -131,13 +135,14 @@ def main():
             print(' -- Plan generation complete')
         
             # executionSuccess = planExecutor(plan.plan)
-            
             # Just to gaurantee we go into APV mode for testing 
-            #if attempt == 1:
-            #    executionSuccess = 0
-            #else:
-            
-            executionSuccess = planExecutor(plan.plan)
+
+            if plan.plan.actions[0].params[0] == gripperExecutingNewPrim:
+                gripperExecutionValidity = False
+                executionSuccess = 0
+            else:
+                gripperExecutionValidity = True
+                executionSuccess = planExecutor(plan.plan)
 
             #####################################################################################
             currentState = scenarioData()
@@ -148,7 +153,8 @@ def main():
                     break
             else:
                 print(' -- Plan execution failed')
-
+                moveLeftArmToStart()
+                moveRightArmToStart()
 
 
                 # Should prob break this into a diff module... findNewAction module 
@@ -163,24 +169,58 @@ def main():
                 ##### Here is where you decide what to iterate over
 
                 # Maybe just defualt to left gripper to make it easier 
-                objectsToIterate = pddlObjects(currentState.predicateList.predicates, False)
-                for action in KB.getActions():
+                
+                APVtrials.append(['obtain_object', 'left_gripper', 'wall', None]) 
+                APVtrials.append(['obtain_object', 'left_gripper', 'table', None]) 
+                APVtrials.append(['obtain_object', 'left_gripper', 'block', None]) 
+                APVtrials.append(['press_button', 'left_gripper', 'left_button', None]) 
+                APVtrials.append(['press_button', 'right_gripper', 'left_button', None]) 
 
-                    args = action.getNonLocationVars()
-                    actionTrials = []
-                    actionTrials.append(action.getName())
-                    for arg in args:
-                        #if arg == 'gripper':
-                        #    actionTrials.append('left_gripper')
-                        #else:
-                        itemsChoices = objectsToIterate[arg]
-                        choice = itemsChoices[random.randint(0, len(itemsChoices) - 1)]
-                        actionTrials.append(choice)
 
-                    if len(args) < 4:
-                        actionTrials.append(None)
-                    APVtrials.append(actionTrials)
+                
+                ##### BOTH need this #####
+                # objectsToIterate = pddlObjects(currentState.predicateList.predicates, False)
+                # for action in KB.getActions():
+
+
+                    ############ UNDER CONSTRUCTION ############
+                    # args = action.getNonLocationVars()
+                    # actionTrial = []
+                    # actionTrial.append(action.getName())
+                    # actionTrial.append('left_gripper')
+                    # APVtrials.append(actionTrial)
+                    # for i in range(len(args)-1):
+                    #     newTrials = []
+                    #     lenTrials = len(APVtrials)
+                    #     for j in range(lenTrials):
+                    #         for argChoice in objectsToIterate[args[i+1]]:
+                    #             newTrial = copy.deepcopy(APVtrials[j])
+                    #             newTrial.append(argChoice)
+                    #             newTrials.append(newTrial)
+                    #     APVtrials = newTrials
+                    ############################################
+
+                    ############### ORIGINAL CODE ###############
+                    # args = action.getNonLocationVars()
+                    # actionTrials = []
+                    # actionTrials.append(action.getName())
+                    #for arg in args:
+                    #    if arg == 'gripper':
+                    #        actionTrials.append('left_gripper')
+                    #    else:
+                    #    itemsChoices = objectsToIterate[arg]
+                    #    choice = itemsChoices[random.randint(0, len(itemsChoices) - 1)]
+                    #    actionTrials.append(choice)
+                    # if len(args) < 4:
+                    #     actionTrials.append(None)
+                    # APVtrials.append(actionTrials)
+                    ############################################
+
+
+                    
                 print(' -- generation complete, ' + str(len(APVtrials)) + ' total combos found')
+                for t in APVtrials:
+                    print(t)
 
             #####################################################################################
                 print('\nFinding segmentation possibilities (across all combos generated) for attempt #' + str(attempt))
@@ -189,7 +229,7 @@ def main():
                     comboChoice = random.randint(0, len(APVtrials) - 1)
                     print(" -- Combo # " + str(trialNo) + ': ' + str(APVtrials[comboChoice]))
 
-                    #if (APVtrials[trialNo][0] == 'press_button') and (APVtrials[trialNo][2] == 'left_button'):
+                    # if (APVtrials[comboChoice][0] == 'press_button') and (APVtrials[comboChoice][2] == 'left_button'):
                     if True:
                         try:
                             #### Find change points
@@ -197,7 +237,8 @@ def main():
                             resp = APV(APVtrials[comboChoice][0], APVtrials[comboChoice][1], APVtrials[comboChoice][2], APVtrials[comboChoice][3])
                             print(' ---- ' + str(len(resp.endEffectorInfo)) + " total change points found")
                             print("\n Trying partial plan execution on segmentations")
-
+                            moveLeftArmToStart()
+                            moveRightArmToStart()
                             #### Iterate across segmentations
                             i = 0
                             while i <= len(resp.endEffectorInfo) - 2:
@@ -246,36 +287,42 @@ def main():
                                 else:
                                     print(' -- iteration ' + str(i) + ' not successful')
                                 i = i + 1 
-                            del APVtrials[comboChoice]
                         except rospy.ServiceException, e:
                             print("Service call failed: %s"%e)
+
+                    del APVtrials[comboChoice]
                     trialNo = trialNo + 1 
                 algoMode = 'planAndRun'   
             else:
-                print(' ******* new primitives ******* ')
-                for a in newPrims:
-                    print(a.getName())
                 if newPrims == []:
                     print('No Prims to Execute')
                     algoMode = 'APV'
                 else:
-                    print('Execute a Prim')
-                    if len(newPrims) == 1:
-                        actionIndex = 0
-                        actionToExecute = newPrims[actionIndex]
-                    else:
-                        actionIndex = random.randint(0, len(newPrims)-1)
-                        actionToExecute = newPrims[actionIndex]
-                    # execute and track the action 
-                    #PAargs = actionToExecute.getArgs()
-                    #gripper = 
-                    resp_3 = partialActionExecutor(actionToExecute.getGripper(), actionToExecute.getExecutionParams()[0], actionToExecute.getExecutionParams()[1])
-                    #if resp_3 == 1:
-                    del newPrims[actionIndex]
+                    if gripperExecutionValidity == True:
+                        print('Executing a Primitive')
+                        if len(newPrims) == 1:
+                            actionIndex = 0
+                            actionToExecute = newPrims[actionIndex]
+                        else:
+                            actionIndex = random.randint(0, len(newPrims)-1)
+                            actionToExecute = newPrims[actionIndex]
+                        # execute and track the action 
+                        #PAargs = actionToExecute.getArgs()
+                        #gripper = 
+                        resp_3 = partialActionExecutor(actionToExecute.getGripper(), actionToExecute.getExecutionParams()[0], actionToExecute.getExecutionParams()[1])
+                        gripperExecutingNewPrim = actionToExecute.getGripper()
+                        #if resp_3 == 1:
+                        del newPrims[actionIndex]
 
             currentState = scenarioData()
+            trialEnd = time.time()
+            attemptsTime.append(trialEnd - trialStart)
             attempt = attempt + 1
-
+        print('\nGoal accomplished!')
+        totalTimeEnd = time.time()
+        print("\nTimes for each trial (in s): ")
+        print(attemptsTime);
+        print("Total time elapsed: " + str(totalTimeEnd - totalTimeStart))
 
     except rospy.ServiceException, e:
         print("Service call failed: %s"%e)

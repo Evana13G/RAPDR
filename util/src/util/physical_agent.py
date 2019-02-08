@@ -43,7 +43,7 @@ button_name = None
 poseStampedTo = None
 
 class PhysicalAgent(object):
-    def __init__(self, limb='left_gripper', hover_distance = 0.15, verbose=True):
+    def __init__(self, limb='left_gripper', hover_distance = 0.15, verbose=False):
         self._limb_name = limb.replace('_gripper', '') # string
         # print('***************')
         self._hover_distance = hover_distance # in meters
@@ -54,19 +54,23 @@ class PhysicalAgent(object):
         self._iksvc = rospy.ServiceProxy(ns, SolvePositionIK)
         rospy.wait_for_service(ns, 5.0)
         # verify robot is enabled
-        print("Getting robot state... ")
+        if self._verbose:
+            print("Getting robot state... ")
         self._rs = baxter_interface.RobotEnable(baxter_interface.CHECK_VERSION)
         self._init_state = self._rs.state().enabled
-        print("Enabling robot... ")
+        if self._verbose:
+            print("Enabling robot... ")
         self._rs.enable()
 
     def move_to_start(self, start_angles=None):
-        print("Moving the {0} arm to start pose...".format(self._limb_name))
+        if self._verbose:
+            print("Moving the {0} arm to start pose...".format(self._limb_name))
         if not start_angles:
             start_angles = dict(zip(self._joint_names, [0]*7))
         self._guarded_move_to_joint_position(start_angles)
         rospy.sleep(1.0)
-        print("Running. Ctrl-c to quit")
+        if self._verbose:
+            print("Running. Ctrl-c to quit")
 
     def ik_request(self, pose):
         ikreq = SolvePositionIKRequest()

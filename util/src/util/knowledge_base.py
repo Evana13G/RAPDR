@@ -42,7 +42,7 @@ class KnowledgeBase(object):
         _preds.append(TemplatedPredicate('button_at', [Variable('?b', 'button'), Variable('?wp', 'waypoint')]))
         _preds.append(TemplatedPredicate('pressed', [Variable('?b', 'button')]))
         _preds.append(TemplatedPredicate('is_visible', [Variable('?o', 'obj')]))
-
+        _preds.append(TemplatedPredicate('obtained', [Variable('?o', 'obj')]))
         
         _a1 = Action('obtain_object', [], [], [], ObtainObjectSrv)
         _a1.addVar(Variable('?g', 'gripper'))
@@ -52,6 +52,8 @@ class KnowledgeBase(object):
         #_a1.addPreCond(StaticPredicate('gripper_at', ['?g', '?loc0']))
         _a1.addPreCond(StaticPredicate('obj_at', ['?o', '?loc1']))
         _a1.addEffect(StaticPredicate('obj_at', ['?o', '?loc0']))
+        _a1.addEffect(StaticPredicate('obtained', ['?o']))
+
         #_a1.addEffect(StaticPredicate('not', [StaticPredicate('obj_at', ['?o', '?loc1'])]))
 
         _a2 = Action('press_button', [], [], [], PressButtonSrv)
