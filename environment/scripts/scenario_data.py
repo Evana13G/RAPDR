@@ -160,7 +160,7 @@ def updatePhysicalStateBasedPredicates():
         sys.stdout.flush()
         print("BlockPose is None")
     for pred in predicates_list:
-        if ((not (pred.operator == "pressed")) or(not (pred.operator == "obtained"))):
+        if ((not (pred.operator == "pressed")) and (not (pred.operator == "obtained"))):
             new_predicates.append(pred)
     if is_touching(LeftGripperPose, LeftButtonPose) or is_touching(RightGripperPose, LeftButtonPose):
         new_predicates.append(Predicate(operator="pressed", object="left_button", locationInformation=None)) 
@@ -197,6 +197,7 @@ def main():
     rospy.Subscriber("grey_wall_pose", PoseStamped, setPoseWall)
 
     rospy.sleep(5)
+
     s = rospy.Service("scenario_data_srv", ScenarioDataSrv, getPredicates)
 
     rospy.spin()

@@ -78,13 +78,13 @@ def main():
 
         currentState = scenarioData()
         goalLoc = poseStampedToString(getPredicateLocation(currentState.predicateList.predicates, 'at', 'right_gripper'))
-        #goal = ['(is_visible block)']
-        goal1 = '(obj_at block ' + goalLoc  + ')'
+        goal1 = '(obtained block)'
+        # goal2 = '(obj_at block ' + goalLoc  + ')'
         goal = [goal1]
         mode = ['diffsOnly', 'noLoc']
-        algoMode = 'APV'
         newPrims = []
-        #mode = ['diffsOnly']
+        gripperExecutingNewPrim = 'left'
+        gripperExecutionValidity = True
 
         print('\nAgent has the following goal: ')
         print(goal)
@@ -133,13 +133,14 @@ def main():
             print(' -- Plan generation complete')
         
             # executionSuccess = planExecutor(plan.plan)
-            
             # Just to gaurantee we go into APV mode for testing 
-            #if attempt == 1:
-            #    executionSuccess = 0
-            #else:
-            
-            executionSuccess = planExecutor(plan.plan)
+
+            if plan.plan.actions[0].params[0] == gripperExecutingNewPrim:
+                gripperExecutionValidity = False
+                executionSuccess = 0
+            else:
+                gripperExecutionValidity = True
+                executionSuccess = planExecutor(plan.plan)
 
             #####################################################################################
             currentState = scenarioData()
@@ -150,7 +151,8 @@ def main():
                     break
             else:
                 print(' -- Plan execution failed')
-
+                moveLeftArmToStart()
+                moveRightArmToStart()
 
 
                 # Should prob break this into a diff module... findNewAction module 
@@ -158,129 +160,133 @@ def main():
 
             #####################################################################################
 
-            if algoMode == 'APV':
+            if newPrims == []:
+
                 print('\nGenerating all possible action/arg combinations (to send to APV) for attempt #' + str(attempt))
                 momentOfFailurePreds = scenarioData().predicates
                 APVtrials = []
-                ##### Here is where you decide what to iterate over
+                
+                APVtrials.append(['obtain_object', 'left_gripper', 'wall', None]) 
+                APVtrials.append(['obtain_object', 'left_gripper', 'table', None]) 
+                APVtrials.append(['obtain_object', 'left_gripper', 'block', None]) 
+                APVtrials.append(['press_button', 'left_gripper', 'left_button', None]) 
+                APVtrials.append(['press_button', 'right_gripper', 'left_button', None]) 
 
-                # Maybe just defualt to left gripper to make it easier 
-                objectsToIterate = pddlObjects(currentState.predicateList.predicates, False)
-                for action in KB.getActions():
+                
+                ##### BOTH need this #####
+                #objectsToIterate = pddlObjects(currentState.predicateList.predicates, False)
+                #for action in KB.getActions():#
 
-                    args = action.getNonLocationVars()
-                    actionTrials = []
-                    actionTrials.append(action.getName())
-                    for arg in args:
-                        #if arg == 'gripper':
-                        #    actionTrials.append('left_gripper')
-                        #else:
-                        itemsChoices = objectsToIterate[arg]
-                        choice = itemsChoices[random.randint(0, len(itemsChoices) - 1)]
-                        actionTrials.append(choice)
+                    ############ UNDER CONSTRUCTION ############
+                #    args = action.getNonLocationVars()
+                #    actionTrials = []
+                #    actionTrial = []
+                #    actionTrial.append(action.getName())
+                #    actionTrial.append('left_gripper')
+                #    actionTrials.append(actionTrial)
+                #    lenTrials = len(actionTrials)
+                #    newTrials = [] 
+                #    for i in range(len(args)-1):
+                #        for j in range(lenTrials):
+                #            for argChoice in objectsToIterate[args[i+1]]:
+                #                newTrial = copy.deepcopy(actionTrials[j])
+                #                newTrial.append(argChoice)
+                #                newTrials.append(newTrial)
+                #        actionTrials = newTrials
+                #    APVtrials.append(actionTrials)
 
-                    if len(args) < 4:
-                        actionTrials.append(None)
-                    APVtrials.append(actionTrials)
+                #addNones = copy.deepcopy(APVtrials)
+                #replaceAPV = []
+                #for trial in addNones:
+                    #new = trial.append(None)
+                #    replaceAPV.append(trial.append(None))
+                #APVtrials = replaceAPV
+
+
+                ############################################
+                    
                 print(' -- generation complete, ' + str(len(APVtrials)) + ' total combos found')
+                #for t in APVtrials:
+                ###    print(t)
 
             #####################################################################################
                 print('\nFinding segmentation possibilities (across all combos generated) for attempt #' + str(attempt))
                 trialNo = 0
-                while(len(APVtrials) >= 1): # Change this to be stochastic selection
-                    comboChoice = random.randint(0, len(APVtrials) - 1)
-                    print(" -- Combo # " + str(trialNo) + ': ' + str(APVtrials[comboChoice]))
 
-                    #if (APVtrials[trialNo][0] == 'press_button') and (APVtrials[trialNo][2] == 'left_button'):
-                    if True:
-                        try:
-                            #### Find change points
-                            
-                            resp = APV(APVtrials[comboChoice][0], APVtrials[comboChoice][1], APVtrials[comboChoice][2], APVtrials[comboChoice][3])
-                            print(' ---- ' + str(len(resp.endEffectorInfo)) + " total change points found")
-                            print("\n Trying partial plan execution on segmentations")
+                comboChoice = random.randint(0, len(APVtrials) - 1)
+                print(" -- Combo # " + str(trialNo) + ': ' + str(APVtrials[comboChoice]))
 
-                            #### Iterate across segmentations
-                            i = 0
-                            while i <= len(resp.endEffectorInfo) - 2:
-                                # print(" ---- starting iteration #" + str(i+1))
-                                startingState = scenarioData().predicateList
-                                resp_2 = partialActionExecutor(APVtrials[comboChoice][1], resp.endEffectorInfo[i], resp.endEffectorInfo[i+1])
-                                time.sleep(2)
-                                endingState = scenarioData().predicateList
+                try:
+                    #### Find change points    
+                    resp = APV(APVtrials[comboChoice][0], APVtrials[comboChoice][1], APVtrials[comboChoice][2], APVtrials[comboChoice][3])
+                    print(' ---- ' + str(len(resp.endEffectorInfo)) + " total change points found")
+                    print("\n Trying partial plan execution on segmentations")
+                    moveLeftArmToStart()
+                    moveRightArmToStart()
+                    #### Iterate across segmentations
+                    i = 0
+                    while i <= len(resp.endEffectorInfo) - 2:
+                        # print(" ---- starting iteration #" + str(i+1))
+                        startingState = scenarioData().predicateList
+                        resp_2 = partialActionExecutor(APVtrials[comboChoice][1], resp.endEffectorInfo[i], resp.endEffectorInfo[i+1])
+                        time.sleep(2)
+                        endingState = scenarioData().predicateList
 
-                                ##### Here is where you decide what gets added 
-                                if(resp_2.success_bool == 1):
-                                    print(' -- iteration ' + str(i) + ' successful!')
+                        ##### Here is where you decide what gets added 
+                        if(resp_2.success_bool == 1):
+                            print(' -- iteration ' + str(i) + ' successful!')
 
-                                    new_name = "action_attempt_" + str(attempt) + '_trial' + str(trialNo) + '_seg' + str(i) 
-                                                #'.' + poseStampedToString(resp.endEffectorInfo[i]) + 
-                                                #'.' + poseStampedToString(resp.endEffectorInfo[i+1])
-                                    orig_name = APVtrials[comboChoice][0]
-                                    orig_args = [APVtrials[comboChoice][1], APVtrials[comboChoice][2], APVtrials[comboChoice][3]]
-                                    gripperData = [resp.endEffectorInfo[i], resp.endEffectorInfo[i+1]]
-                                    gripper = orig_args[0]
+                            new_name = "action_attempt_" + str(attempt) + '_trial' + str(trialNo) + '_seg' + str(i) 
+                                        #'.' + poseStampedToString(resp.endEffectorInfo[i]) + 
+                                        #'.' + poseStampedToString(resp.endEffectorInfo[i+1])
+                            orig_name = APVtrials[comboChoice][0]
+                            orig_args = [APVtrials[comboChoice][1], APVtrials[comboChoice][2], APVtrials[comboChoice][3]]
+                            gripperData = [resp.endEffectorInfo[i], resp.endEffectorInfo[i+1]]
+                            gripper = orig_args[0]
 
-                                    newActionData = {}
-                                    newActionData['name'] = new_name
-                                    newActionData['orig_name'] = orig_name
-                                    newActionData['orig_args'] = orig_args
-                                    newActionData['preconditions'] = startingState
-                                    newActionData['effects'] = endingState
-                                    newActionData['srvFile'] = PartialPlanExecutorSrv
-                                    newActionData['gripper'] = gripper
-                                    newActionData['params'] = gripperData
+                            newAction = KB.createAction(new_name, 
+                                                        orig_name, 
+                                                        orig_args,
+                                                        startingState, 
+                                                        endingState, 
+                                                        PartialPlanExecutorSrv, 
+                                                        gripper,
+                                                        gripperData, 
+                                                        mode)
 
-                                    newAction = KB.createAction(new_name, 
-                                                                orig_name, 
-                                                                orig_args,
-                                                                startingState, 
-                                                                endingState, 
-                                                                PartialPlanExecutorSrv, 
-                                                                gripper,
-                                                                gripperData, 
-                                                                mode)
-
-                                    if isViable(newAction):
-                                        print(' ---- Segmentation VIABLE! Adding to knowledge base')
-                                        KB.addAction(newAction)
-                                        newPrims.append(newAction)
-                                else:
-                                    print(' -- iteration ' + str(i) + ' not successful')
-                                i = i + 1 
-                            del APVtrials[comboChoice]
-                        except rospy.ServiceException, e:
-                            print("Service call failed: %s"%e)
-                    trialNo = trialNo + 1 
-                algoMode = 'planAndRun'   
+                            if isViable(newAction):
+                                print(' ---- Segmentation VIABLE! Adding to knowledge base')
+                                KB.addAction(newAction)
+                                newPrims.append(newAction)
+                        else:
+                            print(' -- iteration ' + str(i) + ' not successful')
+                        i = i + 1 
+                except rospy.ServiceException, e:
+                    print("Service call failed: %s"%e)
+                del APVtrials[comboChoice]
+                trialNo = trialNo + 1 
+           
             else:
-                print(' ******* new primitives ******* ')
-                for a in newPrims:
-                    print(a.getName())
-                if newPrims == []:
-                    print('No Prims to Execute')
-                    algoMode = 'APV'
-                else:
-                    print('Execute a Prim')
+                if gripperExecutionValidity == True:
+                    print('Executing a Primitive')
                     if len(newPrims) == 1:
                         actionIndex = 0
                         actionToExecute = newPrims[actionIndex]
                     else:
                         actionIndex = random.randint(0, len(newPrims)-1)
-                        actionToExecute = newPrims[actionIndex]
-                    # execute and track the action 
-                    #PAargs = actionToExecute.getArgs()
-                    #gripper = 
+                        actionToExecute = newPrims[actionIndex] 
                     resp_3 = partialActionExecutor(actionToExecute.getGripper(), actionToExecute.getExecutionParams()[0], actionToExecute.getExecutionParams()[1])
-                    #if resp_3 == 1:
+                    gripperExecutingNewPrim = actionToExecute.getGripper()
                     del newPrims[actionIndex]
 
             currentState = scenarioData()
             trialEnd = time.time()
             attemptsTime.append(trialEnd - trialStart)
             attempt = attempt + 1
+
+        print('\nGoal accomplished!')
         totalTimeEnd = time.time()
-        print("Times for each trial (in s): ")
+        print("\nTimes for each trial (in s): ")
         print(attemptsTime);
         print("Total time elapsed: " + str(totalTimeEnd - totalTimeStart))
 

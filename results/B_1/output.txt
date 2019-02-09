@@ -1,0 +1,81 @@
+
+################################################################################
+################################################################################
+## Action Primivitive Discovery in Robotic Agents through Action Segmentation ##
+## -- a proof of concept model for knowledge aquisition in intelligent agents ##
+## -- Evana Gizzi, Mateo Guaman Castro, Jivko Sinapov, 2018                   ##
+################################################################################
+################################################################################
+
+ ... Setting up services
+ ... Cleaning up data from last run
+ ... Setting up initial data
+
+Agent has the following goal: 
+['(obtained block)']
+
+Agent will attempt to accomplish this goal. If attempt fails, agent will try
+to find new actions and replan with those actions. Process repeats until the 
+agent is able to accomplish its goal....
+
+***************************   ATTEMPT #1   ***************************
+Setting up domain and problem for attempt #1
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #1
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1549705200.097230, 144.565000]: Robot Enabled
+[INFO] [1549705201.203746, 145.623000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #1
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #1
+ -- Combo # 0: ['press_button', 'right_gripper', 'left_button', None]
+ ---- 9 total change points found
+
+ Trying partial plan execution on segmentations
+[INFO] [1549705268.693951, 205.425000]: Robot Enabled
+[INFO] [1549705269.819703, 206.480000]: Robot Enabled
+ -- iteration 0 successful!
+ ---- Segmentation VIABLE! Adding to knowledge base
+ -- iteration 1 successful!
+ -- iteration 2 successful!
+ -- iteration 3 successful!
+ -- iteration 4 successful!
+ -- iteration 5 successful!
+ ---- Segmentation VIABLE! Adding to knowledge base
+ -- iteration 6 successful!
+ -- iteration 7 successful!
+
+***************************   ATTEMPT #2   ***************************
+Setting up domain and problem for attempt #2
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #2
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1549705441.297649, 354.624000]: Robot Enabled
+[INFO] [1549705442.421655, 355.668000]: Robot Enabled
+Executing a Primitive
+
+***************************   ATTEMPT #3   ***************************
+Setting up domain and problem for attempt #3
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #3
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1549705494.636992, 399.748000]: Robot Enabled
+[INFO] [1549705495.974393, 400.782000]: Robot Enabled
+Executing a Primitive
+
+Goal accomplished!
+
+Times for each trial (in s): 
+[239.93172788619995, 94.88836002349854, 53.35485291481018]
+Total time elapsed: 388.174962997
