@@ -13,12 +13,15 @@
     (button_at ?b - button ?wp - waypoint)
     (pressed ?b - button)
     (is_visible ?o - obj)
+    (obtained ?o - obj)
 )
 
 (:action obtain_object
     :parameters (?g - gripper ?loc0 - waypoint ?o - obj ?loc1 - waypoint )
     :precondition (obj_at ?o ?loc1 )
-    :effect (obj_at ?o ?loc0 )
+    :effect (and
+        (obj_at ?o ?loc0 )
+        (obtained ?o ))
 )
 
 (:action press_button
