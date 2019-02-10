@@ -229,13 +229,13 @@ def main():
                 # Pretty much remove this loop for MODE 2 
 
                     comboChoice = random.randint(0, len(APVtrials) - 1)
-                    print(" -- Combo # " + str(trialNo) + ': ' + str(APVtrials[comboChoice]))
+                    print("\n -- Combo # " + str(trialNo) + ': ' + str(APVtrials[comboChoice]))
 
                     try:
                         #### Find change points    
                         resp = APV(APVtrials[comboChoice][0], APVtrials[comboChoice][1], APVtrials[comboChoice][2], APVtrials[comboChoice][3])
                         print(' ---- ' + str(len(resp.endEffectorInfo)) + " total change points found")
-                        print("\n Trying partial plan execution on segmentations")
+                        print("Trying partial plan execution on segmentations")
                         moveLeftArmToStart()
                         moveRightArmToStart()
                         #### Iterate across segmentations
