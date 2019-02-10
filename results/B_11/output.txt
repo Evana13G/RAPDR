@@ -1,0 +1,164 @@
+
+################################################################################
+################################################################################
+## Action Primivitive Discovery in Robotic Agents through Action Segmentation ##
+## -- a proof of concept model for knowledge aquisition in intelligent agents ##
+## -- Evana Gizzi, Mateo Guaman Castro, Jivko Sinapov, 2018                   ##
+################################################################################
+################################################################################
+
+ ... Setting up services
+ ... Cleaning up data from last run
+ ... Setting up initial data
+
+Agent has the following goal: 
+['(obtained block)']
+
+Agent will attempt to accomplish this goal. If attempt fails, agent will try
+to find new actions and replan with those actions. Process repeats until the 
+agent is able to accomplish its goal....
+
+***************************   ATTEMPT #1   ***************************
+Setting up domain and problem for attempt #1
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #1
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1549786076.579792, 224.818000]: Robot Enabled
+[INFO] [1549786077.720372, 225.929000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #1
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #1
+ -- Combo # 0: ['press_button', 'right_gripper', 'left_button', None]
+ ---- 6 total change points found
+
+ Trying partial plan execution on segmentations
+[INFO] [1549786140.626906, 286.505000]: Robot Enabled
+[INFO] [1549786141.720170, 287.549000]: Robot Enabled
+ -- iteration 0 successful!
+ -- iteration 1 successful!
+ -- iteration 2 successful!
+ -- iteration 3 successful!
+ ---- Segmentation VIABLE! Adding to knowledge base
+ -- iteration 4 successful!
+ -- Combo # 1: ['press_button', 'left_gripper', 'left_button', None]
+ ---- 6 total change points found
+
+ Trying partial plan execution on segmentations
+[INFO] [1549786305.589430, 444.945000]: Robot Enabled
+[INFO] [1549786306.692326, 446.009000]: Robot Enabled
+ -- iteration 0 successful!
+ -- iteration 1 successful!
+ -- iteration 2 successful!
+ -- iteration 3 successful!
+ ---- Segmentation VIABLE! Adding to knowledge base
+ -- iteration 4 successful!
+ -- Combo # 2: ['obtain_object', 'left_gripper', 'wall', None]
+ ---- 15 total change points found
+
+ Trying partial plan execution on segmentations
+[INFO] [1549786445.907799, 578.616000]: Robot Enabled
+[INFO] [1549786447.028120, 579.682000]: Robot Enabled
+ -- iteration 0 successful!
+ -- iteration 1 successful!
+ -- iteration 2 successful!
+ ---- Segmentation VIABLE! Adding to knowledge base
+ -- iteration 3 successful!
+ -- iteration 4 successful!
+ -- iteration 5 successful!
+ -- iteration 6 successful!
+ -- iteration 7 successful!
+ -- iteration 8 successful!
+ -- iteration 9 successful!
+ -- iteration 10 successful!
+ -- iteration 11 successful!
+ -- iteration 12 successful!
+ -- iteration 13 successful!
+ -- Combo # 3: ['obtain_object', 'left_gripper', 'table', None]
+ ---- 12 total change points found
+
+ Trying partial plan execution on segmentations
+[INFO] [1549786666.034665, 787.391000]: Robot Enabled
+[INFO] [1549786667.123270, 788.427000]: Robot Enabled
+ -- iteration 0 successful!
+ -- iteration 1 successful!
+ -- iteration 2 successful!
+ -- iteration 3 successful!
+ -- iteration 4 successful!
+ -- iteration 5 successful!
+ -- iteration 6 successful!
+ -- iteration 7 successful!
+ -- iteration 8 successful!
+ -- iteration 9 successful!
+ -- iteration 10 successful!
+ -- Combo # 4: ['obtain_object', 'left_gripper', 'block', None]
+ ---- 9 total change points found
+
+ Trying partial plan execution on segmentations
+[INFO] [1549786845.418004, 955.872000]: Robot Enabled
+[INFO] [1549786846.550096, 956.940000]: Robot Enabled
+ -- iteration 0 successful!
+ -- iteration 1 successful!
+ -- iteration 2 successful!
+ -- iteration 3 successful!
+ -- iteration 4 successful!
+ -- iteration 5 successful!
+ -- iteration 6 successful!
+ -- iteration 7 successful!
+
+***************************   ATTEMPT #2   ***************************
+Setting up domain and problem for attempt #2
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #2
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1549786953.989705, 1057.975000]: Robot Enabled
+[INFO] [1549786955.089414, 1059.009000]: Robot Enabled
+Executing a Primitive
+
+***************************   ATTEMPT #3   ***************************
+Setting up domain and problem for attempt #3
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #3
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1549786977.415701, 1079.733000]: Robot Enabled
+[INFO] [1549786978.555318, 1080.791000]: Robot Enabled
+
+***************************   ATTEMPT #4   ***************************
+Setting up domain and problem for attempt #4
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #4
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1549787042.312046, 1139.761000]: Robot Enabled
+[INFO] [1549787043.428926, 1140.816000]: Robot Enabled
+Executing a Primitive
+
+***************************   ATTEMPT #5   ***************************
+Setting up domain and problem for attempt #5
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #5
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1549787087.194331, 1181.253000]: Robot Enabled
+[INFO] [1549787093.149226, 1186.757000]: Robot Enabled
+Executing a Primitive
+
+Goal accomplished!
+
+Times for each trial (in s): 
+[870.6989300251007, 85.33733296394348, 6.746969938278198, 81.56160593032837, 49.975651025772095]
+Total time elapsed: 1094.32051802
