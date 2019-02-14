@@ -26,51 +26,19 @@ Setting up domain and problem for attempt #1
 Triggering plan generation and execution for attempt #1
  -- Plan generation complete
  -- Plan execution failed
-[INFO] [1549779232.609231, 119.018000]: Robot Enabled
-[INFO] [1549779233.794624, 120.136000]: Robot Enabled
+[INFO] [1550107118.851840, 143.550000]: Robot Enabled
+[INFO] [1550107120.242968, 144.845000]: Robot Enabled
 
 Generating all possible action/arg combinations (to send to APV) for attempt #1
  -- generation complete, 5 total combos found
 
 Finding segmentation possibilities (across all combos generated) for attempt #1
- -- Combo # 0: ['obtain_object', 'left_gripper', 'block', None]
- ---- 12 total change points found
 
- Trying partial plan execution on segmentations
-[INFO] [1549779298.871660, 180.618000]: Robot Enabled
-[INFO] [1549779300.005633, 181.663000]: Robot Enabled
- -- iteration 0 successful!
- -- iteration 1 successful!
- -- iteration 2 successful!
- -- iteration 3 successful!
- -- iteration 4 successful!
- -- iteration 5 successful!
- -- iteration 6 successful!
- -- iteration 7 successful!
- -- iteration 8 successful!
- -- iteration 9 successful!
- -- iteration 10 successful!
- -- Combo # 1: ['press_button', 'left_gripper', 'left_button', None]
+ -- Combo # 0: ['obtain_object', 'left_gripper', 'table', None]
  ---- 9 total change points found
-
- Trying partial plan execution on segmentations
-[INFO] [1549779446.338373, 316.544000]: Robot Enabled
-[INFO] [1549779447.487586, 317.595000]: Robot Enabled
- -- iteration 0 successful!
- -- iteration 1 successful!
- -- iteration 2 successful!
- -- iteration 3 successful!
- -- iteration 4 successful!
- -- iteration 5 successful!
- -- iteration 6 successful!
- ---- Segmentation VIABLE! Adding to knowledge base
- -- iteration 7 successful!
- -- Combo # 2: ['obtain_object', 'left_gripper', 'table', None]
- ---- 9 total change points found
-
- Trying partial plan execution on segmentations
-[INFO] [1549779619.459877, 474.371000]: Robot Enabled
-[INFO] [1549779620.603999, 475.418000]: Robot Enabled
+Trying partial plan execution on segmentations
+[INFO] [1550107192.098519, 205.854000]: Robot Enabled
+[INFO] [1550107193.261511, 206.939000]: Robot Enabled
  -- iteration 0 successful!
  -- iteration 1 successful!
  -- iteration 2 successful!
@@ -79,29 +47,6 @@ Finding segmentation possibilities (across all combos generated) for attempt #1
  -- iteration 5 successful!
  -- iteration 6 successful!
  -- iteration 7 successful!
- -- Combo # 3: ['press_button', 'right_gripper', 'left_button', None]
- ---- 6 total change points found
-
- Trying partial plan execution on segmentations
-[INFO] [1549779764.571029, 604.812000]: Robot Enabled
-[INFO] [1549779770.624993, 610.336000]: Robot Enabled
- -- iteration 0 successful!
- -- iteration 1 successful!
- -- iteration 2 successful!
- -- iteration 3 successful!
- ---- Segmentation VIABLE! Adding to knowledge base
- -- iteration 4 successful!
- -- Combo # 4: ['obtain_object', 'left_gripper', 'wall', None]
- ---- 6 total change points found
-
- Trying partial plan execution on segmentations
-[INFO] [1549779915.210201, 739.157000]: Robot Enabled
-[INFO] [1549779916.373209, 740.205000]: Robot Enabled
- -- iteration 0 successful!
- -- iteration 1 successful!
- -- iteration 2 successful!
- -- iteration 3 successful!
- -- iteration 4 successful!
 
 ***************************   ATTEMPT #2   ***************************
 Setting up domain and problem for attempt #2
@@ -111,9 +56,25 @@ Setting up domain and problem for attempt #2
 Triggering plan generation and execution for attempt #2
  -- Plan generation complete
  -- Plan execution failed
-[INFO] [1549780024.781273, 837.215000]: Robot Enabled
-[INFO] [1549780025.952401, 838.273000]: Robot Enabled
-Executing a Primitive
+[INFO] [1550107312.401672, 308.783000]: Robot Enabled
+[INFO] [1550107318.482377, 314.307000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #2
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #2
+
+ -- Combo # 0: ['press_button', 'right_gripper', 'left_button', None]
+ ---- 6 total change points found
+Trying partial plan execution on segmentations
+[INFO] [1550107387.326498, 373.460000]: Robot Enabled
+[INFO] [1550107388.450731, 374.516000]: Robot Enabled
+ -- iteration 0 successful!
+ -- iteration 1 successful!
+ -- iteration 2 successful!
+ -- iteration 3 successful!
+ ---- Segmentation VIABLE! Adding to knowledge base
+ -- iteration 4 successful!
 
 ***************************   ATTEMPT #3   ***************************
 Setting up domain and problem for attempt #3
@@ -123,8 +84,9 @@ Setting up domain and problem for attempt #3
 Triggering plan generation and execution for attempt #3
  -- Plan generation complete
  -- Plan execution failed
-[INFO] [1549780049.515414, 859.001000]: Robot Enabled
-[INFO] [1549780050.729113, 860.055000]: Robot Enabled
+[INFO] [1550107539.704599, 501.415000]: Robot Enabled
+[INFO] [1550107540.867644, 502.467000]: Robot Enabled
+Executing a Primitive
 
 ***************************   ATTEMPT #4   ***************************
 Setting up domain and problem for attempt #4
@@ -134,8 +96,25 @@ Setting up domain and problem for attempt #4
 Triggering plan generation and execution for attempt #4
  -- Plan generation complete
  -- Plan execution failed
-[INFO] [1549780056.571349, 865.234000]: Robot Enabled
-[INFO] [1549780057.740167, 866.293000]: Robot Enabled
+[INFO] [1550107586.721049, 542.604000]: Robot Enabled
+[INFO] [1550107587.925582, 543.645000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #4
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #4
+
+ -- Combo # 0: ['press_button', 'right_gripper', 'left_button', None]
+ ---- 6 total change points found
+Trying partial plan execution on segmentations
+[INFO] [1550107661.211558, 606.737000]: Robot Enabled
+[INFO] [1550107662.353707, 607.788000]: Robot Enabled
+ -- iteration 0 successful!
+ -- iteration 1 successful!
+ -- iteration 2 successful!
+ -- iteration 3 successful!
+ ---- Segmentation VIABLE! Adding to knowledge base
+ -- iteration 4 successful!
 
 ***************************   ATTEMPT #5   ***************************
 Setting up domain and problem for attempt #5
@@ -145,8 +124,8 @@ Setting up domain and problem for attempt #5
 Triggering plan generation and execution for attempt #5
  -- Plan generation complete
  -- Plan execution failed
-[INFO] [1549780119.635633, 921.176000]: Robot Enabled
-[INFO] [1549780120.825483, 922.232000]: Robot Enabled
+[INFO] [1550107748.619037, 681.367000]: Robot Enabled
+[INFO] [1550107749.772538, 682.388000]: Robot Enabled
 Executing a Primitive
 
 ***************************   ATTEMPT #6   ***************************
@@ -157,9 +136,19 @@ Setting up domain and problem for attempt #6
 Triggering plan generation and execution for attempt #6
  -- Plan generation complete
  -- Plan execution failed
-[INFO] [1549780144.412053, 942.974000]: Robot Enabled
-[INFO] [1549780150.680579, 948.494000]: Robot Enabled
-No Prims to Execute
+[INFO] [1550107782.983985, 711.320000]: Robot Enabled
+[INFO] [1550107784.157824, 712.376000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #6
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #6
+
+ -- Combo # 0: ['obtain_object', 'left_gripper', 'wall', None]
+ ---- 0 total change points found
+Trying partial plan execution on segmentations
+[INFO] [1550107796.070348, 721.721000]: Robot Enabled
+[INFO] [1550107797.514788, 722.799000]: Robot Enabled
 
 ***************************   ATTEMPT #7   ***************************
 Setting up domain and problem for attempt #7
@@ -169,66 +158,394 @@ Setting up domain and problem for attempt #7
 Triggering plan generation and execution for attempt #7
  -- Plan generation complete
  -- Plan execution failed
-[INFO] [1549780213.144085, 1003.146000]: Robot Enabled
-[INFO] [1549780214.346396, 1004.192000]: Robot Enabled
+[INFO] [1550107799.079264, 723.956000]: Robot Enabled
+[INFO] [1550107800.408278, 725.009000]: Robot Enabled
 
 Generating all possible action/arg combinations (to send to APV) for attempt #7
  -- generation complete, 5 total combos found
 
 Finding segmentation possibilities (across all combos generated) for attempt #7
- -- Combo # 0: ['press_button', 'right_gripper', 'left_button', None]
- ---- 9 total change points found
 
- Trying partial plan execution on segmentations
-[INFO] [1549780282.300493, 1062.454000]: Robot Enabled
-[INFO] [1549780283.487845, 1063.488000]: Robot Enabled
+ -- Combo # 0: ['obtain_object', 'left_gripper', 'table', None]
+ ---- 0 total change points found
+Trying partial plan execution on segmentations
+[INFO] [1550107806.760495, 730.367000]: Robot Enabled
+[INFO] [1550107807.938921, 731.403000]: Robot Enabled
+
+***************************   ATTEMPT #8   ***************************
+Setting up domain and problem for attempt #8
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #8
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550107809.184792, 732.494000]: Robot Enabled
+[INFO] [1550107810.368809, 733.547000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #8
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #8
+
+ -- Combo # 0: ['obtain_object', 'left_gripper', 'wall', None]
+Service call failed: service [/APV_srv] responded with an error: error processing request: The observation matrix X must be an n by m numpy array.
+
+***************************   ATTEMPT #9   ***************************
+Setting up domain and problem for attempt #9
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #9
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550107821.079130, 743.008000]: Robot Enabled
+[INFO] [1550107822.200998, 744.056000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #9
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #9
+
+ -- Combo # 0: ['press_button', 'left_gripper', 'left_button', None]
+ ---- 6 total change points found
+Trying partial plan execution on segmentations
+[INFO] [1550107859.100788, 778.334000]: Robot Enabled
+[INFO] [1550107860.235081, 779.391000]: Robot Enabled
+ -- iteration 0 successful!
+ ---- Segmentation VIABLE! Adding to knowledge base
+ -- iteration 1 successful!
+ -- iteration 2 successful!
+ -- iteration 3 successful!
+ -- iteration 4 successful!
+
+***************************   ATTEMPT #10   ***************************
+Setting up domain and problem for attempt #10
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #10
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550107924.759884, 839.798000]: Robot Enabled
+[INFO] [1550107925.886203, 840.859000]: Robot Enabled
+Executing a Primitive
+
+***************************   ATTEMPT #11   ***************************
+Setting up domain and problem for attempt #11
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #11
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550107948.079790, 861.646000]: Robot Enabled
+[INFO] [1550107953.939340, 867.138000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #11
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #11
+
+ -- Combo # 0: ['press_button', 'right_gripper', 'left_button', None]
+ ---- 6 total change points found
+Trying partial plan execution on segmentations
+[INFO] [1550108017.952729, 926.386000]: Robot Enabled
+[INFO] [1550108019.078336, 927.455000]: Robot Enabled
  -- iteration 0 successful!
  -- iteration 1 successful!
  -- iteration 2 successful!
  -- iteration 3 successful!
+ ---- Segmentation VIABLE! Adding to knowledge base
+ -- iteration 4 successful!
+
+***************************   ATTEMPT #12   ***************************
+Setting up domain and problem for attempt #12
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #12
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108103.186859, 1005.862000]: Robot Enabled
+[INFO] [1550108104.297263, 1006.918000]: Robot Enabled
+Executing a Primitive
+
+***************************   ATTEMPT #13   ***************************
+Setting up domain and problem for attempt #13
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #13
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108126.531802, 1027.641000]: Robot Enabled
+[INFO] [1550108127.643375, 1028.690000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #13
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #13
+
+ -- Combo # 0: ['obtain_object', 'left_gripper', 'block', None]
+ ---- 0 total change points found
+Trying partial plan execution on segmentations
+[INFO] [1550108137.768030, 1038.104000]: Robot Enabled
+[INFO] [1550108138.932586, 1039.175000]: Robot Enabled
+
+***************************   ATTEMPT #14   ***************************
+Setting up domain and problem for attempt #14
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #14
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108144.587137, 1044.412000]: Robot Enabled
+[INFO] [1550108145.713119, 1045.459000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #14
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #14
+
+ -- Combo # 0: ['obtain_object', 'left_gripper', 'wall', None]
+ ---- 0 total change points found
+Trying partial plan execution on segmentations
+[INFO] [1550108151.483270, 1050.815000]: Robot Enabled
+[INFO] [1550108152.619572, 1051.868000]: Robot Enabled
+
+***************************   ATTEMPT #15   ***************************
+Setting up domain and problem for attempt #15
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #15
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108153.845631, 1053.004000]: Robot Enabled
+[INFO] [1550108155.010879, 1054.061000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #15
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #15
+
+ -- Combo # 0: ['obtain_object', 'left_gripper', 'wall', None]
+Service call failed: service [/APV_srv] responded with an error: error processing request: The number of observations cannot be determined on an empty distance matrix.
+
+***************************   ATTEMPT #16   ***************************
+Setting up domain and problem for attempt #16
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #16
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108165.278705, 1063.597000]: Robot Enabled
+[INFO] [1550108166.404654, 1064.637000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #16
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #16
+
+ -- Combo # 0: ['press_button', 'left_gripper', 'left_button', None]
+ ---- 9 total change points found
+Trying partial plan execution on segmentations
+[INFO] [1550108203.601585, 1098.758000]: Robot Enabled
+[INFO] [1550108204.769835, 1099.818000]: Robot Enabled
+ -- iteration 0 successful!
+ -- iteration 1 successful!
+ -- iteration 2 successful!
+ -- iteration 3 successful!
+ ---- Segmentation VIABLE! Adding to knowledge base
  -- iteration 4 successful!
  -- iteration 5 successful!
  -- iteration 6 successful!
- ---- Segmentation VIABLE! Adding to knowledge base
  -- iteration 7 successful!
- -- Combo # 1: ['obtain_object', 'left_gripper', 'table', None]
+
+***************************   ATTEMPT #17   ***************************
+Setting up domain and problem for attempt #17
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #17
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108286.545920, 1175.214000]: Robot Enabled
+[INFO] [1550108292.564301, 1180.782000]: Robot Enabled
+
+***************************   ATTEMPT #18   ***************************
+Setting up domain and problem for attempt #18
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #18
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108293.813591, 1181.937000]: Robot Enabled
+[INFO] [1550108294.985388, 1183.008000]: Robot Enabled
+
+***************************   ATTEMPT #19   ***************************
+Setting up domain and problem for attempt #19
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #19
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108296.232802, 1184.148000]: Robot Enabled
+[INFO] [1550108297.411508, 1185.244000]: Robot Enabled
+
+***************************   ATTEMPT #20   ***************************
+Setting up domain and problem for attempt #20
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #20
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108303.157798, 1190.508000]: Robot Enabled
+[INFO] [1550108304.300726, 1191.557000]: Robot Enabled
+Executing a Primitive
+
+***************************   ATTEMPT #21   ***************************
+Setting up domain and problem for attempt #21
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #21
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108326.844691, 1212.293000]: Robot Enabled
+[INFO] [1550108332.811230, 1217.801000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #21
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #21
+
+ -- Combo # 0: ['obtain_object', 'left_gripper', 'block', None]
+ ---- 0 total change points found
+Trying partial plan execution on segmentations
+[INFO] [1550108338.657848, 1223.189000]: Robot Enabled
+[INFO] [1550108339.834083, 1224.277000]: Robot Enabled
+
+***************************   ATTEMPT #22   ***************************
+Setting up domain and problem for attempt #22
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #22
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108345.606892, 1229.595000]: Robot Enabled
+[INFO] [1550108346.751864, 1230.656000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #22
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #22
+
+ -- Combo # 0: ['obtain_object', 'left_gripper', 'wall', None]
+ ---- 0 total change points found
+Trying partial plan execution on segmentations
+[INFO] [1550108352.600785, 1236.028000]: Robot Enabled
+[INFO] [1550108353.839677, 1237.173000]: Robot Enabled
+
+***************************   ATTEMPT #23   ***************************
+Setting up domain and problem for attempt #23
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #23
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108355.227312, 1238.443000]: Robot Enabled
+[INFO] [1550108356.564077, 1239.684000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #23
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #23
+
+ -- Combo # 0: ['obtain_object', 'left_gripper', 'table', None]
+Service call failed: service [/APV_srv] responded with an error: error processing request: The number of observations cannot be determined on an empty distance matrix.
+
+***************************   ATTEMPT #24   ***************************
+Setting up domain and problem for attempt #24
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #24
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108367.106740, 1249.379000]: Robot Enabled
+[INFO] [1550108368.689745, 1250.858000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #24
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #24
+
+ -- Combo # 0: ['obtain_object', 'left_gripper', 'block', None]
+Service call failed: service [/APV_srv] responded with an error: error processing request: The observation matrix X must be an n by m numpy array.
+
+***************************   ATTEMPT #25   ***************************
+Setting up domain and problem for attempt #25
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #25
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108379.979018, 1261.228000]: Robot Enabled
+[INFO] [1550108381.329693, 1262.476000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #25
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #25
+
+ -- Combo # 0: ['obtain_object', 'left_gripper', 'block', None]
+Service call failed: service [/APV_srv] responded with an error: error processing request: The number of observations cannot be determined on an empty distance matrix.
+
+***************************   ATTEMPT #26   ***************************
+Setting up domain and problem for attempt #26
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #26
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108394.228163, 1274.345000]: Robot Enabled
+[INFO] [1550108398.082715, 1277.929000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #26
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #26
+
+ -- Combo # 0: ['obtain_object', 'left_gripper', 'wall', None]
+Service call failed: service [/APV_srv] responded with an error: error processing request: The number of observations cannot be determined on an empty distance matrix.
+
+***************************   ATTEMPT #27   ***************************
+Setting up domain and problem for attempt #27
+ -- Domain setup complete
+ -- Problem setup complete
+
+Triggering plan generation and execution for attempt #27
+ -- Plan generation complete
+ -- Plan execution failed
+[INFO] [1550108411.676604, 1290.378000]: Robot Enabled
+[INFO] [1550108417.790784, 1296.003000]: Robot Enabled
+
+Generating all possible action/arg combinations (to send to APV) for attempt #27
+ -- generation complete, 5 total combos found
+
+Finding segmentation possibilities (across all combos generated) for attempt #27
+
+ -- Combo # 0: ['press_button', 'left_gripper', 'left_button', None]
  ---- 6 total change points found
-
- Trying partial plan execution on segmentations
-[INFO] [1549780395.503468, 1159.724000]: Robot Enabled
-[INFO] [1549780396.744655, 1160.782000]: Robot Enabled
- -- iteration 0 successful!
- -- iteration 1 successful!
- -- iteration 2 successful!
- -- iteration 3 successful!
- -- iteration 4 successful!
- -- Combo # 2: ['obtain_object', 'left_gripper', 'block', None]
- ---- 3 total change points found
-
- Trying partial plan execution on segmentations
-[INFO] [1549780537.111296, 1282.502000]: Robot Enabled
-[INFO] [1549780538.269279, 1283.537000]: Robot Enabled
- -- iteration 0 successful!
- -- iteration 1 successful!
- -- Combo # 3: ['press_button', 'left_gripper', 'left_button', None]
- ---- 3 total change points found
-
- Trying partial plan execution on segmentations
-[INFO] [1549780597.335412, 1336.699000]: Robot Enabled
-[INFO] [1549780598.484254, 1337.746000]: Robot Enabled
- -- iteration 0 successful!
- -- iteration 1 successful!
- -- Combo # 4: ['obtain_object', 'left_gripper', 'wall', None]
- ---- 3 total change points found
-
- Trying partial plan execution on segmentations
-[INFO] [1549780657.339363, 1391.063000]: Robot Enabled
-[INFO] [1549780658.493279, 1392.102000]: Robot Enabled
- -- iteration 0 successful!
- -- iteration 1 successful!
-
-Goal accomplished!
-
-Times for each trial (in s): 
-[784.1327891349792, 89.9929141998291, 7.084074020385742, 2.4435110092163086, 85.4134669303894, 7.511059999465942, 518.5504009723663]
-Total time elapsed: 1495.12825418
+Trying partial plan execution on segmentations
