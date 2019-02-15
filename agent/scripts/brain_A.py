@@ -40,7 +40,9 @@ def main():
     rospy.wait_for_service('plan_executor_srv', timeout=60)
 
     KB = KnowledgeBase()
-
+    lPA = PhysicalAgent('left_gripper')
+    rPA = PhysicalAgent('right_gripper')
+    
     print("\n################################################################################")
     print("################################################################################")
     print('## Action Primivitive Discovery in Robotic Agents through Action Segmentation ##')
@@ -153,8 +155,8 @@ def main():
                     break
             else:
                 print(' -- Plan execution failed')
-                moveLeftArmToStart()
-                moveRightArmToStart()
+                moveLeftArmToStart(lPA)
+                moveRightArmToStart(rPA)
 
 
                 # Should prob break this into a diff module... findNewAction module 
@@ -236,8 +238,8 @@ def main():
                         resp = APV(APVtrials[comboChoice][0], APVtrials[comboChoice][1], APVtrials[comboChoice][2], APVtrials[comboChoice][3])
                         print(' ---- ' + str(len(resp.endEffectorInfo)) + " total change points found")
                         print("Trying partial plan execution on segmentations")
-                        moveLeftArmToStart()
-                        moveRightArmToStart()
+                        moveLeftArmToStart(lPA)
+                        moveRightArmToStart(rPA)
                         #### Iterate across segmentations
                         i = 0
                         while i <= len(resp.endEffectorInfo) - 2:
