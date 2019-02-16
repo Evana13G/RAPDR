@@ -1,4 +1,5 @@
 from util.physical_agent import PhysicalAgent 
+import os 
 
 def goalAccomplished(goalList, currentState):
 	numGoalsAccomplished = 0
@@ -36,3 +37,7 @@ def moveRightArmToStart(rPa):
                                 'right_w2': -0.5085333554167599}
     rPa.move_to_start(starting_joint_angles_r)
 
+def compileResults(brainRunDirectory, runName):
+    outputFile = 'output.txt' 
+    resultsDir = brainRunDirectory + '../../results/' + runName + '/'
+    os.system(mv outputFile resultsDir)

@@ -61,6 +61,7 @@ def main():
 
         print(' ... Cleaning up data from last run')
         deleteAllPddlFiles()
+        deleteAllAPVFiles()
 
         #####################################################################################
         #                                                                                   #

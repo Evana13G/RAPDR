@@ -42,6 +42,7 @@ from util.knowledge_base import KnowledgeBase
 from util.bayesian_change_point import BayesianChangePoint
 from util.general_vis import *
 from util.ros_bag import RosBag
+from util.file_io import *
 from action_primitive_variation.srv import *
 from agent.srv import * 
 from environment.msg import *
@@ -57,13 +58,15 @@ jointState_bag = RosBag('jointState')
 KB = KnowledgeBase()
 
 shouldRecord = False
-vis = False
+vis = True
+visNames = []
 
 def handle_APV(req):
 
     if 'seg' in req.actionName:
         return APVSrvResponse([])
     global shouldRecord
+
     params = []
     actionToVary = req.actionName
     gripper = req.gripper
@@ -77,15 +80,23 @@ def handle_APV(req):
     if button is not '': 
         params.append(button)
 
+    visName = getVisName(actionToVary + ''.join(params))
+
     openBags()
     shouldRecord = True
     execute_action(actionToVary, params)
     shouldRecord = False
-    changePoints = extract_change_points(gripper)
+    changePoints = extract_change_points(gripper, visName)
+
     closeBags()
 
     return APVSrvResponse(changePoints)
 
+def getVisName(nameWithoutIter):
+    i = 1
+    while(nameWithoutIter + '_' + str(i) in visNames):
+        i = i + 1
+    return nameWithoutIter + '_' + str(i)
 
 ############### START: Call back functions that check to see if ROSbag should be being recorded
 def handle_jointStates(data):
@@ -140,14 +151,18 @@ def handle_gripperRight(data):
 ############### END: Call back functions that check to see if ROSbag should be being recorded
 
 
-def extract_change_points(gripperToConsider):
+def extract_change_points(gripperToConsider, APVtrialName):
+    print(APVtrialName)
+    global visNames
     if gripperToConsider == 'left_gripper':
         bagData = leftGripper_bag.getVisualizableData()
         segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv')
         cps = segs.getCompressedChangePoints()
         positionInfo = leftGripper_bag.getROSBagDataAtCps(segs.getCompressedChangePoints(), ['left_gripper_pose'], cps)
         if vis == True:
-            ROSbag_with_CPs('leftGripper', bagData, segs)
+            visData = generateVisData_bagAndCPData('leftGripper', bagData, segs)
+            writeBagData(visData, APVtrialName)
+            visNames.append(APVtrialName)
         return positionInfo
     else:
         bagData = rightGripper_bag.getVisualizableData()
@@ -155,24 +170,10 @@ def extract_change_points(gripperToConsider):
         cps = segs.getCompressedChangePoints()
         positionInfo = rightGripper_bag.getROSBagDataAtCps(segs.getCompressedChangePoints(), ['right_gripper_pose'], cps)
         if vis == True:
-            ROSbag_with_CPs('rightGripper', bagData, segs)
+            visData = generateVisData_bagAndCPData('rightGripper', bagData, segs)
+            writeBagData(visData, APVtrialName)
+            visNames.append(APVtrialName)
         return positionInfo
-
-"""
-header: 
-  seq: 422998
-  stamp: 
-    secs: 8460
-    nsecs: 369000000
-  frame_id: ''
-name: [head_pan, l_gripper_l_finger_joint, l_gripper_r_finger_joint, left_e0, left_e1, left_s0,
-  left_s1, left_w0, left_w1, left_w2, r_gripper_l_finger_joint, r_gripper_r_finger_joint,
-  right_e0, right_e1, right_s0, right_s1, right_w0, right_w1, right_w2]
-position: [0.00037950190107327586, -7.320651061985309e-10, -9.007194895622202e-06, -1.1909722946993613, 1.9382078592691734, -0.07959292224814174, -0.9997521277253458, 0.6696652976179029, 1.0318677316390072, -0.4913284744172408, -3.0167292263687043e-09, -0.020833001482205276, 0.01544288531582172, 0.4941136969391611, -0.27231906855958954, 1.0470000130417105, 0.21297591992677134, 0.02276380988889848, 0.1320914918373033]
-velocity: [-1.3409318717564828e-08, 1.5172544598044918e-07, 8.686871031266307e-07, 2.872689291693379e-07, -3.533709074745e-07, -2.2422995970956474e-07, -2.6765843977145595e-08, -7.418683112386929e-07, 4.974558504249287e-07, 1.2290406496279368e-06, -1.5094280632432012e-07, -1.5087212242602784e-07, -1.37584760108946e-06, -2.1939020649849428e-07, -8.306468466396253e-08, 3.676123786542591e-10, 2.6048955182016797e-05, -8.427936596269117e-07, 2.4698018362627136e-05]
-effort: [0.0, 9.124296028588603e-07, 0.009008088544217203, -0.12429816348236145, -0.16163667914392832, 5.567546867979445e-06, -0.15937851568281758, 0.008033237475864041, -0.004958976126072656, 3.9155898079457074e-06, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-
-"""
 
 def closeBags():
     leftButton_bag.closeBag() 

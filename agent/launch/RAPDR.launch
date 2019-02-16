@@ -1,0 +1,4 @@
+<launch>
+	<include file="$(find baxter_gazebo)/launch/baxter_world.launch"/>
+	<node pkg="environment" type="initialize_environment" name="initialize_environment"/>
+</launch>

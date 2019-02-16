@@ -157,7 +157,7 @@ def moveRightArmToStart():
 
 def main():
 
-    rospy.init_node("search_and_rescue")
+    rospy.init_node("initialize_environment_node")
     load_gazebo_models()
     #rospy.wait_for_message("/robot/sim/started", Empty)    
 

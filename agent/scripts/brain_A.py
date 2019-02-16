@@ -21,7 +21,7 @@ from pddl.msg import *
 from util.knowledge_base import KnowledgeBase
 from util.data_conversion import * 
 from util.goal_management import *
-from util.file_io import deleteAllPddlFiles 
+from util.file_io import deleteAllPddlFiles, deleteAllAPVFiles
 
 import random
 from std_msgs.msg import (
@@ -61,6 +61,7 @@ def main():
 
         print(' ... Cleaning up data from last run')
         deleteAllPddlFiles()
+        deleteAllAPVFiles()
 
         #####################################################################################
         #                                                                                   #
@@ -313,6 +314,10 @@ def main():
         print("\nTimes for each trial (in s): ")
         print(attemptsTime);
         print("Total time elapsed: " + str(totalTimeEnd - totalTimeStart))
+
+        brainFilePath = os.path.dirname(os.path.realpath(__file__))
+        runName = 'A_5_cluster2'
+        compileResults(brainFilePath, runName)
 
     except rospy.ServiceException, e:
         print("Service call failed: %s"%e)
