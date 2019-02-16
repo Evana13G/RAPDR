@@ -86,7 +86,7 @@ def handle_APV(req):
     shouldRecord = True
     execute_action(actionToVary, params)
     shouldRecord = False
-    changePoints = extract_change_points(gripper, visName)
+    changePoints = extract_change_points(gripper, visName, req.clusterThreshold, req.minClusterSize)
 
     closeBags()
 
@@ -151,12 +151,11 @@ def handle_gripperRight(data):
 ############### END: Call back functions that check to see if ROSbag should be being recorded
 
 
-def extract_change_points(gripperToConsider, APVtrialName):
-    print(APVtrialName)
+def extract_change_points(gripperToConsider, APVtrialName, clustThreshold, minClustSize):
     global visNames
     if gripperToConsider == 'left_gripper':
         bagData = leftGripper_bag.getVisualizableData()
-        segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv')
+        segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv', clustThreshold, minClustSize)
         cps = segs.getCompressedChangePoints()
         positionInfo = leftGripper_bag.getROSBagDataAtCps(segs.getCompressedChangePoints(), ['left_gripper_pose'], cps)
         if vis == True:
@@ -166,7 +165,7 @@ def extract_change_points(gripperToConsider, APVtrialName):
         return positionInfo
     else:
         bagData = rightGripper_bag.getVisualizableData()
-        segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv')
+        segs = BayesianChangePoint(np.array(bagData), 'changePointData.csv', clustThreshold, minClustSize)
         cps = segs.getCompressedChangePoints()
         positionInfo = rightGripper_bag.getROSBagDataAtCps(segs.getCompressedChangePoints(), ['right_gripper_pose'], cps)
         if vis == True:

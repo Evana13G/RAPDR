@@ -17,6 +17,7 @@ add_message_files(
 add_service_files(
 FILES 
 OpenGripperSrv.srv 
+BrainSrv.srv
 CloseGripperSrv.srv 
 MoveToObject.srv 
 MoveToButton.srv 

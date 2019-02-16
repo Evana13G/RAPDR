@@ -175,7 +175,7 @@ def writeBagData(data, APVtrialName):
 
     with open(CPs_filtered_fp, 'a') as csvFile:
         writer = csv.writer(csvFile)
-        writer.writerows(data['filteredCps'])
+        writer.writerow(data['filteredCps'])
 
 
 

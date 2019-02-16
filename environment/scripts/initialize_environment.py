@@ -30,8 +30,23 @@ from std_msgs.msg import (
 
 from util.wall_controller import *
 from util.physical_agent import PhysicalAgent
+from environment.srv import * 
 
 from tf.transformations import *
+
+pub = True
+
+
+
+pub_cafe_table_pose = rospy.Publisher('cafe_table_pose', PoseStamped, queue_size = 10)
+pub_grey_wall_pose = rospy.Publisher('grey_wall_pose', PoseStamped, queue_size = 10)
+pub_block_pose = rospy.Publisher('block_pose', PoseStamped, queue_size = 10)
+pub_right_button_pose = rospy.Publisher('right_button_pose', PoseStamped, queue_size = 10)
+pub_left_button_pose = rospy.Publisher('left_button_pose', PoseStamped, queue_size = 10)
+pub_left_gripper_pose = rospy.Publisher('left_gripper_pose', PoseStamped, queue_size = 10)
+pub_right_gripper_pose = rospy.Publisher('right_gripper_pose', PoseStamped, queue_size = 10)
+    
+
 
 #SPAWN WALL AT 1.1525 z to be above table or 0.3755 to be below
 def load_gazebo_models(table_pose=Pose(position=Point(x=1, y=0.0, z=0.0)),
@@ -104,9 +119,9 @@ def delete_gazebo_models():
         delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
         resp_delete = delete_model("cafe_table")
         resp_delete = delete_model("block")
-        resp_delete = delete_model("button")
+        resp_delete = delete_model("left_button")
+        resp_delete = delete_model("right_button")
         #TODO delete all models 
-
     except rospy.ServiceException, e:
         rospy.loginfo("Delete Model service call failed: {0}".format(e))
         
@@ -155,32 +170,25 @@ def moveRightArmToStart():
     pa.move_to_start(starting_joint_angles_r)
 
 
-def main():
+def init():
 
-    rospy.init_node("initialize_environment_node")
-    load_gazebo_models()
-    #rospy.wait_for_message("/robot/sim/started", Empty)    
-
-    pub_cafe_table_pose = rospy.Publisher('cafe_table_pose', PoseStamped, queue_size = 10)
-    pub_grey_wall_pose = rospy.Publisher('grey_wall_pose', PoseStamped, queue_size = 10)
-    pub_block_pose = rospy.Publisher('block_pose', PoseStamped, queue_size = 10)
-    pub_right_button_pose = rospy.Publisher('right_button_pose', PoseStamped, queue_size = 10)
-    pub_left_button_pose = rospy.Publisher('left_button_pose', PoseStamped, queue_size = 10)
-    pub_left_gripper_pose = rospy.Publisher('left_gripper_pose', PoseStamped, queue_size = 10)
-    pub_right_gripper_pose = rospy.Publisher('right_gripper_pose', PoseStamped, queue_size = 10)
-    
-    raiseWall()
     moveLeftArmToStart()
     moveRightArmToStart()
     
+    load_gazebo_models()
+
+    raiseWall()
+    rospy.sleep(5)
     frameid_var = "/world"
 
-    while not rospy.is_shutdown():
-		
+    rospy.wait_for_service('/gazebo/get_model_state')
+    rospy.wait_for_service('/gazebo/get_link_state')
+    
+    while pub == True:
+        
         rate = rospy.Rate(10) # 10hz
-		
+        
         #Get cafe_table pose
-        rospy.wait_for_service('/gazebo/get_model_state')
         try:
             cafe_table_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
             resp_cafe_table_ms = cafe_table_ms("cafe_table", "");
@@ -193,7 +201,6 @@ def main():
             rospy.logerr("get_model_state for cafe_table service call failed: {0}".format(e))
 
         #Get grey_wall pose
-        rospy.wait_for_service('/gazebo/get_link_state')
         try:
             grey_wall_ms = rospy.ServiceProxy('/gazebo/get_link_state', GetLinkState)
             resp_grey_wall_ms = grey_wall_ms("grey_wall_link", "");
@@ -207,7 +214,6 @@ def main():
             rospy.logerr("get_model_state for grey_wall service call failed: {0}".format(e))
 
         #Get block pose
-        rospy.wait_for_service('/gazebo/get_model_state')
         try:
             block_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
             resp_block_ms = block_ms("block", "");
@@ -221,7 +227,6 @@ def main():
             rospy.logerr("get_model_state for block service call failed: {0}".format(e))
 
         #Get right_button pose
-        rospy.wait_for_service('/gazebo/get_model_state')
         try:
             right_button_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
             resp_right_button_ms = right_button_ms("right_button", "");
@@ -234,7 +239,6 @@ def main():
             rospy.logerr("get_model_state for right_button service call failed: {0}".format(e))
 
         #Get left_button pose
-        rospy.wait_for_service('/gazebo/get_model_state')
         try:
             left_button_ms = rospy.ServiceProxy('/gazebo/get_model_state', GetModelState)
             resp_left_button_ms = left_button_ms("left_button", "");
@@ -245,9 +249,6 @@ def main():
             pub_left_button_pose.publish(blockPoseToGripper(poseStamped_left_button))
         except rospy.ServiceException, e:
             rospy.logerr("get_model_state for left_button service call failed: {0}".format(e))
-
-
-        rospy.wait_for_service('/gazebo/get_link_state')
 
         pose_lglf = None
         pose_lgrf = None
@@ -278,8 +279,6 @@ def main():
         poseStamped_left_gripper = PoseStamped(header=hdr, pose=leftGripperPose)
         pub_left_gripper_pose.publish(blockPoseToGripper(poseStamped_left_gripper))
 
-        rospy.wait_for_service('/gazebo/get_link_state')
-
         pose_rglf = None
         pose_rgrf = None
 
@@ -308,7 +307,34 @@ def main():
         poseStamped_right_gripper = PoseStamped(header=hdr, pose=rightGripperPose)
         pub_right_gripper_pose.publish(blockPoseToGripper(poseStamped_right_gripper))
 
-    rate.sleep()
+def handle_environment_request(req):
+    global pub 
+    if req.action == "init":
+        pub = True
+        init()
+    elif req.action == 'destroy':
+        pub = False
+        delete_gazebo_models()
+    else:
+        print('No Action')
+
+
+def main():
+
+    rospy.init_node("initialize_environment_node")
+    rospy.wait_for_message("/robot/sim/started", Empty) 
+
+    # pub_cafe_table_pose = rospy.Publisher('cafe_table_pose', PoseStamped, queue_size = 10)
+    # pub_grey_wall_pose = rospy.Publisher('grey_wall_pose', PoseStamped, queue_size = 10)
+    # pub_block_pose = rospy.Publisher('block_pose', PoseStamped, queue_size = 10)
+    # pub_right_button_pose = rospy.Publisher('right_button_pose', PoseStamped, queue_size = 10)
+    # pub_left_button_pose = rospy.Publisher('left_button_pose', PoseStamped, queue_size = 10)
+    # pub_left_gripper_pose = rospy.Publisher('left_gripper_pose', PoseStamped, queue_size = 10)
+    # pub_right_gripper_pose = rospy.Publisher('right_gripper_pose', PoseStamped, queue_size = 10) 
+
+    s = rospy.Service("init_environment", HandleEnvironmentSrv, handle_environment_request)
+    init()
+    rospy.spin()
 
     return 0
 

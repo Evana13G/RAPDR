@@ -1,55 +1,41 @@
 #!/usr/bin/env python
 
-from agent.srv import PressButtonSrv, CloseGripperSrv, OpenGripperSrv, ObtainObjectSrv, PartialPlanExecutorSrv
-from action_primitive_variation.srv import APVSrv
 
-import rospy
-
-from geometry_msgs.msg import (
-    PoseStamped,
-    Pose,
-    Point,
-    Quaternion,
-)
+from agent.srv import *
 from std_msgs.msg import (
-    Header,
     Empty,
 )
-
-
-# LeftButtonPose = None
-# LeftGripperPose = None
-
-# def handle_buttonLeft(data):
-#     global LeftButtonPose
-#     LeftButtonPose = data
-
-# def handle_gripperLeft(data):
-#     global LeftGripperPose
-#     LeftGripperPose = data
+import rospy
 
 
 def main():
     rospy.init_node("agent_test_node")
 
     rospy.wait_for_message("/robot/sim/started", Empty)
-    rospy.wait_for_service('partial_plan_executor_srv', timeout=60)
-    rospy.wait_for_service('APV_srv', timeout=60)
+
+    # rospy.wait_for_service('APV_srv', timeout=60)
+    # rospy.wait_for_service('partial_plan_executor_srv', timeout=60)
+    # rospy.wait_for_service('scenario_data_srv', timeout=60)
+    # rospy.wait_for_service('plan_generator_srv', timeout=60)
+    # rospy.wait_for_service('plan_executor_srv', timeout=60)
+    # rospy.wait_for_service('press_button_srv', timeout=60)
+    # rospy.wait_for_service('obtain_object_srv', timeout=60)
+
+    rospy.wait_for_service('brain_A_srv', timeout=60)
+    rospy.wait_for_service('brain_B_srv', timeout=60)
+
 
     try:
-        b_1 = rospy.ServiceProxy('APV_srv', APVSrv)
-        b_2 = rospy.ServiceProxy('partial_plan_executor_srv', PartialPlanExecutorSrv)
+        brain_A = rospy.ServiceProxy('brain_A_srv', BrainSrv)
+        brain_B = rospy.ServiceProxy('brain_B_srv', BrainSrv)
     
-        print("..Trying APV...")
-        resp_1 = b_1('press_button', 'left', 'left_button', None)
-        print(str(len(resp_1.endEffectorInfo)) + "total change points found")
-        print("..Trying Partial Plan Executor...")
-        i = 0
-        while (i + 1) <= len(resp_1.endEffectorInfo) - 1:
-            print("Starting iteration " + str(i+1))
-            resp = b_2(resp_1.endEffectorInfo[i], resp_1.endEffectorInfo[i+1])
-            print("Success bool for iteration " + str(i+1) + ": " + str(resp.success_bool))
-            i = i + 1 
+        print("..Trying Brain A...")
+        resp_A = brain_A('testA', 100, 10)
+        print("Success bool for brain A: " + str(resp_A.success_bool))
+
+        print("..Trying Brain A...")
+        resp_B = brain_B('testB', 100, 10)
+        print("Success bool for brain B: " + str(resp_B.success_bool))
 
     except rospy.ServiceException, e:
         print("Service call failed: %s"%e)

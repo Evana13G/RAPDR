@@ -37,7 +37,18 @@ def moveRightArmToStart(rPa):
                                 'right_w2': -0.5085333554167599}
     rPa.move_to_start(starting_joint_angles_r)
 
+def generateResultsDir(brainRunDirectory, resultsName):
+    resultsDir = brainRunDirectory + '/../../results/' + resultsName 
+    os.system('mkdir ' + resultsDir)
+    return resultsDir+'/'
+
 def compileResults(brainRunDirectory, runName):
-    outputFile = 'output.txt' 
+    # outputFile = 'output.txt' 
     resultsDir = brainRunDirectory + '../../results/' + runName + '/'
-    os.system(mv outputFile resultsDir)
+    pddlDir = brainRunDirectory + '../../pddl/data/'
+    APVdir = brainRunDirectory + '../../action_primitive_variation/data/'
+
+    # os.system('mv ' + outputFile + ' ' + resultsDir)
+    os.system('mv ' + pddlDir + '* ' + resultsDir)
+    os.system('mv ' + APVdir + '* ' + resultsDir)
+
