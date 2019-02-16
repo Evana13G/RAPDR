@@ -44,9 +44,9 @@ def generateResultsDir(brainRunDirectory, resultsName):
 
 def compileResults(brainRunDirectory, runName):
     # outputFile = 'output.txt' 
-    resultsDir = brainRunDirectory + '../../results/' + runName + '/'
-    pddlDir = brainRunDirectory + '../../pddl/data/'
-    APVdir = brainRunDirectory + '../../action_primitive_variation/data/'
+    resultsDir = brainRunDirectory + '/../../results/' + runName + '/'
+    pddlDir = brainRunDirectory + '/../../pddl/data/'
+    APVdir = brainRunDirectory + '/../../action_primitive_variation/data/'
 
     # os.system('mv ' + outputFile + ' ' + resultsDir)
     os.system('mv ' + pddlDir + '* ' + resultsDir)
