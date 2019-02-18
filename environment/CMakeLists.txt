@@ -25,8 +25,11 @@ FILES
 
 add_service_files(
   FILES 
+  HandleEnvironmentSrv.srv 
   ScenarioDataSrv.srv 
 )
+
+catkin_python_setup()
 
 generate_messages(DEPENDENCIES std_msgs geometry_msgs gazebo_msgs)
 

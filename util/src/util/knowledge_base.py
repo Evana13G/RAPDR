@@ -151,8 +151,8 @@ class KnowledgeBase(object):
         newActionVars, newActionPreconds, newActionEffects, pddlLocs = pddlActionKBFormat(theOGaction.getArgs(), args, preconds, effects, mode)
         newActionSrvFile = srvFile
         newActionParams = params
-        newwActionGripper = gripper
-        newAction = Action(newActionName, newActionVars, newActionPreconds, newActionEffects, newActionSrvFile, newwActionGripper, newActionParams, pddlLocs)
+        newActionGripper = gripper
+        newAction = Action(newActionName, newActionVars, newActionPreconds, newActionEffects, newActionSrvFile, newActionGripper, newActionParams, pddlLocs)
         return newAction
 
     def addAction(self, newAction):
