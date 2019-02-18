@@ -16,6 +16,9 @@ add_message_files(
 
 add_service_files(
 FILES 
+MoveToStartSrv.srv
+ApproachSrv.srv
+ToggleGripperStateSrv.srv
 OpenGripperSrv.srv 
 BrainSrv.srv
 CloseGripperSrv.srv 

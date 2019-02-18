@@ -1,5 +1,6 @@
 <launch>
 	<include file="$(find baxter_gazebo)/launch/baxter_world.launch"/>
+	<node pkg="agent" type="physical_agent_executor.py" name="physical_agent_node"/>
 	<node pkg="environment" type="initialize_environment.py" name="initialize_environment_node"/>
 	<node pkg="environment" type="scenario_data.py" name="scenario_data_node"/>
 	<node pkg="agent" type="press_button.py" name="press_button_node"/>

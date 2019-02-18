@@ -143,18 +143,18 @@ def deleteAllPddlFiles():
 def deleteAllAPVFiles():
     for the_file in os.listdir(APVdata_Filepath):
         file_path = os.path.join(APVdata_Filepath, the_file)
-        try:
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-        except Exception as e:
-            print(e)
+        # try:
+        if os.path.isfile(file_path):
+            os.unlink(file_path)
+        # except Exception as e:
+        #     print(e)
     for the_file in os.listdir(APVimage_Filepath):
         file_path = os.path.join(APVimage_Filepath, the_file)
-        try:
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-        except Exception as e:
-            print(e)
+        # try:
+        if os.path.isfile(file_path):
+            os.unlink(file_path)
+        # except Exception as e:
+        #     print(e)
 
 
 def writeBagData(data, APVtrialName):
@@ -189,6 +189,7 @@ def readBagData(APVtrialName):
     bagData = []
     cps = []
     cps_filtered = []
+
     with open(bagData_fp) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         for row in csv_reader:
@@ -209,3 +210,14 @@ def readBagData(APVtrialName):
     data['cps'] = cps
     data['cps_filtered'] = cps_filtered
     return data
+
+def processLogData(filePath, logDataList, outputMode='print'):   
+    if outputMode == 'log': 
+        with open(filePath, 'w') as f:
+            for row in logDataList:
+                f.write(str(row))
+                f.write('\n')
+    else:
+        for row in logDataList:
+            print(str(row))
+            print('\n')
