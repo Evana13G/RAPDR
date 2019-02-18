@@ -36,12 +36,9 @@ gripper = None
 obj = None
 button = None
 
-# AP_names = ['press_button', 'obtain_object']
-# AP_services = ['press_button_srv', 'obtain_object_srv']
-# AP_srvs = [PressButtonSrv, ObtainObjectSrv]
-
 KB = KnowledgeBase()
 
+approach = rospy.ServiceProxy("approach_srv", ApproachSrv)
 
 global LeftButtonPose
 global LeftGripperPose
@@ -56,31 +53,14 @@ def handle_gripperLeft(data):
     LeftGripperPose = data
 
 def execute_action(req):
-    # Ping service to get start end
-    # b = rospy.ServiceProxy(KB.getService(actionName), KB.getSrv(actionName))
-    # resp = None
-    # rospy.wait_for_service(KB.getService(actionName), timeout=60)
-
-    # Assuming I get initial position and final position
-    pa = PhysicalAgent(limb=req.limb, hover_distance=0.0) # 
-
-
 
     pose_initial = req.initPosition
     pose_final = req.endPosition
 
-
-    # pose_initial = LeftGripperPose
-    # pose_final = LeftButtonPose
-    # print(pose_initial)
-    # print(pose_final)
-
-    pa.approach(pose_initial)
-    print("Got to init pose")
+    approach(req.limb, pose_initial)
 
     if not is_touching(pose_initial, pose_final): # Maybe check distance between poses to check if they're close enough
-        print("checked to see if the start and end pos were equal")
-        pa.approach(pose_final)
+        approach(req.limb, pose_final)
 
     try:
         return PartialPlanExecutorSrvResponse(1)
@@ -92,9 +72,7 @@ def execute_action(req):
 def main():
     rospy.init_node("partial_plan_executor_node")
     rospy.wait_for_message("/robot/sim/started", Empty)
-
-    # rospy.Subscriber("left_button_pose", PoseStamped, handle_buttonLeft)
-
+    rospy.wait_for_service('approach_srv', timeout=60)
     rospy.Subscriber("left_button_pose", PoseStamped, handle_buttonLeft)
     rospy.Subscriber("left_gripper_pose", PoseStamped, handle_gripperLeft)
 

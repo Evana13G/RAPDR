@@ -34,7 +34,6 @@ from tf.transformations import *
 import baxter_interface
 
 from agent.srv import *
-from util.physical_agent import PhysicalAgent
 
 LeftButtonPose = None
 RightButtonPose = None
@@ -43,6 +42,11 @@ limb = None
 button_name = None
 poseStampedTo = None
 
+
+move_to_start = rospy.ServiceProxy("move_to_start_srv", MoveToStartSrv)
+toggle_gripper_state = rospy.ServiceProxy("toggle_gripper_state_srv", ToggleGripperStateSrv)
+approach = rospy.ServiceProxy("approach_srv", ApproachSrv)
+    
 def delete_gazebo_models():
     # This will be called on ROS Exit, deleting Gazebo models
     # Do not wait for the Gazebo Delete Model service, since
@@ -90,44 +94,15 @@ def handle_ObtainObject(req):
         poseTo = RightButtonPose
     else:
         poseTo = BlockPose
-    
-    hover_distance = 0.15
 
-    # Shouldnt have to start at starting pose 
-    if limb == 'left_gripper':
-		starting_joint_angles_l = {'left_w0': 0.6699952259595108,
-								   'left_w1': 1.030009435085784,
-                                   'left_w2': -0.4999997247485215,
-                                   'left_e0': -1.189968899785275,
-                                   'left_e1': 1.9400238130755056,
-                                   'left_s0': -0.08000397926829805,
-                                   'left_s1': -0.9999781166910306}
-    else:
-        starting_joint_angles_r = {'right_e0': -0.39888044530362166,
-                                   'right_e1': 1.9341522973651006,
-                                   'right_s0': 0.936293285623961,
-                                   'right_s1': -0.9939970420424453,
-                                   'right_w0': 0.27417171168213983,
-                                   'right_w1': 0.8298780975195674,
-                                   'right_w2': -0.5085333554167599}
-    
-    currentAction = PhysicalAgent(limb, hover_distance)
-    
-    if limb == 'left_gripper':
-        currentAction.move_to_start(starting_joint_angles_l)
-    else:
-        currentAction.move_to_start(starting_joint_angles_r)
-        
-    currentAction.gripper_open()
-    currentAction.approach(hoverOverPose(poseTo))
-    currentAction.approach(grabPose(poseTo))
-    currentAction.gripper_close()
-    currentAction.approach(hoverOverPose(poseTo)) 
 
-    if limb == 'left_gripper':
-       currentAction.move_to_start(starting_joint_angles_l)
-    else:
-       currentAction.move_to_start(starting_joint_angles_r)
+    move_to_start(limb)
+    toggle_gripper_state(limb, 'open')
+    approach(limb, hoverOverPose(poseTo))
+    approach(limb, grabPose(poseTo))
+    toggle_gripper_state(limb, 'close')
+    approach(limb, hoverOverPose(poseTo)) 
+    move_to_start(limb)
     
     return ObtainObjectSrvResponse(1)
 
@@ -136,6 +111,11 @@ def main():
     rospy.init_node("obtain_object_node")
     rospy.on_shutdown(delete_gazebo_models)
     rospy.wait_for_message("/robot/sim/started", Empty)
+
+    rospy.wait_for_service('move_to_start_srv', timeout=60)
+    rospy.wait_for_service('toggle_gripper_state_srv', timeout=60)
+    rospy.wait_for_service('approach_srv', timeout=60)
+
     rospy.Subscriber("left_button_pose", PoseStamped, getPoseButtonLeft)
     rospy.Subscriber("right_button_pose", PoseStamped, getPoseButtonRight)
     rospy.Subscriber("block_pose", PoseStamped, getPoseBlock)

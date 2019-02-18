@@ -29,14 +29,14 @@ from std_msgs.msg import (
 )
 
 from util.wall_controller import *
-from util.physical_agent import PhysicalAgent
 from environment.srv import * 
+from agent.srv import MoveToStartSrv
 
 from tf.transformations import *
 
 pub = True
 
-
+move_to_start = rospy.ServiceProxy('move_to_start_srv', MoveToStartSrv)
 
 pub_cafe_table_pose = rospy.Publisher('cafe_table_pose', PoseStamped, queue_size = 10)
 pub_grey_wall_pose = rospy.Publisher('grey_wall_pose', PoseStamped, queue_size = 10)
@@ -45,7 +45,6 @@ pub_right_button_pose = rospy.Publisher('right_button_pose', PoseStamped, queue_
 pub_left_button_pose = rospy.Publisher('left_button_pose', PoseStamped, queue_size = 10)
 pub_left_gripper_pose = rospy.Publisher('left_gripper_pose', PoseStamped, queue_size = 10)
 pub_right_gripper_pose = rospy.Publisher('right_gripper_pose', PoseStamped, queue_size = 10)
-    
 
 
 #SPAWN WALL AT 1.1525 z to be above table or 0.3755 to be below
@@ -147,38 +146,14 @@ def blockPoseToGripper(poseVar):
     newPoseStamped = PoseStamped(header = poseVar.header, pose = newPose)
     return newPoseStamped
 
-def moveLeftArmToStart():
-    pa = PhysicalAgent('left_gripper')
-    starting_joint_angles_l = {'left_w0': 0.6699952259595108,
-                               'left_w1': 1.030009435085784,
-                               'left_w2': -0.4999997247485215,
-                               'left_e0': -1.189968899785275,
-                               'left_e1': 1.9400238130755056,
-                               'left_s0': -0.08000397926829805,
-                               'left_s1': -0.9999781166910306}
-    pa.move_to_start(starting_joint_angles_l)
-
-def moveRightArmToStart():
-    pa = PhysicalAgent('right_gripper')
-    starting_joint_angles_r = {'right_e0': -0.39888044530362166,
-                                'right_e1': 1.9341522973651006,
-                                'right_s0': 0.936293285623961,
-                                'right_s1': -0.9939970420424453,
-                                'right_w0': 0.27417171168213983,
-                                'right_w1': 0.8298780975195674,
-                                'right_w2': -0.5085333554167599}
-    pa.move_to_start(starting_joint_angles_r)
-
 
 def init():
 
-    moveLeftArmToStart()
-    moveRightArmToStart()
-    
+    move_to_start('both')
+    rospy.sleep(3)
     load_gazebo_models()
-
     raiseWall()
-    rospy.sleep(5)
+    rospy.sleep(3)
     frameid_var = "/world"
 
     rospy.wait_for_service('/gazebo/get_model_state')
@@ -311,10 +286,39 @@ def handle_environment_request(req):
     global pub 
     if req.action == "init":
         pub = True
-        init()
+        try:
+            load_gazebo_models()
+            raiseWall()
+            return HandleEnvironmentSrvResponse(1)
+        except rospy.ServiceException, e:
+            rospy.logerr("Init environment call failed: {0}".format(e))
+            return HandleEnvironmentSrvResponse(0)
+
     elif req.action == 'destroy':
         pub = False
-        delete_gazebo_models()
+        try:
+            delete_gazebo_models()
+            return HandleEnvironmentSrvResponse(1)
+        except rospy.ServiceException, e:
+            rospy.logerr("Destroy environment call failed: {0}".format(e))
+            return HandleEnvironmentSrvResponse(0)
+
+    elif req.action == 'restart':
+        try:
+            pub = False
+            delete_gazebo_models()
+            rospy.sleep(3)
+            pub = True 
+            load_gazebo_models()
+            raiseWall()
+            rospy.sleep(6)
+            return HandleEnvironmentSrvResponse(1)
+
+        except rospy.ServiceException, e:
+            rospy.logerr("Destroy environment call failed: {0}".format(e))
+            return HandleEnvironmentSrvResponse(0)
+
+
     else:
         print('No Action')
 
@@ -323,15 +327,7 @@ def main():
 
     rospy.init_node("initialize_environment_node")
     rospy.wait_for_message("/robot/sim/started", Empty) 
-
-    # pub_cafe_table_pose = rospy.Publisher('cafe_table_pose', PoseStamped, queue_size = 10)
-    # pub_grey_wall_pose = rospy.Publisher('grey_wall_pose', PoseStamped, queue_size = 10)
-    # pub_block_pose = rospy.Publisher('block_pose', PoseStamped, queue_size = 10)
-    # pub_right_button_pose = rospy.Publisher('right_button_pose', PoseStamped, queue_size = 10)
-    # pub_left_button_pose = rospy.Publisher('left_button_pose', PoseStamped, queue_size = 10)
-    # pub_left_gripper_pose = rospy.Publisher('left_gripper_pose', PoseStamped, queue_size = 10)
-    # pub_right_gripper_pose = rospy.Publisher('right_gripper_pose', PoseStamped, queue_size = 10) 
-
+    rospy.wait_for_service('move_to_start_srv', timeout=60)
     s = rospy.Service("init_environment", HandleEnvironmentSrv, handle_environment_request)
     init()
     rospy.spin()

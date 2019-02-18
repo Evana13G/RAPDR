@@ -42,8 +42,6 @@ class BayesianChangePoint(object):
         self.groupedByClusterLabel = _groups
         self.compressedChangePoints = _minCps
 
-
-
     def detectChangePoints(self, rawData, filename):
         detector = cpdetect.cpDetector(rawData, distribution='normal', log_odds_threshold=1)
         detector.detect_cp()
@@ -75,7 +73,7 @@ class BayesianChangePoint(object):
 
     def clusterChangePoints(self, points):
         cps = np.array(self.get2DTraj(points))
-        clusters = shc.fclusterdata(cps, self.getThreshold(), criterion="distance")
+        clusters = shc.fclusterdata(cps, self.clusterThreshold, criterion="distance")
         labels = list(set(clusters))
         
         groups = []
