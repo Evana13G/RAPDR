@@ -21,25 +21,31 @@ def main():
 
     env = rospy.ServiceProxy('init_environment', HandleEnvironmentSrv)
 
-
-    cluster1_trials = 2
-    cluster2_trials = 5
+    reg_trials = 2
 
     try:
         brain_A = rospy.ServiceProxy('brain_A_srv', BrainSrv)
         # brain_B = rospy.ServiceProxy('brain_B_srv', BrainSrv)
-        
+
         print("********************************")
-        print("Running CLUSTER 1 EXPERIMENTS\n")
-        for i in range(cluster1_trials):
+        print("Running REG TRIAL A EXPERIMENTS\n")
+        for i in range(reg_trials):
             print("Trial # " + str(i) + ', Brain A')
             testName = 'TEST_' + str(i)
             resp_A = brain_A(testName, 100, 10)
-
             print(resp_A.timePerAttempt)
             print(resp_A.totalTime)
-
             env('restart')
+
+        # print("********************************")
+        # print("Running REG TRIAL B EXPERIMENTS\n")
+        # for i in range(reg_trials):
+        #     print("Trial # " + str(i) + ', Brain B')
+        #     testName = 'TEST_' + str(i)
+        #     resp_B = brain_B(testName, 100, 10)
+        #     print(resp_B.timePerAttempt)
+        #     print(resp_B.totalTime)
+        #     env('restart')
         
 
     except rospy.ServiceException, e:
