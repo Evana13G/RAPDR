@@ -211,7 +211,7 @@ def readBagData(APVtrialName):
     data['cps_filtered'] = cps_filtered
     return data
 
-def processLogData(filePath, logDataList, outputMode='print'):   
+def processLogData(filePath, logDataList, outputMode='log'):   
     if outputMode == 'log': 
         with open(filePath, 'w') as f:
             for row in logDataList:

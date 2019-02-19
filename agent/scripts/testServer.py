@@ -31,7 +31,7 @@ def main():
         print("Running REG TRIAL A EXPERIMENTS\n")
         for i in range(reg_trials):
             print("Trial # " + str(i) + ', Brain A')
-            testName = 'TEST_' + str(i)
+            testName = 'TEST_B_' + str(i)
             resp_A = brain_A(testName, 100, 10)
             print(resp_A.timePerAttempt)
             print(resp_A.totalTime)
