@@ -26,8 +26,6 @@ def handle_trial(req):
     logFilePath = resultsDir + 'output.txt'
     logData =[]
 
-    env = rospy.ServiceProxy('init_environment', HandleEnvironmentSrv)
-
     KB = KnowledgeBase()
     lPA = PhysicalAgent('left_gripper')
     rPA = PhysicalAgent('right_gripper')

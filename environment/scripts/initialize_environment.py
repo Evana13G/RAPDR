@@ -317,19 +317,24 @@ def init():
 
 
 def handle_environment_request(req):
-    global pub 
+    #global pub 
     if req.action == "init":
-        pub = True
+        #pub = True
         try:
+            _moveLeftArmToStart()
+            _moveRightArmToStart()
+            rospy.sleep(3)
             load_gazebo_models()
+            rospy.sleep(1)
             raiseWall()
+            rospy.sleep(1)
             return HandleEnvironmentSrvResponse(1)
         except rospy.ServiceException, e:
             rospy.logerr("Init environment call failed: {0}".format(e))
             return HandleEnvironmentSrvResponse(0)
 
     elif req.action == 'destroy':
-        pub = False
+        #pub = False
         try:
             delete_gazebo_models()
             return HandleEnvironmentSrvResponse(1)
@@ -338,13 +343,14 @@ def handle_environment_request(req):
             return HandleEnvironmentSrvResponse(0)
     elif req.action == 'restart':
         try:
-            pub = False
-            delete_gazebo_models()
+            ##pub = False
+            _moveLeftArmToStart()
+            _moveRightArmToStart()
             rospy.sleep(3)
-            pub = True 
             load_gazebo_models()
+            rospy.sleep(1)
             raiseWall()
-            rospy.sleep(6)
+            rospy.sleep(1)
             return HandleEnvironmentSrvResponse(1)
 
         except rospy.ServiceException, e:
