@@ -30,31 +30,31 @@ def handle_trial(req):
     lPA = PhysicalAgent('left_gripper')
     rPA = PhysicalAgent('right_gripper')
     
-    logData.append("\n################################################################################")
-    logData.append("################################################################################")
-    logData.append('## Action Primivitive Discovery in Robotic Agents through Action Segmentation ##')
-    logData.append('## -- a proof of concept model for knowledge aquisition in intelligent agents ##')
-    logData.append('## -- Evana Gizzi, Mateo Guaman Castro, Jivko Sinapov, 2018                   ##')
-    logData.append("################################################################################")
-    logData.append("################################################################################")
+    print("\n################################################################################")
+    print("################################################################################")
+    print('## Action Primivitive Discovery in Robotic Agents through Action Segmentation ##')
+    print('## -- a proof of concept model for knowledge aquisition in intelligent agents ##')
+    print('## -- Evana Gizzi, Mateo Guaman Castro, Jivko Sinapov, 2018                   ##')
+    print("################################################################################")
+    print("################################################################################")
     
     attemptsTime = []
     totalTimeStart = 0
 
     try:
         # Services
-        logData.append('\n ... Setting up services')
+        print('\n ... Setting up services')
         planGenerator = rospy.ServiceProxy('plan_generator_srv', PlanGeneratorSrv)
         planExecutor = rospy.ServiceProxy('plan_executor_srv', PlanExecutorSrv)
         APV = rospy.ServiceProxy('APV_srv', APVSrv)
         partialActionExecutor = rospy.ServiceProxy('partial_plan_executor_srv', PartialPlanExecutorSrv)
         scenarioData = rospy.ServiceProxy('scenario_data_srv', ScenarioDataSrv)
 
-        logData.append(' ... Cleaning up data from last run')
+        print(' ... Cleaning up data from last run')
         deleteAllPddlFiles()
         deleteAllAPVFiles()
 
-        logData.append(' ... Setting up initial data')
+        print(' ... Setting up initial data')
         task = 'APD'
 
         currentState = scenarioData()
@@ -67,19 +67,19 @@ def handle_trial(req):
         gripperExecutingNewPrim = 'left'
         gripperExecutionValidity = True
 
-        logData.append('\nAgent has the following goal: ')
-        logData.append(str(goal))
-        logData.append('\nAgent will attempt to accomplish this goal. If attempt fails, agent will try')
-        logData.append('to find new actions and replan with those actions. Process repeats until the ')
-        logData.append('agent is able to accomplish its goal....')
+        print('\nAgent has the following goal: ')
+        print(str(goal))
+        print('\nAgent will attempt to accomplish this goal. If attempt fails, agent will try')
+        print('to find new actions and replan with those actions. Process repeats until the ')
+        print('agent is able to accomplish its goal....')
         attempt = 1
 
         totalTimeStart = rospy.get_time()
 
         while(goalAccomplished(goal, currentState.init) == False):
             trialStart = rospy.get_time()
-            logData.append('\n***************************   ATTEMPT #' + str(attempt) + '   ***************************')
-            logData.append('Setting up domain and problem for attempt #' + str(attempt))
+            print('\n***************************   ATTEMPT #' + str(attempt) + '   ***************************')
+            print('Setting up domain and problem for attempt #' + str(attempt))
 
             #####################################################################################
             domainDict = KB.getDomainData()
@@ -89,7 +89,7 @@ def handle_trial(req):
             requirements = domainDict['requirements']
             actions = domainDict['actions']
             # print(KB.getDomainData())
-            logData.append(' -- Domain setup complete')
+            print(' -- Domain setup complete')
 
             #####################################################################################
             currentState = scenarioData()
@@ -107,12 +107,12 @@ def handle_trial(req):
             domain = Domain(domainName, requirements, types, predicates, actions)
             problem = Problem(task, domainName, objs, init, goal)
             filename = task + '_' + str(attempt)
-            logData.append(' -- Problem setup complete')
+            print(' -- Problem setup complete')
 
             #####################################################################################
-            logData.append('\nTriggering plan generation and execution for attempt #' + str(attempt))
+            print('\nTriggering plan generation and execution for attempt #' + str(attempt))
             plan = planGenerator(domain, problem, filename, KB.getActionsLocs())
-            logData.append(' -- Plan generation complete')
+            print(' -- Plan generation complete')
         
             # executionSuccess = planExecutor(plan.plan)
             # Just to gaurantee we go into APV mode for testing 
@@ -127,12 +127,12 @@ def handle_trial(req):
             #####################################################################################
             currentState = scenarioData()
             if (executionSuccess == 1):
-                logData.append(' -- Plan execution complete')
+                print(' -- Plan execution complete')
                 if (goalAccomplished(goal, currentState.init) == False):
-                    logData.append(' ---- Goal COMPLETE ')
+                    print(' ---- Goal COMPLETE ')
                     break
             else:
-                logData.append(' -- Plan execution failed')
+                print(' -- Plan execution failed')
                 moveLeftArmToStart(lPA)
                 moveRightArmToStart(rPA)
             #####################################################################################
@@ -145,12 +145,12 @@ def handle_trial(req):
                 momentOfFailurePreds = scenarioData().predicates
                 APVtrials = generateAllCombos()
                     
-                logData.append(' -- generation complete, ' + str(len(APVtrials)) + ' total combos found')
+                print(' -- generation complete, ' + str(len(APVtrials)) + ' total combos found')
                 #for t in APVtrials:
                 ###    print(t)
 
             #####################################################################################
-                logData.append('\nFinding segmentation possibilities (across all combos generated) for attempt #' + str(attempt))
+                print('\nFinding segmentation possibilities (across all combos generated) for attempt #' + str(attempt))
                 trialNo = 0
 
 
@@ -160,13 +160,13 @@ def handle_trial(req):
                 # Pretty much remove this p for MODE 2 
 
                     comboChoice = random.randint(0, len(APVtrials) - 1)
-                    logData.append("\n -- Combo # " + str(trialNo) + ': ' + str(APVtrials[comboChoice]))
+                    print("\n -- Combo # " + str(trialNo) + ': ' + str(APVtrials[comboChoice]))
 
                     try:
                         #### Find change points    
                         resp = APV(APVtrials[comboChoice][0], APVtrials[comboChoice][1], APVtrials[comboChoice][2], APVtrials[comboChoice][3], req.clusterThreshold, req.minClusterSize)
-                        logData.append(' ---- ' + str(len(resp.endEffectorInfo)) + " total change points found")
-                        logData.append("Trying partial plan execution on segmentations")
+                        print(' ---- ' + str(len(resp.endEffectorInfo)) + " total change points found")
+                        print("Trying partial plan execution on segmentations")
                         moveLeftArmToStart(lPA)
                         moveRightArmToStart(rPA)
                         #### Iterate across segmentations
@@ -180,7 +180,7 @@ def handle_trial(req):
 
                             ##### Here is where you decide what gets added 
                             if(resp_2.success_bool == 1):
-                                logData.append(' -- iteration ' + str(i) + ' successful!')
+                                print(' -- iteration ' + str(i) + ' successful!')
 
                                 new_name = "action_attempt_" + str(attempt) + '_trial' + str(trialNo) + '_seg' + str(i) 
                                             #'.' + poseStampedToString(resp.endEffectorInfo[i]) + 
@@ -201,28 +201,28 @@ def handle_trial(req):
                                                             mode)
 
                                 if isViable(newAction):
-                                    logData.append(' ---- Segmentation VIABLE! Adding to knowledge base')
+                                    print(' ---- Segmentation VIABLE! Adding to knowledge base')
                                     KB.addAction(newAction)
                                     newPrims.append(newAction)
                             else:
-                                logData.append(' -- iteration ' + str(i) + ' not successful')
+                                print(' -- iteration ' + str(i) + ' not successful')
                             i = i + 1 
                     except rospy.ServiceException, e:
-                        logData.append("Service call failed: %s"%e)
+                        print("Service call failed: %s"%e)
                     del APVtrials[comboChoice]
                     trialNo = trialNo + 1 
                 # MODE 1: start
                 algoMode = 'planAndRun'               
             else:
                 if newPrims == []:
-                    logData.append('No Prims to Execute')
+                    print('No Prims to Execute')
                     algoMode = 'APV' 
                 else:
                 # MODE 1: end
                 # Pretty much, can remove this for MODE 2
 
                     if gripperExecutionValidity == True:
-                        logData.append('Executing a Primitive')
+                        print('Executing a Primitive')
                         if len(newPrims) == 1:
                             actionIndex = 0
                             actionToExecute = newPrims[actionIndex]
@@ -238,12 +238,12 @@ def handle_trial(req):
             attemptsTime.append(trialEnd - trialStart)
             attempt = attempt + 1
 
-        logData.append('\nGoal accomplished!')
+        print('\nGoal accomplished!')
 
         totalTimeEnd = rospy.get_time()
-        logData.append("\nTimes for each trial (in s): ")
-        logData.append(str(attemptsTime))
-        logData.append("Total time elapsed: " + str(totalTimeEnd - totalTimeStart))
+        print("\nTimes for each trial (in s): ")
+        print(str(attemptsTime))
+        print("Total time elapsed: " + str(totalTimeEnd - totalTimeStart))
 
         compileResults(brainFilePath, req.runName)
         processLogData(logFilePath, logData)        

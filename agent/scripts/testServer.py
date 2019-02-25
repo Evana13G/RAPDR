@@ -7,7 +7,7 @@ from std_msgs.msg import (
 )
 import rospy
 from environment.srv import HandleEnvironmentSrv
-
+import time
 
 
 
@@ -21,7 +21,7 @@ def main():
 
     env = rospy.ServiceProxy('init_environment', HandleEnvironmentSrv)
 
-    reg_trials = 2
+    reg_trials = 4
 
     try:
         brain_A = rospy.ServiceProxy('brain_A_srv', BrainSrv)
@@ -29,13 +29,15 @@ def main():
 
         print("********************************")
         print("Running REG TRIAL A EXPERIMENTS\n")
-        for i in range(reg_trials):
-            print("Trial # " + str(i) + ', Brain A')
-            testName = 'TEST_B_' + str(i)
-            resp_A = brain_A(testName, 100, 10)
-            print(resp_A.timePerAttempt)
-            print(resp_A.totalTime)
-            env('restart')
+        # for i in range(reg_trials):
+        # print("Trial # " + str(i) + ', Brain A')
+        # testName = 'armData_' + str(i)
+        testName = 'armData_1' 
+        resp_A = brain_A(testName, 100, 10)
+        print(resp_A.timePerAttempt)
+        print(resp_A.totalTime)
+        # env('restart')
+        time.sleep(5)
 
         # print("********************************")
         # print("Running REG TRIAL B EXPERIMENTS\n")
