@@ -61,20 +61,20 @@ Each of the following should be run in a separate terminal window:
 
     1. Service for generating pddl plans
 
-            rosrun pddl plan_generation.py
+            rosrun pddl plan_generator.py
 
     2. Service for executing pddl plans
 
-            rosrun pddl plan_execution.py
+            rosrun pddl plan_executor.py
 
 
 6. Spawn partial plan execution node (for executing segmentations)
 
-        rosrun agent partial_plan_executor.py
+        rosrun agent partial_action_executor.py
 
 7. Spawn action primitive variation node
 
-        rosrun action_primitive_variation APV.py
+        rosrun action_primitive_variation APV_server.py
 
 
 8. Run the agent brain (creepy). All configs are set here.
