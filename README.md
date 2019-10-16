@@ -70,7 +70,7 @@ Each of the following should be run in a separate terminal window:
 
 6. Spawn partial plan execution node (for executing segmentations)
 
-        rosrun agent partial_action_executor.py
+        rosrun agent partial_plan_executor.py
 
 7. Spawn action primitive variation node
 
